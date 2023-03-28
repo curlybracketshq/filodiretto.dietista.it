@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.description }}">
+  <link rel="stylesheet" type="text/css" href="/stylesheets/default.css" />
+</head>
+
+<body>
+  <header>
+    {% include menu.html %}
+  </header>
+
+  {{ content }}
+
+  <footer>
+    {% include menu.html %}
+
+    <p>&copy; {{ site.time | date: '%Y' }} Curly Brackets</p>
+  </footer>
+  </div>
+</body>
+
+</html>

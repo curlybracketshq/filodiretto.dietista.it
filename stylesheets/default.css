@@ -1,0 +1,170 @@
+:root {
+  --background: #fafafa;
+  --foreground: #222222;
+  --foreground-muted: #2222227f;
+  --primary: #0d6efd;
+  --size-extra-small: 0.3rem;
+  --size-small: 0.5rem;
+}
+
+html {
+  font-size: 20px;
+}
+
+* {
+  line-height: 1.5;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  max-width: 95%;
+  font-family: -apple-system, sans-serif;
+  margin: 2rem auto 4rem auto;
+}
+
+img {
+  max-width: 100%;
+  page-break-after: always;
+}
+
+a,
+a:visited {
+  color: var(--primary);
+}
+
+h1 {
+  font-size: 1.953rem;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 1.563rem;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 1rem auto 1rem auto;
+}
+
+h1,
+h2 {
+  margin: 2rem auto 1rem auto;
+}
+
+p,
+ul,
+ol {
+  margin: 1rem 0;
+}
+
+img {
+  margin: 2rem 0;
+}
+
+a>*,
+.flex>* {
+  margin: 0;
+}
+
+.border {
+  border: 1px solid var(--foreground);
+}
+
+.muted {
+  color: var(--foreground-muted);
+}
+
+.flex {
+  display: flex;
+  gap: 1rem;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.centred {
+  justify-content: center;
+  align-items: center;
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  gap: var(--size-small);
+  flex-wrap: wrap;
+}
+
+footer {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+}
+
+footer nav {
+  gap: var(--size-extra-small);
+}
+
+fieldset {
+  margin-top: 2rem;
+}
+
+form {
+  display: table;
+}
+
+fieldset > div {
+  display: table-row;
+}
+
+label,
+input,
+legend {
+  display: table-cell;
+  margin-bottom: 10px;
+}
+
+legend {
+  font-weight: bold;
+}
+
+label {
+  padding-right: 10px;
+}
+
+input,
+button {
+  border: 1px solid #999;
+  border-radius: 2px;
+  font-size: 1rem;
+}
+
+button {
+  padding: 4px 8px;
+  font-weight: bold;
+}
+
+table {
+  border-top: 1px solid #999;
+  border-left: 1px solid #999;
+  border-spacing: 0;
+}
+
+td, th {
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+}
+
+@media (min-width: 730px) {
+  body {
+    max-width: 700px;
+    -webkit-text-size-adjust: none;
+  }
+}
