@@ -142,8 +142,13 @@ function attachLoginEventListener() {
         return;
       }
 
-      localStorage.setItem(TOKEN_KEY, success?.content);
-      displayConversations();
+      if (success == null) {
+        throw new Error("Success can't be null");
+      }
+
+      const token = success.content
+      localStorage.setItem(TOKEN_KEY, token);
+      displayConversations(token);
     });
   });
 }
