@@ -168,3 +168,9 @@ td, th {
     -webkit-text-size-adjust: none;
   }
 }
+
+/* Dynamic elements */
+
+#authenticated {
+  display: none;
+}

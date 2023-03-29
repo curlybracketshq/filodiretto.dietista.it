@@ -1,14 +1,22 @@
 //@ts-check
 
 const TOKEN_KEY = 'TOKEN';
+const USERNAME_KEY = 'USERNAME';
 
 const LOGIN_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAuth";
 const CONVERSATIONS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversations";
+const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversation";
 
 /**
  * @param {string} [token]
  */
 function displayConversations(token) {
+  const title = document.getElementById("title");
+  if (title == null) {
+    throw new Error("Missing element");
+  }
+  title.innerHTML = "Conversazioni";
+
   const content = document.getElementById("content");
   if (content == null) {
     throw new Error("Missing element");
@@ -46,7 +54,9 @@ function displayConversations(token) {
       errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
       if (error.status == 401) {
         localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USERNAME_KEY);
         displayLogin();
+        displayAnonymousLayout();
       }
       return;
     }
@@ -59,16 +69,56 @@ function displayConversations(token) {
     let contentHTML = `
     <table>
     <thead>
-    <tr><th>Mittente</th></tr>
+    <tr>
+      <th>Mittente</th>
+      <th>Operazioni</th>
+    </tr>
     </thead>
     <tbody>`;
     sendersResponse.Items.forEach(element => {
-      contentHTML += `<tr><td>${element.from.S}</td></tr>`;
+      contentHTML += `
+      <tr>
+        <td>${element.from.S}</td>
+        <td><button id="sender_${element.from.S}_info">Dettagli</button></td>
+      </tr>`;
     });
     contentHTML += `
     </tbody>
     </table>`;
     content.innerHTML = contentHTML;
+
+    sendersResponse.Items.forEach(element => {
+      const infoButton = document.getElementById(`sender_${element.from.S}_info`);
+      if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
+        throw new Error("Missing element");
+      }
+
+      infoButton.addEventListener("click", function (event) {
+        fetch(CONVERSATION_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S), {
+          method: "GET",
+        }).then(res => {
+          console.log("Request complete! response:", res);
+          if (res.body != null) {
+            const reader = res.body.getReader()
+            return reader.read().then(({ done, value }) => {
+              const content = new TextDecoder().decode(value);
+              if (res.status != 200) {
+                return [null, { status: res.status, content }];
+              } else {
+                return [{ status: res.status, content }, null];
+              }
+            })
+          }
+          if (res.status != 200) {
+            return [null, { status: res.status, content: '' }];
+          } else {
+            return [{ status: res.status, content: '' }, null];
+          }
+        }).then(([success, error]) => {
+          console.log(success, error);
+        });
+      });
+    });
   });;
 }
 
@@ -86,6 +136,48 @@ function displayLogin() {
   </form>`;
 
   attachLoginEventListener();
+}
+
+function displayAnonymousLayout() {
+  const authenticatedMenuItem = document.getElementById("authenticated");
+  if (authenticatedMenuItem == null) {
+    throw new Error("Missing element");
+  }
+  authenticatedMenuItem.style.display = "none";
+
+  const title = document.getElementById("title");
+  if (title == null) {
+    throw new Error("Missing element");
+  }
+  title.innerHTML = "Filo Diretto";
+
+  const subtitle = document.getElementById("subtitle");
+  if (subtitle == null) {
+    throw new Error("Missing element");
+  }
+  subtitle.style.display = "block";
+}
+
+function displayAuthenticatedLayout(username) {
+  const authenticatedMenuItem = document.getElementById("authenticated");
+  if (authenticatedMenuItem == null) {
+    throw new Error("Missing element");
+  }
+  authenticatedMenuItem.style.display = "block";
+
+  const usernameMenuItem = document.getElementById("username");
+  if (usernameMenuItem == null) {
+    throw new Error("Missing element");
+  }
+  usernameMenuItem.innerHTML = username;
+
+  const subtitle = document.getElementById("subtitle");
+  if (subtitle == null) {
+    throw new Error("Missing element");
+  }
+  subtitle.style.display = "none";
+
+  attachLogoutEventListener();
 }
 
 function attachLoginEventListener() {
@@ -146,19 +238,40 @@ function attachLoginEventListener() {
         throw new Error("Success can't be null");
       }
 
-      const token = success.content
+      let { token, username } = JSON.parse(success.content);
+      token = JSON.stringify(token);
       localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USERNAME_KEY, username);
       displayConversations(token);
+      displayAuthenticatedLayout(username);
     });
+  });
+}
+
+function attachLogoutEventListener() {
+  const logoutLink = document.getElementById("logout");
+  if (logoutLink == null) {
+    throw new Error("Missing element");
+  }
+
+  logoutLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+    displayLogin();
+    displayAnonymousLayout();
   });
 }
 
 function main() {
   const token = localStorage.getItem(TOKEN_KEY);
-  if (token != null) {
+  const username = localStorage.getItem(USERNAME_KEY);
+  if (token != null && username != null) {
     displayConversations(token);
+    displayAuthenticatedLayout(username);
   } else {
     displayLogin();
+    displayAnonymousLayout();
   }
 }
 
