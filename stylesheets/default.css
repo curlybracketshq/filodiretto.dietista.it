@@ -154,6 +154,7 @@ button {
 button.primary {
   background-color: var(--primary);
   color: var(--background);
+  border: 1px solid var(--primary);
 }
 
 table {

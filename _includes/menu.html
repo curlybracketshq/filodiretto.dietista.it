@@ -1,8 +1,11 @@
 <nav id="menu">
-  <a href="{{ '/' | relative_url }}">Home</a>
-  <span>·</span>
-  <a href="https://dietista.it">Dietista.it</a>
+  <span id="anonymous">
+    <a href="https://dietista.it">Dietista.it</a>
+  </span>
   <span id="authenticated">
+    <a id="conversation_menu_item" href="#">Conversazioni</a>
+    <span>·</span>
+    <a id="calendar_menu_item" href="#">Calendario</a>
     <span>·</span>
     Utente: <span id="username"></span>
     <span>·</span>

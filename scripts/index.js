@@ -6,6 +6,9 @@ const USERNAME_KEY = 'USERNAME';
 const LOGIN_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAuth";
 const CONVERSATIONS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversations";
 const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversation";
+const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointments";
+const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointment";
+const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
 
 /**
  * @param {string} token
@@ -32,7 +35,7 @@ function displayConversations(token) {
   fetch(CONVERSATIONS_URL + '?' + new URLSearchParams('token=' + token), {
     method: "GET",
   }).then(res => {
-    console.log("Request complete! response:", res);
+    console.log("CONVERSATIONS response:", res);
     if (res.body != null) {
       const reader = res.body.getReader()
       return reader.read().then(({ done, value }) => {
@@ -68,7 +71,7 @@ function displayConversations(token) {
     const conversationsResponse = JSON.parse(success.content);
     let contentHTML = `
     <div id="conversations">
-    <table >
+    <table>
     <thead>
     <tr>
       <th>Numero</th>
@@ -108,13 +111,12 @@ function displayConversations(token) {
       infoButton.addEventListener("click", function (event) {
         conversationsTable.style.display = "none";
         conversationDetails.style.display = "block";
-
         conversationDetails.innerHTML = "<p>Caricamento...</p>";
 
         fetch(CONVERSATION_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S), {
           method: "GET",
         }).then(res => {
-          console.log("Request complete! response:", res);
+          console.log("CONVERSATION response:", res);
           if (res.body != null) {
             const reader = res.body.getReader()
             return reader.read().then(({ done, value }) => {
@@ -160,7 +162,6 @@ function displayConversations(token) {
  * @typedef {Object} Conversation
  * @prop {{S: string}} from
  * @prop {?{S: string}} name
- * @prop {?{S: string}} nextAppointment
  */
 
 /**
@@ -177,15 +178,81 @@ function displayConversationDetails(token, conversation) {
   conversationDetails.innerHTML = `
   <h2>Numero: ${conversation.from.S}</h2>
   <form id="conversation_details_form">
-  <div><label>Nome</label><input type="text" id="name_input" name="from" value="${conversation.name?.S ?? ''}"/></div>
-  <div><label>Prossimo appuntamento</label><input type="datetime-local" id="next_appointment_input" name="next_appointment" value="${conversation.nextAppointment?.S}"/></div>
+  <div>
+    <label>Nome</label>
+    <input type="text" id="name_input" name="from" value="${conversation.name?.S ?? ''}"/>
+  </div>
   <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
-  <p><button id="close_conversation_details" class="primary">Chiudi</button></p>
-  `;
+  <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
+  <p>
+    <button id="new_appointment">Nuovo appuntamento (TODO)</button>
+    <button id="close_conversation_details" class="primary">Chiudi</button>
+  </p>`;
 
   attachCloseConversationDetailsListener(conversationsTable, conversationDetails);
-  attachUpdateConversationDetailsListener(token, conversationDetails, conversation);
+  attachUpdateConversationDetailsListener(token, conversation);
+  attachNewAppointmentListener(token, conversation);
+
+  // Load next appointment
+  const nextAppointment = document.getElementById("next_appointment");
+  if (nextAppointment == null) {
+    throw new Error("Missing element");
+  }
+  nextAppointment.innerHTML = "Caricamento...";
+
+  const errorMessage = document.getElementById("error_message");
+  if (errorMessage == null) {
+    throw new Error("Missing element");
+  }
+  errorMessage.innerHTML = "";
+
+  fetch(NEXT_APPOINTMENT_URL + '?' + new URLSearchParams('token=' + token + '&from=' + conversation.from.S), {
+    method: "GET",
+  }).then(res => {
+    console.log("NEXT_APPOINTMENT response:", res);
+    if (res.body != null) {
+      const reader = res.body.getReader()
+      return reader.read().then(({ done, value }) => {
+        const content = new TextDecoder().decode(value);
+        if (res.status != 200) {
+          return [null, { status: res.status, content }];
+        } else {
+          return [{ status: res.status, content }, null];
+        }
+      })
+    }
+    if (res.status != 200) {
+      return [null, { status: res.status, content: '' }];
+    } else {
+      return [{ status: res.status, content: '' }, null];
+    }
+  }).then(([success, error]) => {
+    if (error != null) {
+      errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
+      if (error.status == 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USERNAME_KEY);
+        displayLogin();
+        displayAnonymousLayout();
+      }
+      return;
+    }
+
+    if (success == null) {
+      throw new Error("Success can't be null");
+    }
+
+    console.log(success, error);
+    const appointmentDetailsResponse = JSON.parse(success.content);
+    if (appointmentDetailsResponse.Items.length == 0) {
+      nextAppointment.innerHTML = 'Nessun appuntamento';
+    } else {
+      const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
+      const [date, time] = nextAppointmentDetails.datetime.S.split('T');
+      nextAppointment.innerHTML = `${date}, ore ${time}`;
+    }
+  });
 }
 
 /**
@@ -206,10 +273,9 @@ function attachCloseConversationDetailsListener(conversationsTable, conversation
 
 /**
  * @param {string} token
- * @param {HTMLElement} conversationDetails
  * @param {Conversation} conversation
  */
-function attachUpdateConversationDetailsListener(token, conversationDetails, conversation) {
+function attachUpdateConversationDetailsListener(token, conversation) {
   const conversationDetailsForm = document.getElementById("conversation_details_form");
   if (conversationDetailsForm == null) {
     throw new Error("Missing element");
@@ -225,8 +291,7 @@ function attachUpdateConversationDetailsListener(token, conversationDetails, con
     event.preventDefault();
 
     const nameInput = document.getElementById("name_input");
-    const nextAppointmentInput = document.getElementById("next_appointment_input");
-    if (nameInput == null || !(nameInput instanceof HTMLInputElement) || nextAppointmentInput == null || !(nextAppointmentInput instanceof HTMLInputElement)) {
+    if (nameInput == null || !(nameInput instanceof HTMLInputElement)) {
       throw new Error("Missing element");
     }
 
@@ -243,10 +308,10 @@ function attachUpdateConversationDetailsListener(token, conversationDetails, con
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        conversation: { from: conversation.from.S, name: nameInput.value, next_appointment: nextAppointmentInput.value }
+        conversation: { from: conversation.from.S, name: nameInput.value }
       })
     }).then(res => {
-      console.log("Request complete! response:", res);
+      console.log("CONVERSATION response:", res);
       if (res.body != null) {
         const reader = res.body.getReader()
         return reader.read().then(({ done, value }) => {
@@ -289,6 +354,21 @@ function attachUpdateConversationDetailsListener(token, conversationDetails, con
   });
 }
 
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ */
+function attachNewAppointmentListener(token, conversation) {
+  const newAppointmentButton = document.getElementById("new_appointment");
+  if (newAppointmentButton == null) {
+    throw new Error("Missing element");
+  }
+
+  newAppointmentButton.addEventListener("click", function () {
+    console.log("TODO");
+  })
+}
+
 function displayLogin() {
   const content = document.getElementById("content");
   if (content == null) {
@@ -306,11 +386,13 @@ function displayLogin() {
 }
 
 function displayAnonymousLayout() {
-  const authenticatedMenuItem = document.getElementById("authenticated");
-  if (authenticatedMenuItem == null) {
+  const authenticatedMenu = document.getElementById("authenticated");
+  const anonymousMenu = document.getElementById("anonymous");
+  if (authenticatedMenu == null || anonymousMenu == null) {
     throw new Error("Missing element");
   }
-  authenticatedMenuItem.style.display = "none";
+  authenticatedMenu.style.display = "none";
+  anonymousMenu.style.display = "block";
 
   const title = document.getElementById("title");
   if (title == null) {
@@ -325,12 +407,18 @@ function displayAnonymousLayout() {
   subtitle.style.display = "block";
 }
 
-function displayAuthenticatedLayout(username) {
-  const authenticatedMenuItem = document.getElementById("authenticated");
-  if (authenticatedMenuItem == null) {
+/**
+ * @param {string} token
+ * @param {string} username
+ */
+function displayAuthenticatedLayout(token, username) {
+  const authenticatedMenu = document.getElementById("authenticated");
+  const anonymousMenu = document.getElementById("anonymous");
+  if (authenticatedMenu == null || anonymousMenu == null) {
     throw new Error("Missing element");
   }
-  authenticatedMenuItem.style.display = "block";
+  authenticatedMenu.style.display = "block";
+  anonymousMenu.style.display = "none";
 
   const usernameMenuItem = document.getElementById("username");
   if (usernameMenuItem == null) {
@@ -345,6 +433,8 @@ function displayAuthenticatedLayout(username) {
   subtitle.style.display = "none";
 
   attachLogoutEventListener();
+  attachConversationsEventListener(token);
+  attachCalendarEventListener(token);
 }
 
 function attachLoginEventListener() {
@@ -376,7 +466,7 @@ function attachLoginEventListener() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: usernameInput.value, password: passwordInput.value })
     }).then(res => {
-      console.log("Request complete! response:", res);
+      console.log("LOGIN response:", res);
       if (res.body != null) {
         const reader = res.body.getReader()
         return reader.read().then(({ done, value }) => {
@@ -410,7 +500,7 @@ function attachLoginEventListener() {
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(USERNAME_KEY, username);
       displayConversations(token);
-      displayAuthenticatedLayout(username);
+      displayAuthenticatedLayout(token, username);
     });
   });
 }
@@ -430,12 +520,282 @@ function attachLogoutEventListener() {
   });
 }
 
+/**
+ * @param {string} token
+ */
+function attachConversationsEventListener(token) {
+  const conversationsLink = document.getElementById("conversation_menu_item");
+  if (conversationsLink == null) {
+    throw new Error("Missing element");
+  }
+
+  conversationsLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    displayConversations(token);
+  });
+}
+
+/**
+ * @param {string} token
+ */
+function attachCalendarEventListener(token) {
+  const calendarLink = document.getElementById("calendar_menu_item");
+  if (calendarLink == null) {
+    throw new Error("Missing element");
+  }
+
+  calendarLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    displayCalendar(token);
+  });
+}
+
+/**
+ * @typedef {Object} Appointment
+ * @prop {{S: string}} from
+ * @prop {{S: string}} datetime
+ */
+
+/**
+ * @param {string} token
+ */
+function displayCalendar(token) {
+  const title = document.getElementById("title");
+  if (title == null) {
+    throw new Error("Missing element");
+  }
+  title.innerHTML = "Calendario";
+
+  const content = document.getElementById("content");
+  if (content == null) {
+    throw new Error("Missing element");
+  }
+  content.innerHTML = `<p>Caricamento...</p>`;
+
+  const errorMessage = document.getElementById("error_message");
+  if (errorMessage == null) {
+    throw new Error("Missing element");
+  }
+  errorMessage.innerHTML = "";
+
+  fetch(APPOINTMENTS_URL + '?' + new URLSearchParams('token=' + token), {
+    method: "GET",
+  }).then(res => {
+    console.log("APPOINTMENTS response:", res);
+    if (res.body != null) {
+      const reader = res.body.getReader()
+      return reader.read().then(({ done, value }) => {
+        const content = new TextDecoder().decode(value);
+        if (res.status != 200) {
+          return [null, { status: res.status, content }];
+        } else {
+          return [{ status: res.status, content }, null];
+        }
+      })
+    }
+    if (res.status != 200) {
+      return [null, { status: res.status, content: '' }];
+    } else {
+      return [{ status: res.status, content: '' }, null];
+    }
+  }).then(([success, error]) => {
+    if (error != null) {
+      errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
+      if (error.status == 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USERNAME_KEY);
+        displayLogin();
+        displayAnonymousLayout();
+      }
+      return;
+    }
+
+    if (success == null) {
+      throw new Error("Success can't be null");
+    }
+
+    const appointmentsResponse = JSON.parse(success.content);
+    const appointmentsByMonth = appointmentsResponse.Items.reduce(function (/** @type {Object.<string, Appointment[]>} */ collection, /** @type {Appointment} */ element) {
+      const [date, _time] = element.datetime.S.split('T');
+      const [year, month, _day] = date.split('-');
+      const yearMonth = `${year}-${month}`;
+      if (yearMonth in collection) {
+        collection[yearMonth].push(element);
+      } else {
+        collection[yearMonth] = [element];
+      }
+      return collection;
+    }, {});
+    console.log(appointmentsByMonth);
+    const sortedMonths = Object.keys(appointmentsByMonth).sort();
+    let contentHTML = `
+    <div id="calendar">`;
+    sortedMonths.forEach((/** @type {string} */ yearMonth) => {
+      const [year, month] = yearMonth.split('-');
+      const monthlyAppointments = appointmentsByMonth[yearMonth].sort(function (a, b) {
+        if (a.datetime.S < b.datetime.S) {
+          return -1;
+        }
+        if (a.datetime.S > b.datetime.S) {
+          return 1;
+        }
+        return 0;
+      }).map(function (/** @type {Appointment} */ element) {
+        const [date, time] = element.datetime.S.split('T');
+        return `
+          <tr>
+            <td>${element.from.S}</td>
+            <td>${date}</td>
+            <td>${time}</td>
+            <td><button id="appointment_${element.from.S}_info">Dettagli</button></td>
+          </tr>`;
+      }).join('');
+      contentHTML += `
+      <h2>${monthName(month)} ${year}</h2>
+      <table>
+      <thead>
+      <tr>
+        <th>Numero</th>
+        <th>Data</th>
+        <th>Ora</th>
+        <th>Operazioni</th>
+      </tr>
+      </thead>
+      <tbody>${monthlyAppointments}</tbody>
+      </table>`;
+    });
+    contentHTML += `
+    </div>
+    <div id="appointment_details">
+    </div>`;
+    content.innerHTML = contentHTML;
+
+    const calendarTable = document.getElementById("calendar");
+    const appointmentDetails = document.getElementById("appointment_details");
+    if (calendarTable == null || appointmentDetails == null) {
+      throw new Error("Missing element");
+    }
+
+    appointmentsResponse.Items.forEach((/** @type {Appointment} */ element) => {
+      const infoButton = document.getElementById(`appointment_${element.from.S}_info`);
+      if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
+        throw new Error("Missing element");
+      }
+
+      infoButton.addEventListener("click", function (event) {
+        calendarTable.style.display = "none";
+        appointmentDetails.style.display = "block";
+        appointmentDetails.innerHTML = "<p>Caricamento...</p>";
+
+        fetch(APPOINTMENT_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S + '&datetime=' + element.datetime.S), {
+          method: "GET",
+        }).then(res => {
+          console.log("APPOINTMENT response:", res);
+          if (res.body != null) {
+            const reader = res.body.getReader()
+            return reader.read().then(({ done, value }) => {
+              const content = new TextDecoder().decode(value);
+              if (res.status != 200) {
+                return [null, { status: res.status, content }];
+              } else {
+                return [{ status: res.status, content }, null];
+              }
+            })
+          }
+          if (res.status != 200) {
+            return [null, { status: res.status, content: '' }];
+          } else {
+            return [{ status: res.status, content: '' }, null];
+          }
+        }).then(([success, error]) => {
+          if (error != null) {
+            errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
+            if (error.status == 401) {
+              localStorage.removeItem(TOKEN_KEY);
+              localStorage.removeItem(USERNAME_KEY);
+              displayLogin();
+              displayAnonymousLayout();
+            }
+            return;
+          }
+
+          if (success == null) {
+            throw new Error("Success can't be null");
+          }
+
+          console.log(success, error);
+          const appointmentDetailsResponse = JSON.parse(success.content);
+          displayAppointmentDetails(token, appointmentDetailsResponse.Item);
+        });
+      });
+    });
+  });
+}
+
+/**
+ * @param {string} token
+ * @param {Appointment} appointment
+ */
+function displayAppointmentDetails(token, appointment) {
+  const calendarTable = document.getElementById("calendar");
+  const appointmentDetails = document.getElementById("appointment_details");
+  if (calendarTable == null || appointmentDetails == null) {
+    throw new Error("Missing element");
+  }
+
+  appointmentDetails.innerHTML = `
+  <h2>Numero: ${appointment.from.S}</h2>
+  TODO...
+  <p><button id="close_appointment_details" class="primary">Chiudi</button></p>
+  `;
+
+  attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails);
+}
+
+/**
+ * @param {HTMLElement} calendarTable
+ * @param {HTMLElement} appointmentDetails
+ */
+function attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails) {
+  const closeAppointmentDetailsButton = document.getElementById("close_appointment_details");
+  if (closeAppointmentDetailsButton == null) {
+    throw new Error("Missing element");
+  }
+
+  closeAppointmentDetailsButton.addEventListener("click", function () {
+    calendarTable.style.display = "block";
+    appointmentDetails.style.display = "none";
+  });
+}
+
+/**
+ * @param {string} month
+ */
+function monthName(month) {
+  const monthNumber = parseInt(month, 10);
+  switch (monthNumber) {
+    case 1: return "Gennaio";
+    case 2: return "Febbraio";
+    case 3: return "Marzo";
+    case 4: return "Aprile";
+    case 5: return "Maggio";
+    case 6: return "Giugno";
+    case 7: return "Luglio";
+    case 8: return "Agosto";
+    case 9: return "Settembre";
+    case 10: return "Ottobre";
+    case 11: return "Novembre";
+    case 12: return "Dicembre";
+  }
+  throw new Error("Function not implemented.");
+}
+
 function main() {
   const token = localStorage.getItem(TOKEN_KEY);
   const username = localStorage.getItem(USERNAME_KEY);
   if (token != null && username != null) {
     displayConversations(token);
-    displayAuthenticatedLayout(username);
+    displayAuthenticatedLayout(token, username);
   } else {
     displayLogin();
     displayAnonymousLayout();
