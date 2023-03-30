@@ -8,7 +8,7 @@ const CONVERSATIONS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.co
 const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversation";
 
 /**
- * @param {string} [token]
+ * @param {string} token
  */
 function displayConversations(token) {
   const title = document.getElementById("title");
@@ -71,16 +71,18 @@ function displayConversations(token) {
     <table >
     <thead>
     <tr>
-      <th>Mittente</th>
+      <th>Numero</th>
+      <th>Nome</th>
       <th>Operazioni</th>
     </tr>
     </thead>
     <tbody>`;
-    conversationsResponse.Items.forEach((/** @type {{ from: { S: string; }; }} */ element) => {
+    conversationsResponse.Items.forEach((/** @type {Conversation} */ element) => {
       contentHTML += `
       <tr>
         <td>${element.from.S}</td>
-        <td><button id="sender_${element.from.S}_info">Dettagli</button></td>
+        <td id="conversation_${element.from.S}_name">${element.name?.S ?? ''}</td>
+        <td><button id="conversation_${element.from.S}_info">Dettagli</button></td>
       </tr>`;
     });
     contentHTML += `
@@ -97,8 +99,8 @@ function displayConversations(token) {
       throw new Error("Missing element");
     }
 
-    conversationsResponse.Items.forEach((/** @type {{ from: { S: string; }; }} */ element) => {
-      const infoButton = document.getElementById(`sender_${element.from.S}_info`);
+    conversationsResponse.Items.forEach((/** @type {Conversation} */ element) => {
+      const infoButton = document.getElementById(`conversation_${element.from.S}_info`);
       if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
         throw new Error("Missing element");
       }
@@ -147,7 +149,7 @@ function displayConversations(token) {
 
           console.log(success, error);
           const conversationDetailsResponse = JSON.parse(success.content);
-          displayConversationDetails(conversationDetailsResponse.Item);
+          displayConversationDetails(token, conversationDetailsResponse.Item);
         });
       });
     });
@@ -155,9 +157,17 @@ function displayConversations(token) {
 }
 
 /**
- * @param {{from: {S: string;};name: ?{S: string;};nextAppointment: ?{S: string;};}} conversation
+ * @typedef {Object} Conversation
+ * @prop {{S: string}} from
+ * @prop {?{S: string}} name
+ * @prop {?{S: string}} nextAppointment
  */
-function displayConversationDetails(conversation) {
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ */
+function displayConversationDetails(token, conversation) {
   const conversationsTable = document.getElementById("conversations");
   const conversationDetails = document.getElementById("conversation_details");
   if (conversationDetails == null || conversationsTable == null) {
@@ -165,13 +175,17 @@ function displayConversationDetails(conversation) {
   }
 
   conversationDetails.innerHTML = `
-  <p>Numero: ${conversation.from.S}</p>
-  <p>Nome: ${conversation.name?.S ?? '<em>non definito</em>'}</p>
-  <p>Prossimo appuntamento: ${conversation.nextAppointment?.S ?? '<em>non definito</em>'}</p>
-  <p><button id="close_conversation_details">Chiudi</button></p>
+  <h2>Numero: ${conversation.from.S}</h2>
+  <form id="conversation_details_form">
+  <div><label>Nome</label><input type="text" id="name_input" name="from" value="${conversation.name?.S ?? ''}"/></div>
+  <div><label>Prossimo appuntamento</label><input type="datetime-local" id="next_appointment_input" name="next_appointment" value="${conversation.nextAppointment?.S}"/></div>
+  <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
+  </form>
+  <p><button id="close_conversation_details" class="primary">Chiudi</button></p>
   `;
 
   attachCloseConversationDetailsListener(conversationsTable, conversationDetails);
+  attachUpdateConversationDetailsListener(token, conversationDetails, conversation);
 }
 
 /**
@@ -187,6 +201,91 @@ function attachCloseConversationDetailsListener(conversationsTable, conversation
   closeConversationDetailsButton.addEventListener("click", function () {
     conversationsTable.style.display = "block";
     conversationDetails.style.display = "none";
+  });
+}
+
+/**
+ * @param {string} token
+ * @param {HTMLElement} conversationDetails
+ * @param {Conversation} conversation
+ */
+function attachUpdateConversationDetailsListener(token, conversationDetails, conversation) {
+  const conversationDetailsForm = document.getElementById("conversation_details_form");
+  if (conversationDetailsForm == null) {
+    throw new Error("Missing element");
+  }
+
+  const errorMessage = document.getElementById("error_message");
+  if (errorMessage == null) {
+    throw new Error("Missing element");
+  }
+  errorMessage.innerHTML = "";
+
+  conversationDetailsForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const nameInput = document.getElementById("name_input");
+    const nextAppointmentInput = document.getElementById("next_appointment_input");
+    if (nameInput == null || !(nameInput instanceof HTMLInputElement) || nextAppointmentInput == null || !(nextAppointmentInput instanceof HTMLInputElement)) {
+      throw new Error("Missing element");
+    }
+
+    const submitButton = document.getElementById("update_conversation_details");
+    if (submitButton == null || !(submitButton instanceof HTMLInputElement)) {
+      throw new Error("Missing element");
+    }
+
+    submitButton.disabled = true;
+    submitButton.value = "Caricamento...";
+
+    fetch(CONVERSATION_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        conversation: { from: conversation.from.S, name: nameInput.value, next_appointment: nextAppointmentInput.value }
+      })
+    }).then(res => {
+      console.log("Request complete! response:", res);
+      if (res.body != null) {
+        const reader = res.body.getReader()
+        return reader.read().then(({ done, value }) => {
+          const content = new TextDecoder().decode(value);
+          if (res.status != 200) {
+            return [null, { status: res.status, content }];
+          } else {
+            return [{ status: res.status, content }, null];
+          }
+        })
+      }
+      if (res.status != 200) {
+        return [null, { status: res.status, content: '' }];
+      } else {
+        return [{ status: res.status, content: '' }, null];
+      }
+    }, error => [null, { status: -1, content: error }]
+    ).then(([success, error]) => {
+      if (error != null) {
+        errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
+        displayConversationDetails(token, conversation);
+        return;
+      }
+
+      if (success == null) {
+        throw new Error("Success can't be null");
+      }
+
+      const result = JSON.parse(success.content);
+      const updatedConversation = result.Attributes;
+      displayConversationDetails(token, updatedConversation);
+
+      // Update stale data in conversations table
+      const conversationName = document.getElementById(`conversation_${conversation.from.S}_name`);
+      if (conversationName == null) {
+        throw new Error("Missing element");
+      }
+      conversationName.innerHTML = updatedConversation.name.S;
+    });
   });
 }
 

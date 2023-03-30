@@ -151,15 +151,25 @@ button {
   font-weight: bold;
 }
 
+button.primary {
+  background-color: var(--primary);
+  color: var(--background);
+}
+
 table {
   border-top: 1px solid #999;
   border-left: 1px solid #999;
   border-spacing: 0;
+  width: 100%;
 }
 
 td, th {
   border-right: 1px solid #999;
   border-bottom: 1px solid #999;
+}
+
+td {
+  padding: 2px 6px;
 }
 
 @media (min-width: 730px) {
