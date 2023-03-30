@@ -65,9 +65,10 @@ function displayConversations(token) {
       throw new Error("Success can't be null");
     }
 
-    const sendersResponse = JSON.parse(success?.content);
+    const conversationsResponse = JSON.parse(success.content);
     let contentHTML = `
-    <table>
+    <div id="conversations">
+    <table >
     <thead>
     <tr>
       <th>Mittente</th>
@@ -75,7 +76,7 @@ function displayConversations(token) {
     </tr>
     </thead>
     <tbody>`;
-    sendersResponse.Items.forEach(element => {
+    conversationsResponse.Items.forEach((/** @type {{ from: { S: string; }; }} */ element) => {
       contentHTML += `
       <tr>
         <td>${element.from.S}</td>
@@ -84,16 +85,30 @@ function displayConversations(token) {
     });
     contentHTML += `
     </tbody>
-    </table>`;
+    </table>
+    </div>
+    <div id="conversation_details">
+    </div>`;
     content.innerHTML = contentHTML;
 
-    sendersResponse.Items.forEach(element => {
+    const conversationsTable = document.getElementById("conversations");
+    const conversationDetails = document.getElementById("conversation_details");
+    if (conversationDetails == null || conversationsTable == null) {
+      throw new Error("Missing element");
+    }
+
+    conversationsResponse.Items.forEach((/** @type {{ from: { S: string; }; }} */ element) => {
       const infoButton = document.getElementById(`sender_${element.from.S}_info`);
       if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
         throw new Error("Missing element");
       }
 
       infoButton.addEventListener("click", function (event) {
+        conversationsTable.style.display = "none";
+        conversationDetails.style.display = "block";
+
+        conversationDetails.innerHTML = "<p>Caricamento...</p>";
+
         fetch(CONVERSATION_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S), {
           method: "GET",
         }).then(res => {
@@ -115,11 +130,64 @@ function displayConversations(token) {
             return [{ status: res.status, content: '' }, null];
           }
         }).then(([success, error]) => {
+          if (error != null) {
+            errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
+            if (error.status == 401) {
+              localStorage.removeItem(TOKEN_KEY);
+              localStorage.removeItem(USERNAME_KEY);
+              displayLogin();
+              displayAnonymousLayout();
+            }
+            return;
+          }
+
+          if (success == null) {
+            throw new Error("Success can't be null");
+          }
+
           console.log(success, error);
+          const conversationDetailsResponse = JSON.parse(success.content);
+          displayConversationDetails(conversationDetailsResponse.Item);
         });
       });
     });
   });;
+}
+
+/**
+ * @param {{from: {S: string;};name: ?{S: string;};nextAppointment: ?{S: string;};}} conversation
+ */
+function displayConversationDetails(conversation) {
+  const conversationsTable = document.getElementById("conversations");
+  const conversationDetails = document.getElementById("conversation_details");
+  if (conversationDetails == null || conversationsTable == null) {
+    throw new Error("Missing element");
+  }
+
+  conversationDetails.innerHTML = `
+  <p>Numero: ${conversation.from.S}</p>
+  <p>Nome: ${conversation.name?.S ?? '<em>non definito</em>'}</p>
+  <p>Prossimo appuntamento: ${conversation.nextAppointment?.S ?? '<em>non definito</em>'}</p>
+  <p><button id="close_conversation_details">Chiudi</button></p>
+  `;
+
+  attachCloseConversationDetailsListener(conversationsTable, conversationDetails);
+}
+
+/**
+ * @param {HTMLElement} conversationsTable
+ * @param {HTMLElement} conversationDetails
+ */
+function attachCloseConversationDetailsListener(conversationsTable, conversationDetails) {
+  const closeConversationDetailsButton = document.getElementById("close_conversation_details");
+  if (closeConversationDetailsButton == null) {
+    throw new Error("Missing element");
+  }
+
+  closeConversationDetailsButton.addEventListener("click", function () {
+    conversationsTable.style.display = "block";
+    conversationDetails.style.display = "none";
+  });
 }
 
 function displayLogin() {
