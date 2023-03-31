@@ -26,6 +26,7 @@ const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws
 
 /**
  * @param {string} month
+ * @returns {string}
  */
 function monthName(month) {
   const monthNumber = parseInt(month, 10);
@@ -43,7 +44,31 @@ function monthName(month) {
     case 11: return "Novembre";
     case 12: return "Dicembre";
   }
-  throw new Error("Function not implemented.");
+  throw new Error("Unexpected input: " + month);
+}
+
+/**
+ * @param {any} id
+ * @returns {HTMLElement}
+ */
+function requireElement(id) {
+  const element = document.getElementById(id);
+  if (element == null) {
+    throw new Error("Missing element");
+  }
+  return element;
+}
+
+/**
+ * @param {any} id
+ * @returns {HTMLInputElement}
+ */
+function requireInputElement(id) {
+  const element = document.getElementById(id);
+  if (element == null || !(element instanceof HTMLInputElement)) {
+    throw new Error("Missing input element");
+  }
+  return element;
 }
 
 /* End utility functions */
@@ -54,10 +79,7 @@ function monthName(month) {
  */
 function handleFetchResponseError(promise) {
   // Reset error message
-  const errorMessage = document.getElementById("error_message");
-  if (errorMessage == null) {
-    throw new Error("Missing element");
-  }
+  const errorMessage = requireElement("error_message");
   errorMessage.innerHTML = "";
 
   return promise.then(res => {
@@ -90,16 +112,10 @@ function handleFetchResponseError(promise) {
  * @param {string} token
  */
 function displayConversations(token) {
-  const title = document.getElementById("title");
-  if (title == null) {
-    throw new Error("Missing element");
-  }
+  const title = requireElement("title");
   title.innerHTML = "Conversazioni";
 
-  const content = document.getElementById("content");
-  if (content == null) {
-    throw new Error("Missing element");
-  }
+  const content = requireElement("content");
   content.innerHTML = `<p>Caricamento...</p>`;
 
   const params = new URLSearchParams('token=' + token);
@@ -144,19 +160,12 @@ function displayConversations(token) {
 
     attachNewConversationListener();
 
-    const conversationsTable = document.getElementById("conversations");
-    const conversationDetails = document.getElementById("conversation_details");
-    if (conversationDetails == null || conversationsTable == null) {
-      throw new Error("Missing element");
-    }
+    const conversationsTable = requireElement("conversations");
+    const conversationDetails = requireElement("conversation_details");
 
     conversationsResponse.Items.forEach((/** @type {Conversation} */ element) => {
-      const infoButton = document.getElementById(`conversation_${element.from.S}_info`);
-      if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
-        throw new Error("Missing element");
-      }
-
-      infoButton.addEventListener("click", function (event) {
+      const infoButton = requireElement(`conversation_${element.from.S}_info`);
+      infoButton.addEventListener("click", function () {
         conversationsTable.style.display = "none";
         conversationDetails.style.display = "block";
         conversationDetails.innerHTML = "<p>Caricamento...</p>";
@@ -179,27 +188,17 @@ function displayConversations(token) {
 }
 
 function attachNewConversationListener() {
-  const newConversationButton = document.getElementById("new_conversation");
-  if (newConversationButton == null) {
-    throw new Error("Missing element");
-  }
-
+  const newConversationButton = requireElement("new_conversation");
   newConversationButton.addEventListener("click", function () {
     displayNewConversation();
   });
 }
 
 function displayNewConversation() {
-  const title = document.getElementById("title");
-  if (title == null) {
-    throw new Error("Missing element");
-  }
+  const title = requireElement("title");
   title.innerHTML = "Nuovo numero";
 
-  const content = document.getElementById("content");
-  if (content == null) {
-    throw new Error("Missing element");
-  }
+  const content = requireElement("content");
   content.innerHTML = `
   <form id="new_conversation_form">
   <div>
@@ -219,11 +218,8 @@ function displayNewConversation() {
  * @param {Conversation} conversation
  */
 function displayConversationDetails(token, conversation) {
-  const conversationsTable = document.getElementById("conversations");
-  const conversationDetails = document.getElementById("conversation_details");
-  if (conversationDetails == null || conversationsTable == null) {
-    throw new Error("Missing element");
-  }
+  const conversationsTable = requireElement("conversations");
+  const conversationDetails = requireElement("conversation_details");
 
   conversationDetails.innerHTML = `
   <h2>Numero: ${conversation.from.S}</h2>
@@ -245,10 +241,7 @@ function displayConversationDetails(token, conversation) {
   attachNewAppointmentListener(token, conversation);
 
   // Load next appointment
-  const nextAppointment = document.getElementById("next_appointment");
-  if (nextAppointment == null) {
-    throw new Error("Missing element");
-  }
+  const nextAppointment = requireElement("next_appointment");
   nextAppointment.innerHTML = "Caricamento...";
 
   const params = new URLSearchParams('token=' + token + '&from=' + conversation.from.S);
@@ -276,11 +269,7 @@ function displayConversationDetails(token, conversation) {
  * @param {HTMLElement} conversationDetails
  */
 function attachCloseConversationDetailsListener(conversationsTable, conversationDetails) {
-  const closeConversationDetailsButton = document.getElementById("close_conversation_details");
-  if (closeConversationDetailsButton == null) {
-    throw new Error("Missing element");
-  }
-
+  const closeConversationDetailsButton = requireElement("close_conversation_details");
   closeConversationDetailsButton.addEventListener("click", function () {
     conversationsTable.style.display = "block";
     conversationDetails.style.display = "none";
@@ -292,23 +281,13 @@ function attachCloseConversationDetailsListener(conversationsTable, conversation
  * @param {Conversation} conversation
  */
 function attachUpdateConversationDetailsListener(token, conversation) {
-  const conversationDetailsForm = document.getElementById("conversation_details_form");
-  if (conversationDetailsForm == null) {
-    throw new Error("Missing element");
-  }
+  const submitButton = requireInputElement("update_conversation_details");
+  const conversationDetailsForm = requireElement("conversation_details_form");
 
   conversationDetailsForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const nameInput = document.getElementById("name_input");
-    if (nameInput == null || !(nameInput instanceof HTMLInputElement)) {
-      throw new Error("Missing element");
-    }
-
-    const submitButton = document.getElementById("update_conversation_details");
-    if (submitButton == null || !(submitButton instanceof HTMLInputElement)) {
-      throw new Error("Missing element");
-    }
+    const nameInput = requireInputElement("name_input");
 
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
@@ -336,10 +315,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
       displayConversationDetails(token, updatedConversation);
 
       // Update stale data in conversations table
-      const conversationName = document.getElementById(`conversation_${conversation.from.S}_name`);
-      if (conversationName == null) {
-        throw new Error("Missing element");
-      }
+      const conversationName = requireElement(`conversation_${conversation.from.S}_name`);
       conversationName.innerHTML = updatedConversation.name.S;
     });
   });
@@ -350,22 +326,14 @@ function attachUpdateConversationDetailsListener(token, conversation) {
  * @param {Conversation} conversation
  */
 function attachNewAppointmentListener(token, conversation) {
-  const newAppointmentButton = document.getElementById("new_appointment");
-  if (newAppointmentButton == null) {
-    throw new Error("Missing element");
-  }
-
+  const newAppointmentButton = requireElement("new_appointment");
   newAppointmentButton.addEventListener("click", function () {
     console.log("TODO");
   })
 }
 
 function displayLogin() {
-  const content = document.getElementById("content");
-  if (content == null) {
-    throw new Error("Missing element");
-  }
-
+  const content = requireElement("content");
   content.innerHTML = `
   <form id="login_form">
   <div><label>Nome utente</label><input type="text" id="username_input" name="username" /></div>
@@ -377,24 +345,16 @@ function displayLogin() {
 }
 
 function displayAnonymousLayout() {
-  const authenticatedMenu = document.getElementById("authenticated");
-  const anonymousMenu = document.getElementById("anonymous");
-  if (authenticatedMenu == null || anonymousMenu == null) {
-    throw new Error("Missing element");
-  }
+  const authenticatedMenu = requireElement("authenticated");
   authenticatedMenu.style.display = "none";
+
+  const anonymousMenu = requireElement("anonymous");
   anonymousMenu.style.display = "block";
 
-  const title = document.getElementById("title");
-  if (title == null) {
-    throw new Error("Missing element");
-  }
+  const title = requireElement("title");
   title.innerHTML = "Filo Diretto";
 
-  const subtitle = document.getElementById("subtitle");
-  if (subtitle == null) {
-    throw new Error("Missing element");
-  }
+  const subtitle = requireElement("subtitle");
   subtitle.style.display = "block";
 }
 
@@ -403,24 +363,16 @@ function displayAnonymousLayout() {
  * @param {string} username
  */
 function displayAuthenticatedLayout(token, username) {
-  const authenticatedMenu = document.getElementById("authenticated");
-  const anonymousMenu = document.getElementById("anonymous");
-  if (authenticatedMenu == null || anonymousMenu == null) {
-    throw new Error("Missing element");
-  }
+  const authenticatedMenu = requireElement("authenticated");
   authenticatedMenu.style.display = "block";
+
+  const anonymousMenu = requireElement("anonymous");
   anonymousMenu.style.display = "none";
 
-  const usernameMenuItem = document.getElementById("username");
-  if (usernameMenuItem == null) {
-    throw new Error("Missing element");
-  }
+  const usernameMenuItem = requireElement("username");
   usernameMenuItem.innerHTML = username;
 
-  const subtitle = document.getElementById("subtitle");
-  if (subtitle == null) {
-    throw new Error("Missing element");
-  }
+  const subtitle = requireElement("subtitle");
   subtitle.style.display = "none";
 
   attachLogoutEventListener();
@@ -429,20 +381,14 @@ function displayAuthenticatedLayout(token, username) {
 }
 
 function attachLoginEventListener() {
-  const loginButton = document.getElementById("login_button");
-  const loginForm = document.getElementById("login_form");
-  if (loginButton == null || !(loginButton instanceof HTMLInputElement) || loginForm == null || !(loginForm instanceof HTMLFormElement)) {
-    throw new Error("Missing element");
-  }
+  const loginButton = requireInputElement("login_button");
+  const loginForm = requireElement("login_form");
 
   loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const usernameInput = document.getElementById("username_input");
-    const passwordInput = document.getElementById("password_input");
-    if (usernameInput == null || !(usernameInput instanceof HTMLInputElement) || passwordInput == null || !(passwordInput instanceof HTMLInputElement)) {
-      throw new Error("Missing element");
-    }
+    const usernameInput = requireInputElement("username_input");
+    const passwordInput = requireInputElement("password_input");
 
     loginButton.disabled = true;
     loginButton.value = "Caricamento...";
@@ -473,11 +419,7 @@ function attachLoginEventListener() {
 }
 
 function attachLogoutEventListener() {
-  const logoutLink = document.getElementById("logout");
-  if (logoutLink == null) {
-    throw new Error("Missing element");
-  }
-
+  const logoutLink = requireElement("logout");
   logoutLink.addEventListener("click", function (event) {
     event.preventDefault();
     localStorage.removeItem(TOKEN_KEY);
@@ -491,11 +433,7 @@ function attachLogoutEventListener() {
  * @param {string} token
  */
 function attachConversationsEventListener(token) {
-  const conversationsLink = document.getElementById("conversation_menu_item");
-  if (conversationsLink == null) {
-    throw new Error("Missing element");
-  }
-
+  const conversationsLink = requireElement("conversation_menu_item");
   conversationsLink.addEventListener("click", function (event) {
     event.preventDefault();
     displayConversations(token);
@@ -506,11 +444,7 @@ function attachConversationsEventListener(token) {
  * @param {string} token
  */
 function attachCalendarEventListener(token) {
-  const calendarLink = document.getElementById("calendar_menu_item");
-  if (calendarLink == null) {
-    throw new Error("Missing element");
-  }
-
+  const calendarLink = requireElement("calendar_menu_item");
   calendarLink.addEventListener("click", function (event) {
     event.preventDefault();
     displayCalendar(token);
@@ -521,16 +455,10 @@ function attachCalendarEventListener(token) {
  * @param {string} token
  */
 function displayCalendar(token) {
-  const title = document.getElementById("title");
-  if (title == null) {
-    throw new Error("Missing element");
-  }
+  const title = requireElement("title");
   title.innerHTML = "Calendario";
 
-  const content = document.getElementById("content");
-  if (content == null) {
-    throw new Error("Missing element");
-  }
+  const content = requireElement("content");
   content.innerHTML = `<p>Caricamento...</p>`;
 
   const params = new URLSearchParams('token=' + token);
@@ -598,19 +526,12 @@ function displayCalendar(token) {
     </div>`;
     content.innerHTML = contentHTML;
 
-    const calendarTable = document.getElementById("calendar");
-    const appointmentDetails = document.getElementById("appointment_details");
-    if (calendarTable == null || appointmentDetails == null) {
-      throw new Error("Missing element");
-    }
+    const calendarTable = requireElement("calendar");
+    const appointmentDetails = requireElement("appointment_details");
 
     appointmentsResponse.Items.forEach((/** @type {Appointment} */ element) => {
-      const infoButton = document.getElementById(`appointment_${element.from.S}_info`);
-      if (infoButton == null || !(infoButton instanceof HTMLButtonElement)) {
-        throw new Error("Missing element");
-      }
-
-      infoButton.addEventListener("click", function (event) {
+      const infoButton = requireElement(`appointment_${element.from.S}_info`);
+      infoButton.addEventListener("click", function () {
         calendarTable.style.display = "none";
         appointmentDetails.style.display = "block";
         appointmentDetails.innerHTML = "<p>Caricamento...</p>";
@@ -637,17 +558,13 @@ function displayCalendar(token) {
  * @param {Appointment} appointment
  */
 function displayAppointmentDetails(token, appointment) {
-  const calendarTable = document.getElementById("calendar");
-  const appointmentDetails = document.getElementById("appointment_details");
-  if (calendarTable == null || appointmentDetails == null) {
-    throw new Error("Missing element");
-  }
+  const calendarTable = requireElement("calendar");
+  const appointmentDetails = requireElement("appointment_details");
 
   appointmentDetails.innerHTML = `
   <h2>Numero: ${appointment.from.S}</h2>
   TODO...
-  <p><button id="close_appointment_details" class="primary">Chiudi</button></p>
-  `;
+  <p><button id="close_appointment_details" class="primary">Chiudi</button></p>`;
 
   attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails);
 }
@@ -657,11 +574,7 @@ function displayAppointmentDetails(token, appointment) {
  * @param {HTMLElement} appointmentDetails
  */
 function attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails) {
-  const closeAppointmentDetailsButton = document.getElementById("close_appointment_details");
-  if (closeAppointmentDetailsButton == null) {
-    throw new Error("Missing element");
-  }
-
+  const closeAppointmentDetailsButton = requireElement("close_appointment_details");
   closeAppointmentDetailsButton.addEventListener("click", function () {
     calendarTable.style.display = "block";
     appointmentDetails.style.display = "none";
