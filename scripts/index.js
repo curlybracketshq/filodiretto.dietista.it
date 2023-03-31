@@ -153,22 +153,15 @@ function displayConversations(token) {
     contentHTML += `
     </tbody>
     </table>
-    </div>
-    <div id="conversation_details">
     </div>`;
     content.innerHTML = contentHTML;
 
-    attachNewConversationListener();
-
-    const conversationsTable = requireElement("conversations");
-    const conversationDetails = requireElement("conversation_details");
+    attachNewConversationListener(token);
 
     conversationsResponse.Items.forEach((/** @type {Conversation} */ element) => {
       const infoButton = requireElement(`conversation_${element.from.S}_info`);
       infoButton.addEventListener("click", function () {
-        conversationsTable.style.display = "none";
-        conversationDetails.style.display = "block";
-        conversationDetails.innerHTML = "<p>Caricamento...</p>";
+        content.innerHTML = "<p>Caricamento...</p>";
 
         const params = new URLSearchParams('token=' + token + '&from=' + element.from.S);
         const request = fetch(CONVERSATION_URL + '?' + params, {
@@ -187,14 +180,20 @@ function displayConversations(token) {
   });
 }
 
-function attachNewConversationListener() {
+/**
+ * @param {string} token
+ */
+function attachNewConversationListener(token) {
   const newConversationButton = requireElement("new_conversation");
   newConversationButton.addEventListener("click", function () {
-    displayNewConversation();
+    displayNewConversation(token);
   });
 }
 
-function displayNewConversation() {
+/**
+ * @param {string} token
+ */
+function displayNewConversation(token) {
   const title = requireElement("title");
   title.innerHTML = "Nuovo numero";
 
@@ -211,6 +210,45 @@ function displayNewConversation() {
   </div>
   <div><input type="submit" id="create_conversation" value="Crea" /></div>
   </form>`;
+
+  attachCreateConversationListener(token);
+}
+
+/**
+ * @param {string} token
+ */
+function attachCreateConversationListener(token) {
+  const submitButton = requireInputElement("create_conversation");
+  const form = requireElement("new_conversation_form");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const fromInput = requireInputElement("from_input");
+    const nameInput = requireInputElement("name_input");
+
+    submitButton.disabled = true;
+    submitButton.value = "Caricamento...";
+
+    const request = fetch(CONVERSATION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        conversation: { from: fromInput.value, name: nameInput.value }
+      })
+    });
+    handleFetchResponseError(request).then(([_error, success]) => {
+      if (success == null) {
+        return;
+      }
+
+      const result = JSON.parse(success.content);
+      console.log(result);
+      const newConversation = { from: { S: fromInput.value }, name: { S: nameInput.value } };
+      displayConversationDetails(token, newConversation);
+    });
+  });
 }
 
 /**
@@ -218,11 +256,11 @@ function displayNewConversation() {
  * @param {Conversation} conversation
  */
 function displayConversationDetails(token, conversation) {
-  const conversationsTable = requireElement("conversations");
-  const conversationDetails = requireElement("conversation_details");
+  const title = requireElement("title");
+  title.innerHTML = `Numero: ${conversation.from.S}`;
 
-  conversationDetails.innerHTML = `
-  <h2>Numero: ${conversation.from.S}</h2>
+  const content = requireElement("content");
+  content.innerHTML = `
   <form id="conversation_details_form">
   <div>
     <label>Nome</label>
@@ -233,10 +271,8 @@ function displayConversationDetails(token, conversation) {
   <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
   <p>
     <button id="new_appointment">Nuovo appuntamento (TODO)</button>
-    <button id="close_conversation_details" class="primary">Chiudi</button>
   </p>`;
 
-  attachCloseConversationDetailsListener(conversationsTable, conversationDetails);
   attachUpdateConversationDetailsListener(token, conversation);
   attachNewAppointmentListener(token, conversation);
 
@@ -265,26 +301,14 @@ function displayConversationDetails(token, conversation) {
 }
 
 /**
- * @param {HTMLElement} conversationsTable
- * @param {HTMLElement} conversationDetails
- */
-function attachCloseConversationDetailsListener(conversationsTable, conversationDetails) {
-  const closeConversationDetailsButton = requireElement("close_conversation_details");
-  closeConversationDetailsButton.addEventListener("click", function () {
-    conversationsTable.style.display = "block";
-    conversationDetails.style.display = "none";
-  });
-}
-
-/**
  * @param {string} token
  * @param {Conversation} conversation
  */
 function attachUpdateConversationDetailsListener(token, conversation) {
   const submitButton = requireInputElement("update_conversation_details");
-  const conversationDetailsForm = requireElement("conversation_details_form");
+  const form = requireElement("conversation_details_form");
 
-  conversationDetailsForm.addEventListener("submit", function (event) {
+  form.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const nameInput = requireInputElement("name_input");
