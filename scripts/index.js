@@ -11,6 +11,44 @@ const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/
 const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
 
 /**
+ * @typedef {Object} Appointment
+ * @prop {{S: string}} from
+ * @prop {{S: string}} datetime
+ */
+
+/**
+ * @typedef {Object} Conversation
+ * @prop {{S: string}} from
+ * @prop {?{S: string}} name
+ */
+
+/* Utility functions */
+
+/**
+ * @param {string} month
+ */
+function monthName(month) {
+  const monthNumber = parseInt(month, 10);
+  switch (monthNumber) {
+    case 1: return "Gennaio";
+    case 2: return "Febbraio";
+    case 3: return "Marzo";
+    case 4: return "Aprile";
+    case 5: return "Maggio";
+    case 6: return "Giugno";
+    case 7: return "Luglio";
+    case 8: return "Agosto";
+    case 9: return "Settembre";
+    case 10: return "Ottobre";
+    case 11: return "Novembre";
+    case 12: return "Dicembre";
+  }
+  throw new Error("Function not implemented.");
+}
+
+/* End utility functions */
+
+/**
  * @param {Promise<Response>} promise
  * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
  */
@@ -76,6 +114,9 @@ function displayConversations(token) {
     const conversationsResponse = JSON.parse(success.content);
     let contentHTML = `
     <div id="conversations">
+    <div class="collection_operations">
+      <button id="new_conversation">Nuovo numero</button>
+    </div>
     <table>
     <thead>
     <tr>
@@ -100,6 +141,8 @@ function displayConversations(token) {
     <div id="conversation_details">
     </div>`;
     content.innerHTML = contentHTML;
+
+    attachNewConversationListener();
 
     const conversationsTable = document.getElementById("conversations");
     const conversationDetails = document.getElementById("conversation_details");
@@ -132,14 +175,44 @@ function displayConversations(token) {
         });
       });
     });
-  });;
+  });
 }
 
-/**
- * @typedef {Object} Conversation
- * @prop {{S: string}} from
- * @prop {?{S: string}} name
- */
+function attachNewConversationListener() {
+  const newConversationButton = document.getElementById("new_conversation");
+  if (newConversationButton == null) {
+    throw new Error("Missing element");
+  }
+
+  newConversationButton.addEventListener("click", function () {
+    displayNewConversation();
+  });
+}
+
+function displayNewConversation() {
+  const title = document.getElementById("title");
+  if (title == null) {
+    throw new Error("Missing element");
+  }
+  title.innerHTML = "Nuovo numero";
+
+  const content = document.getElementById("content");
+  if (content == null) {
+    throw new Error("Missing element");
+  }
+  content.innerHTML = `
+  <form id="new_conversation_form">
+  <div>
+    <label>Numero</label>
+    <input type="text" id="from_input" name="from" />
+  </div>
+  <div>
+    <label>Nome</label>
+    <input type="text" id="name_input" name="name" />
+  </div>
+  <div><input type="submit" id="create_conversation" value="Crea" /></div>
+  </form>`;
+}
 
 /**
  * @param {string} token
@@ -157,7 +230,7 @@ function displayConversationDetails(token, conversation) {
   <form id="conversation_details_form">
   <div>
     <label>Nome</label>
-    <input type="text" id="name_input" name="from" value="${conversation.name?.S ?? ''}"/>
+    <input type="text" id="name_input" name="name" value="${conversation.name?.S ?? ''}"/>
   </div>
   <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
@@ -177,12 +250,6 @@ function displayConversationDetails(token, conversation) {
     throw new Error("Missing element");
   }
   nextAppointment.innerHTML = "Caricamento...";
-
-  const errorMessage = document.getElementById("error_message");
-  if (errorMessage == null) {
-    throw new Error("Missing element");
-  }
-  errorMessage.innerHTML = "";
 
   const params = new URLSearchParams('token=' + token + '&from=' + conversation.from.S);
   const request = fetch(NEXT_APPOINTMENT_URL + '?' + params, {
@@ -370,11 +437,6 @@ function attachLoginEventListener() {
 
   loginForm.addEventListener("submit", function (event) {
     event.preventDefault();
-    const errorMessage = document.getElementById("error_message");
-    if (errorMessage == null) {
-      throw new Error("Missing element");
-    }
-    errorMessage.innerHTML = "";
 
     const usernameInput = document.getElementById("username_input");
     const passwordInput = document.getElementById("password_input");
@@ -456,12 +518,6 @@ function attachCalendarEventListener(token) {
 }
 
 /**
- * @typedef {Object} Appointment
- * @prop {{S: string}} from
- * @prop {{S: string}} datetime
- */
-
-/**
  * @param {string} token
  */
 function displayCalendar(token) {
@@ -476,12 +532,6 @@ function displayCalendar(token) {
     throw new Error("Missing element");
   }
   content.innerHTML = `<p>Caricamento...</p>`;
-
-  const errorMessage = document.getElementById("error_message");
-  if (errorMessage == null) {
-    throw new Error("Missing element");
-  }
-  errorMessage.innerHTML = "";
 
   const params = new URLSearchParams('token=' + token);
   const request = fetch(APPOINTMENTS_URL + '?' + params, {
@@ -616,28 +666,6 @@ function attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails
     calendarTable.style.display = "block";
     appointmentDetails.style.display = "none";
   });
-}
-
-/**
- * @param {string} month
- */
-function monthName(month) {
-  const monthNumber = parseInt(month, 10);
-  switch (monthNumber) {
-    case 1: return "Gennaio";
-    case 2: return "Febbraio";
-    case 3: return "Marzo";
-    case 4: return "Aprile";
-    case 5: return "Maggio";
-    case 6: return "Giugno";
-    case 7: return "Luglio";
-    case 8: return "Agosto";
-    case 9: return "Settembre";
-    case 10: return "Ottobre";
-    case 11: return "Novembre";
-    case 12: return "Dicembre";
-  }
-  throw new Error("Function not implemented.");
 }
 
 function main() {
