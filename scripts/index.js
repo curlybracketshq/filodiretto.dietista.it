@@ -11,6 +11,44 @@ const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/
 const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
 
 /**
+ * @param {Promise<Response>} promise
+ * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
+ */
+function handleFetchResponseError(promise) {
+  // Reset error message
+  const errorMessage = document.getElementById("error_message");
+  if (errorMessage == null) {
+    throw new Error("Missing element");
+  }
+  errorMessage.innerHTML = "";
+
+  return promise.then(res => {
+    console.log("Response:", res);
+    if (res.body != null) {
+      const reader = res.body.getReader()
+      return reader.read().then(({ done, value }) => {
+        return { status: res.status, content: new TextDecoder().decode(value) };
+      })
+    }
+    return { status: res.status, content: '' };
+  }, error => ({ status: -1, content: error.toString() })).then(res => {
+    if (res.status < 200 || res.status >= 300) {
+      errorMessage.innerHTML = `Errore: (${res.status}), ${res.content}`;
+      if (res.status == 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USERNAME_KEY);
+        displayLogin();
+        displayAnonymousLayout();
+        throw new Error('Unauthenticated request');
+      }
+      return [res, null];
+    }
+
+    return [null, res];
+  });
+}
+
+/**
  * @param {string} token
  */
 function displayConversations(token) {
@@ -26,46 +64,13 @@ function displayConversations(token) {
   }
   content.innerHTML = `<p>Caricamento...</p>`;
 
-  const errorMessage = document.getElementById("error_message");
-  if (errorMessage == null) {
-    throw new Error("Missing element");
-  }
-  errorMessage.innerHTML = "";
-
-  fetch(CONVERSATIONS_URL + '?' + new URLSearchParams('token=' + token), {
+  const params = new URLSearchParams('token=' + token);
+  const request = fetch(CONVERSATIONS_URL + '?' + params, {
     method: "GET",
-  }).then(res => {
-    console.log("CONVERSATIONS response:", res);
-    if (res.body != null) {
-      const reader = res.body.getReader()
-      return reader.read().then(({ done, value }) => {
-        const content = new TextDecoder().decode(value);
-        if (res.status != 200) {
-          return [null, { status: res.status, content }];
-        } else {
-          return [{ status: res.status, content }, null];
-        }
-      })
-    }
-    if (res.status != 200) {
-      return [null, { status: res.status, content: '' }];
-    } else {
-      return [{ status: res.status, content: '' }, null];
-    }
-  }).then(([success, error]) => {
-    if (error != null) {
-      errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
-      if (error.status == 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USERNAME_KEY);
-        displayLogin();
-        displayAnonymousLayout();
-      }
-      return;
-    }
-
+  });
+  handleFetchResponseError(request).then(([_error, success]) => {
     if (success == null) {
-      throw new Error("Success can't be null");
+      return;
     }
 
     const conversationsResponse = JSON.parse(success.content);
@@ -113,43 +118,15 @@ function displayConversations(token) {
         conversationDetails.style.display = "block";
         conversationDetails.innerHTML = "<p>Caricamento...</p>";
 
-        fetch(CONVERSATION_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S), {
+        const params = new URLSearchParams('token=' + token + '&from=' + element.from.S);
+        const request = fetch(CONVERSATION_URL + '?' + params, {
           method: "GET",
-        }).then(res => {
-          console.log("CONVERSATION response:", res);
-          if (res.body != null) {
-            const reader = res.body.getReader()
-            return reader.read().then(({ done, value }) => {
-              const content = new TextDecoder().decode(value);
-              if (res.status != 200) {
-                return [null, { status: res.status, content }];
-              } else {
-                return [{ status: res.status, content }, null];
-              }
-            })
-          }
-          if (res.status != 200) {
-            return [null, { status: res.status, content: '' }];
-          } else {
-            return [{ status: res.status, content: '' }, null];
-          }
-        }).then(([success, error]) => {
-          if (error != null) {
-            errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
-            if (error.status == 401) {
-              localStorage.removeItem(TOKEN_KEY);
-              localStorage.removeItem(USERNAME_KEY);
-              displayLogin();
-              displayAnonymousLayout();
-            }
+        });
+        handleFetchResponseError(request).then(([_error, success]) => {
+          if (success == null) {
             return;
           }
 
-          if (success == null) {
-            throw new Error("Success can't be null");
-          }
-
-          console.log(success, error);
           const conversationDetailsResponse = JSON.parse(success.content);
           displayConversationDetails(token, conversationDetailsResponse.Item);
         });
@@ -207,43 +184,15 @@ function displayConversationDetails(token, conversation) {
   }
   errorMessage.innerHTML = "";
 
-  fetch(NEXT_APPOINTMENT_URL + '?' + new URLSearchParams('token=' + token + '&from=' + conversation.from.S), {
+  const params = new URLSearchParams('token=' + token + '&from=' + conversation.from.S);
+  const request = fetch(NEXT_APPOINTMENT_URL + '?' + params, {
     method: "GET",
-  }).then(res => {
-    console.log("NEXT_APPOINTMENT response:", res);
-    if (res.body != null) {
-      const reader = res.body.getReader()
-      return reader.read().then(({ done, value }) => {
-        const content = new TextDecoder().decode(value);
-        if (res.status != 200) {
-          return [null, { status: res.status, content }];
-        } else {
-          return [{ status: res.status, content }, null];
-        }
-      })
-    }
-    if (res.status != 200) {
-      return [null, { status: res.status, content: '' }];
-    } else {
-      return [{ status: res.status, content: '' }, null];
-    }
-  }).then(([success, error]) => {
-    if (error != null) {
-      errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
-      if (error.status == 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USERNAME_KEY);
-        displayLogin();
-        displayAnonymousLayout();
-      }
+  })
+  handleFetchResponseError(request).then(([_error, success]) => {
+    if (success == null) {
       return;
     }
 
-    if (success == null) {
-      throw new Error("Success can't be null");
-    }
-
-    console.log(success, error);
     const appointmentDetailsResponse = JSON.parse(success.content);
     if (appointmentDetailsResponse.Items.length == 0) {
       nextAppointment.innerHTML = 'Nessun appuntamento';
@@ -281,12 +230,6 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     throw new Error("Missing element");
   }
 
-  const errorMessage = document.getElementById("error_message");
-  if (errorMessage == null) {
-    throw new Error("Missing element");
-  }
-  errorMessage.innerHTML = "";
-
   conversationDetailsForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
@@ -303,35 +246,16 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
 
-    fetch(CONVERSATION_URL, {
+    const request = fetch(CONVERSATION_URL, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
         conversation: { from: conversation.from.S, name: nameInput.value }
       })
-    }).then(res => {
-      console.log("CONVERSATION response:", res);
-      if (res.body != null) {
-        const reader = res.body.getReader()
-        return reader.read().then(({ done, value }) => {
-          const content = new TextDecoder().decode(value);
-          if (res.status != 200) {
-            return [null, { status: res.status, content }];
-          } else {
-            return [{ status: res.status, content }, null];
-          }
-        })
-      }
-      if (res.status != 200) {
-        return [null, { status: res.status, content: '' }];
-      } else {
-        return [{ status: res.status, content: '' }, null];
-      }
-    }, error => [null, { status: -1, content: error }]
-    ).then(([success, error]) => {
+    });
+    handleFetchResponseError(request).then(([error, success]) => {
       if (error != null) {
-        errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
         displayConversationDetails(token, conversation);
         return;
       }
@@ -461,32 +385,13 @@ function attachLoginEventListener() {
     loginButton.disabled = true;
     loginButton.value = "Caricamento...";
 
-    fetch(LOGIN_URL, {
+    const request = fetch(LOGIN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: usernameInput.value, password: passwordInput.value })
-    }).then(res => {
-      console.log("LOGIN response:", res);
-      if (res.body != null) {
-        const reader = res.body.getReader()
-        return reader.read().then(({ done, value }) => {
-          const content = new TextDecoder().decode(value);
-          if (res.status != 200) {
-            return [null, { status: res.status, content }];
-          } else {
-            return [{ status: res.status, content }, null];
-          }
-        })
-      }
-      if (res.status != 200) {
-        return [null, { status: res.status, content: '' }];
-      } else {
-        return [{ status: res.status, content: '' }, null];
-      }
-    }, error => [null, { status: -1, content: error }]
-    ).then(([success, error]) => {
+    });
+    handleFetchResponseError(request).then(([error, success]) => {
       if (error != null) {
-        errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
         displayLogin();
         return;
       }
@@ -578,40 +483,13 @@ function displayCalendar(token) {
   }
   errorMessage.innerHTML = "";
 
-  fetch(APPOINTMENTS_URL + '?' + new URLSearchParams('token=' + token), {
+  const params = new URLSearchParams('token=' + token);
+  const request = fetch(APPOINTMENTS_URL + '?' + params, {
     method: "GET",
-  }).then(res => {
-    console.log("APPOINTMENTS response:", res);
-    if (res.body != null) {
-      const reader = res.body.getReader()
-      return reader.read().then(({ done, value }) => {
-        const content = new TextDecoder().decode(value);
-        if (res.status != 200) {
-          return [null, { status: res.status, content }];
-        } else {
-          return [{ status: res.status, content }, null];
-        }
-      })
-    }
-    if (res.status != 200) {
-      return [null, { status: res.status, content: '' }];
-    } else {
-      return [{ status: res.status, content: '' }, null];
-    }
-  }).then(([success, error]) => {
-    if (error != null) {
-      errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
-      if (error.status == 401) {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USERNAME_KEY);
-        displayLogin();
-        displayAnonymousLayout();
-      }
-      return;
-    }
-
+  });
+  handleFetchResponseError(request).then(([_error, success]) => {
     if (success == null) {
-      throw new Error("Success can't be null");
+      return;
     }
 
     const appointmentsResponse = JSON.parse(success.content);
@@ -687,43 +565,15 @@ function displayCalendar(token) {
         appointmentDetails.style.display = "block";
         appointmentDetails.innerHTML = "<p>Caricamento...</p>";
 
-        fetch(APPOINTMENT_URL + '?' + new URLSearchParams('token=' + token + '&from=' + element.from.S + '&datetime=' + element.datetime.S), {
+        const params = new URLSearchParams('token=' + token + '&from=' + element.from.S + '&datetime=' + element.datetime.S);
+        const request = fetch(APPOINTMENT_URL + '?' + params, {
           method: "GET",
-        }).then(res => {
-          console.log("APPOINTMENT response:", res);
-          if (res.body != null) {
-            const reader = res.body.getReader()
-            return reader.read().then(({ done, value }) => {
-              const content = new TextDecoder().decode(value);
-              if (res.status != 200) {
-                return [null, { status: res.status, content }];
-              } else {
-                return [{ status: res.status, content }, null];
-              }
-            })
-          }
-          if (res.status != 200) {
-            return [null, { status: res.status, content: '' }];
-          } else {
-            return [{ status: res.status, content: '' }, null];
-          }
-        }).then(([success, error]) => {
-          if (error != null) {
-            errorMessage.innerHTML = `Errore: (${error.status}), ${error.content}`;
-            if (error.status == 401) {
-              localStorage.removeItem(TOKEN_KEY);
-              localStorage.removeItem(USERNAME_KEY);
-              displayLogin();
-              displayAnonymousLayout();
-            }
+        })
+        handleFetchResponseError(request).then(([_error, success]) => {
+          if (success == null) {
             return;
           }
 
-          if (success == null) {
-            throw new Error("Success can't be null");
-          }
-
-          console.log(success, error);
           const appointmentDetailsResponse = JSON.parse(success.content);
           displayAppointmentDetails(token, appointmentDetailsResponse.Item);
         });
