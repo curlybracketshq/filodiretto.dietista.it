@@ -74,7 +74,7 @@ function dateToString(date) {
   const month = date.getUTCMonth() + 1;
   const day = date.getUTCDate();
 
-  return `${weekdayName(weekday)} ${day} ${monthName(month + 1)}`.toLowerCase();
+  return `${weekdayName(weekday)} ${day} ${monthName(month)}`.toLowerCase();
 }
 
 /**
