@@ -9,6 +9,7 @@ const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com
 const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointments";
 const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointment";
 const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
+const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
 
 /**
  * @typedef {Object} Appointment
@@ -25,12 +26,11 @@ const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws
 /* Utility functions */
 
 /**
- * @param {string} month
+ * @param {number} month
  * @returns {string}
  */
 function monthName(month) {
-  const monthNumber = parseInt(month, 10);
-  switch (monthNumber) {
+  switch (month) {
     case 1: return "Gennaio";
     case 2: return "Febbraio";
     case 3: return "Marzo";
@@ -45,6 +45,35 @@ function monthName(month) {
     case 12: return "Dicembre";
   }
   throw new Error("Unexpected input: " + month);
+}
+
+/**
+ * @param {number} weekday
+ * @returns {string}
+ */
+function weekdayName(weekday) {
+  switch (weekday) {
+    case 0: return 'Domenica';
+    case 1: return 'Lunedì';
+    case 2: return 'Martedì';
+    case 3: return 'Mercoledì';
+    case 4: return 'Giovedì';
+    case 5: return 'Venerdì';
+    case 6: return 'Sabato';
+  }
+  throw new Error("Unexpected input: " + weekday);
+}
+
+/**
+ * @param {Date} date
+ * @returns {string}
+ */
+function dateToString(date) {
+  const weekday = date.getUTCDay();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+
+  return `${weekdayName(weekday)} ${day} ${monthName(month + 1)}`.toLowerCase();
 }
 
 /**
@@ -67,6 +96,18 @@ function requireInputElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLInputElement)) {
     throw new Error("Missing input element");
+  }
+  return element;
+}
+
+/**
+ * @param {any} id
+ * @returns {HTMLButtonElement}
+ */
+function requireButtonElement(id) {
+  const element = document.getElementById(id);
+  if (element == null || !(element instanceof HTMLButtonElement)) {
+    throw new Error("Missing button element");
   }
   return element;
 }
@@ -269,9 +310,8 @@ function displayConversationDetails(token, conversation) {
   <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
   <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
-  <p>
-    <button id="new_appointment">Nuovo appuntamento (TODO)</button>
-  </p>`;
+  <p><button id="new_appointment">Nuovo appuntamento (TODO)</button></p>
+  <p><button id="send_appointment_reminder" disabled>Invia promemoria appuntamento</button></p>`;
 
   attachUpdateConversationDetailsListener(token, conversation);
   attachNewAppointmentListener(token, conversation);
@@ -296,7 +336,41 @@ function displayConversationDetails(token, conversation) {
       const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
       const [date, time] = nextAppointmentDetails.datetime.S.split('T');
       nextAppointment.innerHTML = `${date}, ore ${time}`;
+
+      attachSendAppointmentReminderListener(token, conversation, nextAppointmentDetails);
     }
+  });
+}
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ * @param {Appointment} appointment
+ */
+function attachSendAppointmentReminderListener(token, conversation, appointment) {
+  const sendButton = requireButtonElement("send_appointment_reminder");
+  sendButton.disabled = false;
+  sendButton.addEventListener("click", function () {
+    const [date, time] = appointment.datetime.S.split('T');
+    const dateObj = new Date(date);
+    const dateStr = dateToString(dateObj);
+    sendButton.disabled = true;
+    const request = fetch(SEND_APPOINTMENT_REMINDER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        message: { to: conversation.from.S, date: dateStr, time }
+      })
+    });
+    handleFetchResponseError(request).then(([error, success]) => {
+      sendButton.disabled = false;
+      console.log(error, success);
+      if (success == null) {
+        return;
+      }
+      // TODO: notify success
+    });
   });
 }
 
@@ -531,7 +605,7 @@ function displayCalendar(token) {
           </tr>`;
       }).join('');
       contentHTML += `
-      <h2>${monthName(month)} ${year}</h2>
+      <h2>${monthName(parseInt(month, 10))} ${year}</h2>
       <table>
       <thead>
       <tr>
