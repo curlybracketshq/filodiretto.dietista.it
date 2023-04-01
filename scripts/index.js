@@ -15,6 +15,7 @@ const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.
  * @typedef {Object} Appointment
  * @prop {{S: string}} from
  * @prop {{S: string}} datetime
+ * @prop {?{S: string}} reminderSentAt
  */
 
 /**
@@ -126,10 +127,10 @@ function handleFetchResponseError(promise) {
   return promise.then(res => {
     console.log("Response:", res);
     if (res.body != null) {
-      const reader = res.body.getReader()
+      const reader = res.body.getReader();
       return reader.read().then(({ done, value }) => {
         return { status: res.status, content: new TextDecoder().decode(value) };
-      })
+      });
     }
     return { status: res.status, content: '' };
   }, error => ({ status: -1, content: error.toString() })).then(res => {
@@ -171,9 +172,7 @@ function displayConversations(token) {
     const conversationsResponse = JSON.parse(success.content);
     let contentHTML = `
     <div id="conversations">
-    <div class="collection_operations">
-      <button id="new_conversation">Nuovo numero</button>
-    </div>
+    <p><button id="new_conversation">Nuovo numero</button></p>
     <table>
     <thead>
     <tr>
@@ -323,7 +322,7 @@ function displayConversationDetails(token, conversation) {
   const params = new URLSearchParams('token=' + token + '&from=' + conversation.from.S);
   const request = fetch(NEXT_APPOINTMENT_URL + '?' + params, {
     method: "GET",
-  })
+  });
   handleFetchResponseError(request).then(([_error, success]) => {
     if (success == null) {
       return;
@@ -337,20 +336,27 @@ function displayConversationDetails(token, conversation) {
       const [date, time] = nextAppointmentDetails.datetime.S.split('T');
       nextAppointment.innerHTML = `${date}, ore ${time}`;
 
-      attachSendAppointmentReminderListener(token, conversation, nextAppointmentDetails);
+      attachSendAppointmentReminderListener(token, nextAppointmentDetails);
     }
   });
 }
 
 /**
  * @param {string} token
- * @param {Conversation} conversation
  * @param {Appointment} appointment
  */
-function attachSendAppointmentReminderListener(token, conversation, appointment) {
+function attachSendAppointmentReminderListener(token, appointment) {
   const sendButton = requireButtonElement("send_appointment_reminder");
   sendButton.disabled = false;
   sendButton.addEventListener("click", function () {
+    if (!confirm("Vuoi mandare un promemoria per questo appuntamento?")) {
+      return;
+    }
+
+    if (appointment.reminderSentAt != null && !confirm(`Hai già inviato un promemoria in data ${appointment.reminderSentAt.S}, vuoi inviare un altro promemoria?`)) {
+      return;
+    }
+
     const [date, time] = appointment.datetime.S.split('T');
     const dateObj = new Date(date);
     const dateStr = dateToString(dateObj);
@@ -360,7 +366,8 @@ function attachSendAppointmentReminderListener(token, conversation, appointment)
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        message: { to: conversation.from.S, date: dateStr, time }
+        appointment: { from: appointment.from.S, datetime: appointment.datetime.S },
+        message: { to: appointment.from.S, date: dateStr, time }
       })
     });
     handleFetchResponseError(request).then(([error, success]) => {
@@ -427,7 +434,7 @@ function attachNewAppointmentListener(token, conversation) {
   const newAppointmentButton = requireElement("new_appointment");
   newAppointmentButton.addEventListener("click", function () {
     console.log("TODO");
-  })
+  });
 }
 
 function displayLogin() {
@@ -580,10 +587,8 @@ function displayCalendar(token) {
       }
       return collection;
     }, {});
-    console.log(appointmentsByMonth);
     const sortedMonths = Object.keys(appointmentsByMonth).sort();
-    let contentHTML = `
-    <div id="calendar">`;
+    let contentHTML = `<div id="calendar">`;
     sortedMonths.forEach((/** @type {string} */ yearMonth) => {
       const [year, month] = yearMonth.split('-');
       const monthlyAppointments = appointmentsByMonth[yearMonth].sort(function (a, b) {
@@ -596,12 +601,15 @@ function displayCalendar(token) {
         return 0;
       }).map(function (/** @type {Appointment} */ element) {
         const [date, time] = element.datetime.S.split('T');
+        const dateObj = new Date(date);
+        const weekday = dateObj.getUTCDay();
+        const day = dateObj.getUTCDate();
         return `
           <tr>
-            <td>${element.from.S}</td>
-            <td>${date}</td>
+            <td>${weekdayName(weekday)} ${day}</td>
             <td>${time}</td>
-            <td><button id="appointment_${element.from.S}_info">Dettagli</button></td>
+            <td>${element.from.S}</td>
+            <td><button id="appointment_${element.from.S}_${element.datetime.S}_info">Dettagli</button></td>
           </tr>`;
       }).join('');
       contentHTML += `
@@ -609,9 +617,9 @@ function displayCalendar(token) {
       <table>
       <thead>
       <tr>
-        <th>Numero</th>
         <th>Data</th>
         <th>Ora</th>
+        <th>Numero</th>
         <th>Operazioni</th>
       </tr>
       </thead>
@@ -619,25 +627,18 @@ function displayCalendar(token) {
       </table>`;
     });
     contentHTML += `
-    </div>
-    <div id="appointment_details">
     </div>`;
     content.innerHTML = contentHTML;
 
-    const calendarTable = requireElement("calendar");
-    const appointmentDetails = requireElement("appointment_details");
-
     appointmentsResponse.Items.forEach((/** @type {Appointment} */ element) => {
-      const infoButton = requireElement(`appointment_${element.from.S}_info`);
+      const infoButton = requireElement(`appointment_${element.from.S}_${element.datetime.S}_info`);
       infoButton.addEventListener("click", function () {
-        calendarTable.style.display = "none";
-        appointmentDetails.style.display = "block";
-        appointmentDetails.innerHTML = "<p>Caricamento...</p>";
+        content.innerHTML = "<p>Caricamento...</p>";
 
         const params = new URLSearchParams('token=' + token + '&from=' + element.from.S + '&datetime=' + element.datetime.S);
         const request = fetch(APPOINTMENT_URL + '?' + params, {
           method: "GET",
-        })
+        });
         handleFetchResponseError(request).then(([_error, success]) => {
           if (success == null) {
             return;
@@ -656,27 +657,21 @@ function displayCalendar(token) {
  * @param {Appointment} appointment
  */
 function displayAppointmentDetails(token, appointment) {
-  const calendarTable = requireElement("calendar");
-  const appointmentDetails = requireElement("appointment_details");
+  const title = requireElement("title");
+  const [date, time] = appointment.datetime.S.split('T');
+  const dateObj = new Date(date);
+  const month = dateObj.getUTCMonth() + 1;
+  const day = dateObj.getUTCDate();
+  title.innerHTML = `Appuntamento del ${day} ${monthName(month).toLowerCase()} alle ${time}`;
 
-  appointmentDetails.innerHTML = `
-  <h2>Numero: ${appointment.from.S}</h2>
-  TODO...
-  <p><button id="close_appointment_details" class="primary">Chiudi</button></p>`;
+  const content = requireElement("content");
+  const reminderSentAt = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
+  content.innerHTML = `
+  <p>Numero: ${appointment.from.S}</p>
+  <p>Promemoria: <span id="reminder_sent_at">${reminderSentAt}</span></p>
+  <p><button id="send_appointment_reminder">Invia promemoria appuntamento</button></p>`;
 
-  attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails);
-}
-
-/**
- * @param {HTMLElement} calendarTable
- * @param {HTMLElement} appointmentDetails
- */
-function attachCloseAppointmentDetailsListener(calendarTable, appointmentDetails) {
-  const closeAppointmentDetailsButton = requireElement("close_appointment_details");
-  closeAppointmentDetailsButton.addEventListener("click", function () {
-    calendarTable.style.display = "block";
-    appointmentDetails.style.display = "none";
-  });
+  attachSendAppointmentReminderListener(token, appointment);
 }
 
 function main() {
