@@ -3,6 +3,7 @@
   --foreground: #222222;
   --foreground-muted: #2222227f;
   --primary: #0d6efd;
+  --error: #dc3545;
   --size-extra-small: 0.3rem;
   --size-small: 0.5rem;
 }
@@ -171,6 +172,25 @@ td, th {
 
 td {
   padding: 2px 6px;
+}
+
+#content {
+  display: none;
+}
+
+#info_message,
+#error_message {
+  padding: 0.5rem;
+  color: #fff;
+  display: none;
+}
+
+#info_message {
+  background-color: var(--primary);
+}
+
+#error_message {
+  background-color: var(--error);
 }
 
 @media (min-width: 730px) {

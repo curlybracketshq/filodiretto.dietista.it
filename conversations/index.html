@@ -1,0 +1,34 @@
+---
+layout: page
+title: Conversazioni
+---
+
+<div id="conversations">
+  <p><a href="{{ '/conversations/new/' | relative_url }}">Nuovo numero</a></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Numero</th>
+        <th>Nome</th>
+        <th>Operazioni</th>
+      </tr>
+    </thead>
+    <tbody id="conversations_table_content">
+    </tbody>
+  </table>
+</div>
+
+<div id="conversation_details">
+  <form id="conversation_details_form">
+    <div>
+      <label>Nome</label>
+      <input type="text" id="name_input" name="name" />
+    </div>
+    <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
+  </form>
+  <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
+  <p><a href="{{ '/appointments/new' | relative_url }}">Nuovo appuntamento (TODO)</a></p>
+</div>
+
+<script type="text/javascript" src="{{ '/common.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/conversations/index.js' | relative_url }}"></script>
