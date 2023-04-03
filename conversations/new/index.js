@@ -27,7 +27,7 @@ function attachCreateConversationListener(token) {
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
       .then(([_error, success]) => {
-        submitButton.disabled = true;
+        submitButton.disabled = false;
         submitButton.value = "Crea";
 
         if (success == null) {
