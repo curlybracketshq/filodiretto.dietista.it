@@ -1,0 +1,21 @@
+---
+layout: page
+title: Nuovo numero
+---
+
+<div id="new_conversation">
+  <form id="new_conversation_form">
+    <div>
+      <label>Numero</label>
+      <input type="text" id="from_input" name="from" />
+    </div>
+    <div>
+      <label>Nome</label>
+      <input type="text" id="name_input" name="name" />
+    </div>
+    <div><input type="submit" id="create_conversation" value="Crea" /></div>
+  </form>
+</div>
+
+<script type="text/javascript" src="{{ '/common.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/conversations/new/index.js' | relative_url }}"></script>
