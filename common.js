@@ -181,7 +181,7 @@ function handleFetchGenericError(promise) {
  * @returns {[?{status: number, content: string}, ?{status: number, content: string}]}
  */
 function handleFetchAuthError([error, success]) {
-  if (error.status == 401) {
+  if (error != null && error.status == 401) {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);
     window.location.replace("/");
