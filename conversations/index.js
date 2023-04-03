@@ -76,6 +76,8 @@ function displayConversationDetails(token, from) {
       const conversation = conversationDetailsResponse.Item;
       const nameInput = requireInputElement("name_input");
       nameInput.value = conversation.name?.S ?? '';
+      const newAppointmentLink = requireAnchorElement("new_appointment_link");
+      newAppointmentLink.href += `#${conversation.from.S}`;
 
       attachUpdateConversationDetailsListener(token, conversation);
 

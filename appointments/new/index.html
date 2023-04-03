@@ -1,0 +1,21 @@
+---
+layout: page
+title: Nuovo appuntamento
+---
+
+<div id="new_appointment">
+  <form id="new_appointment_form">
+    <div>
+      <label>Numero</label>
+      <select id="from_select" name="from"></select>
+    </div>
+    <div>
+      <label>Data e ora</label>
+      <input type="datetime-local" id="datetime_input" name="datetime" />
+    </div>
+    <div><input type="submit" id="create_appointment" value="Crea" /></div>
+  </form>
+</div>
+
+<script type="text/javascript" src="{{ '/common.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/appointments/new/index.js' | relative_url }}"></script>
