@@ -89,11 +89,35 @@ function requireElement(id) {
 
 /**
  * @param {any} id
+ * @returns {HTMLAnchorElement}
+ */
+function requireAnchorElement(id) {
+  const element = document.getElementById(id);
+  if (element == null || !(element instanceof HTMLAnchorElement)) {
+    throw new Error("Missing element");
+  }
+  return element;
+}
+
+/**
+ * @param {any} id
  * @returns {HTMLInputElement}
  */
 function requireInputElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLInputElement)) {
+    throw new Error("Missing input element");
+  }
+  return element;
+}
+
+/**
+ * @param {any} id
+ * @returns {HTMLSelectElement}
+ */
+function requireSelectElement(id) {
+  const element = document.getElementById(id);
+  if (element == null || !(element instanceof HTMLSelectElement)) {
     throw new Error("Missing input element");
   }
   return element;
