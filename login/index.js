@@ -1,50 +1,5 @@
 //@ts-check
 
-// TODO: move to common.js
-/**
- * @param {Promise<Response>} promise
- * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
- */
-function handleFetchResponseError(promise) {
-  // Reset error message
-  const errorMessage = requireElement("error_message");
-  errorMessage.innerHTML = "";
-  errorMessage.style.display = "none";
-
-  // Reset info message
-  const infoMessage = requireElement("info_message");
-  infoMessage.innerHTML = "";
-  infoMessage.style.display = "none";
-
-  return promise.then(res => {
-    console.log("Response:", res);
-    if (res.body != null) {
-      const reader = res.body.getReader();
-      return reader.read().then(({ done, value }) => {
-        return { status: res.status, content: new TextDecoder().decode(value) };
-      });
-    }
-    return { status: res.status, content: '' };
-  }, error => ({ status: -1, content: error.toString() })).then(res => {
-    if (res.status < 200 || res.status >= 300) {
-      errorMessage.innerHTML = `Errore: (${res.status}), ${res.content}`;
-      errorMessage.style.display = "block";
-      return [res, null];
-    }
-
-    return [null, res];
-  });
-}
-
-// TODO: move to common.js
-function displayAnonymousLayout() {
-  const authenticatedMenu = requireElement("authenticated");
-  authenticatedMenu.style.display = "none";
-
-  const anonymousMenu = requireElement("anonymous");
-  anonymousMenu.style.display = "block";
-}
-
 function attachLoginEventListener() {
   const loginButton = requireInputElement("login_button");
   const loginForm = requireElement("login_form");
@@ -63,7 +18,7 @@ function attachLoginEventListener() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: usernameInput.value, password: passwordInput.value })
     });
-    handleFetchResponseError(request).then(([error, success]) => {
+    handleFetchGenericError(request).then(([error, success]) => {
       loginButton.disabled = false;
       loginButton.value = "Accedi";
 

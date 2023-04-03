@@ -110,3 +110,82 @@ function requireButtonElement(id) {
   }
   return element;
 }
+
+/**
+ * @param {string} username
+ */
+function displayAuthenticatedLayout(username) {
+  const authenticatedMenu = requireElement("authenticated");
+  authenticatedMenu.style.display = "block";
+
+  const anonymousMenu = requireElement("anonymous");
+  anonymousMenu.style.display = "none";
+
+  const usernameMenuItem = requireElement("username");
+  usernameMenuItem.innerHTML = username;
+
+  const logoutLink = requireElement("logout");
+  logoutLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+    window.location.replace("/");
+  });
+}
+
+function displayAnonymousLayout() {
+  const authenticatedMenu = requireElement("authenticated");
+  authenticatedMenu.style.display = "none";
+
+  const anonymousMenu = requireElement("anonymous");
+  anonymousMenu.style.display = "block";
+}
+
+/**
+ * @param {Promise<Response>} promise
+ * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
+ */
+function handleFetchGenericError(promise) {
+  // Reset error message
+  const errorMessage = requireElement("error_message");
+  errorMessage.innerHTML = "";
+  errorMessage.style.display = "none";
+
+  // Reset info message
+  const infoMessage = requireElement("info_message");
+  infoMessage.innerHTML = "";
+  infoMessage.style.display = "none";
+
+  return promise.then(res => {
+    console.log("Response:", res);
+    if (res.body != null) {
+      const reader = res.body.getReader();
+      return reader.read().then(({ done, value }) => {
+        return { status: res.status, content: new TextDecoder().decode(value) };
+      });
+    }
+    return { status: res.status, content: '' };
+  }, error => ({ status: -1, content: error.toString() })).then(res => {
+    if (res.status < 200 || res.status >= 300) {
+      errorMessage.innerHTML = `Errore: (${res.status}), ${res.content}`;
+      errorMessage.style.display = "block";
+      return [res, null];
+    }
+
+    return [null, res];
+  });
+}
+
+/**
+ * @param {[?{status: number, content: string}, ?{status: number, content: string}]} result
+ * @returns {[?{status: number, content: string}, ?{status: number, content: string}]}
+ */
+function handleFetchAuthError([error, success]) {
+  if (error.status == 401) {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+    window.location.replace("/");
+  }
+
+  return [error, success];
+}
