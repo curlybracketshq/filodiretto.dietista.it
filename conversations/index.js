@@ -167,7 +167,7 @@ function displayConversationDetails(token, from) {
       } else {
         const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
         const [date, time] = nextAppointmentDetails.datetime.S.split('T');
-        nextAppointment.innerHTML = `<a href="/appointments/#${from}:${nextAppointmentDetails.datetime.S}">${date}, ore ${time}</a>`;
+        nextAppointment.innerHTML = `<a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${date}, ore ${time}</a>`;
       }
     });
   });

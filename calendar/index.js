@@ -127,7 +127,7 @@ function displayCalendar(token) {
             <td>${weekdayName(weekday)} ${day}</td>
             <td>${time}</td>
             <td>${element.from.S}</td>
-            <td><a href="/appointments/#${element.from.S}:${element.datetime.S}">Dettagli</a></td>
+            <td><a href="/appointments/#${element.from.S}|${element.datetime.S}">Dettagli</a></td>
           </tr>`;
       }).join('');
 
