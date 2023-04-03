@@ -1,15 +1,39 @@
 ---
-layout: default
+layout: page
 title: Filo Diretto
-description: Gestionale Whatsapp per professionisti
+description: Gestionale WhatsApp per professionisti
 ---
 
-<h1 id="title">{{ page.title }}</h1>
-<h2 id="subtitle">{{ page.description }}</h2>
+<p>
+  Filo Diretto rende semplice e veloce comunicare con i tuoi contatti attraverso
+  WhatsApp.
+</p>
 
-<div id="error_message"></div>
-
-<div id="content"></div>
+<div id="anonymous_content">
+  <p>
+    Usa le tue credenziali per <a href="{{ '/login/' | relative_url }}">accendere
+      al sistema</a>.
+  </p>
+  <p>
+    Scrivi a <a href="mailto:info+filodiretto@dietista.it">info+filodiretto@dietista.it</a>
+    per maggiori informazioni.
+  </p>
+</div>
+<div id="authenticated_content">
+  <h3>Conversazioni</h3>
+  <p>
+    <a href="{{ '/conversations/' | relative_url }}">Conversazioni</a> presenta
+    una lista di tutti i tuoi contatti. Entra nel dettaglio di una conversazione
+    per vedere una lista degli appuntamenti associati al contatto e per mandare un
+    messaggio di promemoria per il prossimo appuntamento.
+  </p>
+  <h3>Calendario</h3>
+  <p>
+    <a href="{{ '/calendar/' | relative_url }}">Calendario</a> presenta la lista
+    di tutti gli appuntamenti. Entra nel dettaglio di un appuntamento per prendere
+    delle note e per inviare un messaggio di promemoria.
+  </p>
+</div>
 
 <script type="text/javascript" src="{{ '/common.js' | relative_url }}"></script>
 <script type="text/javascript" src="{{ '/index.js' | relative_url }}"></script>

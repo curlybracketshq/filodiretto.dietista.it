@@ -65,7 +65,7 @@ function attachLogoutEventListener() {
     event.preventDefault();
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);
-    window.location.replace("/login/");
+    window.location.replace("/");
   });
 }
 
