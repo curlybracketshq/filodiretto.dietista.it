@@ -1,12 +1,12 @@
 <nav id="menu">
   <a href="{{ '/' | relative_url }}">Home</a>
   <span>·</span>
-  <span id="anonymous">
+  <div id="anonymous">
     <a href="{{ '/login/' | relative_url }}">Accedi</a>
     <span>·</span>
     <a href="https://dietista.it">Dietista.it</a>
-  </span>
-  <span id="authenticated">
+  </div>
+  <div id="authenticated">
     <a href="{{ '/conversations/' | relative_url }}">Conversazioni</a>
     <span>·</span>
     <a href="{{ '/calendar/' | relative_url }}">Calendario</a>
@@ -14,5 +14,5 @@
     Utente: <span id="username"></span>
     <span>·</span>
     <a id="logout" href="#">Esci</a>
-  </span>
+  </div>
 </nav>

@@ -116,7 +116,7 @@ function requireButtonElement(id) {
  */
 function displayAuthenticatedLayout(username) {
   const authenticatedMenu = requireElement("authenticated");
-  authenticatedMenu.style.display = "block";
+  authenticatedMenu.style.display = "flex";
 
   const anonymousMenu = requireElement("anonymous");
   anonymousMenu.style.display = "none";
@@ -138,7 +138,7 @@ function displayAnonymousLayout() {
   authenticatedMenu.style.display = "none";
 
   const anonymousMenu = requireElement("anonymous");
-  anonymousMenu.style.display = "block";
+  anonymousMenu.style.display = "flex";
 }
 
 /**

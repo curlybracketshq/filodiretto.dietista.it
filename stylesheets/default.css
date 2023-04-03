@@ -97,10 +97,11 @@ a>*,
   align-items: center;
 }
 
-nav {
+nav,
+nav > div {
   display: flex;
   flex-direction: row;
-  gap: var(--size-small);
+  gap: var(--size-extra-small);
   flex-wrap: wrap;
 }
 
