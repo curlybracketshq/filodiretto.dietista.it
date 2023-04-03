@@ -2,13 +2,6 @@
 
 const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointments";
 
-/**
- * @typedef {Object} Appointment
- * @prop {{S: string}} from
- * @prop {{S: string}} datetime
- * @prop {?{S: string}} reminderSentAt
- */
-
 // TODO: move to common.js
 /**
  * @param {Promise<Response>} promise

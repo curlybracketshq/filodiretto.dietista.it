@@ -4,6 +4,19 @@ const TOKEN_KEY = 'TOKEN';
 const USERNAME_KEY = 'USERNAME';
 
 /**
+ * @typedef {Object} Appointment
+ * @prop {{S: string}} from
+ * @prop {{S: string}} datetime
+ * @prop {?{S: string}} reminderSentAt
+ */
+
+/**
+ * @typedef {Object} Conversation
+ * @prop {{S: string}} from
+ * @prop {?{S: string}} name
+ */
+
+/**
  * @param {number} month
  * @returns {string}
  */

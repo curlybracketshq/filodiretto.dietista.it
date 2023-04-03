@@ -9,19 +9,6 @@ const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws
 const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
 
 /**
- * @typedef {Object} Appointment
- * @prop {{S: string}} from
- * @prop {{S: string}} datetime
- * @prop {?{S: string}} reminderSentAt
- */
-
-/**
- * @typedef {Object} Conversation
- * @prop {{S: string}} from
- * @prop {?{S: string}} name
- */
-
-/**
  * @param {Promise<Response>} promise
  * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
  */
