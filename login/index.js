@@ -58,7 +58,6 @@ function attachLoginEventListener() {
     const passwordInput = requireInputElement("password_input");
 
     loginButton.disabled = true;
-    const originalLoginButtonValue = loginButton.value;
     loginButton.value = "Caricamento...";
 
     const request = fetch(LOGIN_URL, {
@@ -68,7 +67,7 @@ function attachLoginEventListener() {
     });
     handleFetchResponseError(request).then(([error, success]) => {
       loginButton.disabled = false;
-      loginButton.value = originalLoginButtonValue;
+      loginButton.value = "Accedi";
 
       if (error != null) {
         return;

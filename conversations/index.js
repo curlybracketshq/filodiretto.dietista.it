@@ -83,8 +83,8 @@ function attachLogoutEventListener() {
  * @param {string} token
  */
 function displayConversations(token) {
-  const conversations = requireElement("conversations");
-  conversations.style.display = "block";
+  const loading = requireElement("loading");
+  loading.style.display = "block";
   const conversationDetails = requireElement("conversation_details");
   conversationDetails.style.display = "none";
 
@@ -99,6 +99,8 @@ function displayConversations(token) {
 
     const loading = requireElement("loading");
     loading.style.display = "none";
+    const conversations = requireElement("conversations");
+    conversations.style.display = "block";
     const content = requireElement("content");
     content.style.display = "block";
 
@@ -124,10 +126,10 @@ function displayConversationDetails(token, from) {
   const title = requireElement("title");
   title.innerHTML = `Numero: ${from}`;
 
+  const loading = requireElement("loading");
+  loading.style.display = "block";
   const conversations = requireElement("conversations");
   conversations.style.display = "none";
-  const conversationDetails = requireElement("conversation_details");
-  conversationDetails.style.display = "block";
 
   const params = new URLSearchParams('token=' + token + '&from=' + from);
   const request = fetch(CONVERSATION_URL + '?' + params, {
@@ -140,6 +142,8 @@ function displayConversationDetails(token, from) {
 
     const loading = requireElement("loading");
     loading.style.display = "none";
+    const conversationDetails = requireElement("conversation_details");
+    conversationDetails.style.display = "block";
     const content = requireElement("content");
     content.style.display = "block";
 
@@ -189,7 +193,6 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     const nameInput = requireInputElement("name_input");
 
     submitButton.disabled = true;
-    const originalSubmitButtonValue = submitButton.value;
     submitButton.value = "Caricamento...";
 
     const request = fetch(CONVERSATION_URL, {
@@ -202,7 +205,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     });
     handleFetchResponseError(request).then(([error, success]) => {
       submitButton.disabled = false;
-      submitButton.value = originalSubmitButtonValue;
+      submitButton.value = "Aggiorna";
 
       if (error != null) {
         return;
@@ -243,8 +246,12 @@ document.addEventListener("DOMContentLoaded", main);
 function hashChange() {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token != null) {
-    const [_, from] = location.hash.split('#');
-    displayConversationDetails(token, from);
+    if (location.hash == "") {
+      displayConversations(token);
+    } else {
+      const [_, from] = location.hash.split('#');
+      displayConversationDetails(token, from);
+    }
   } else {
     window.location.replace("/login/");
   }
