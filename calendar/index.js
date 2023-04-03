@@ -1,7 +1,5 @@
 //@ts-check
 
-const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointments";
-
 // TODO: move to common.js
 /**
  * @param {Promise<Response>} promise

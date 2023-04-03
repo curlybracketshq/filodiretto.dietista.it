@@ -1,8 +1,5 @@
 //@ts-check
 
-const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointment";
-const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
-
 // TODO: move to common.js
 /**
  * @param {Promise<Response>} promise
