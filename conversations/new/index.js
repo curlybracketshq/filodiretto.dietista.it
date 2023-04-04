@@ -11,7 +11,9 @@ function attachCreateConversationListener(token) {
     event.preventDefault();
 
     const fromInput = requireInputElement("from_input");
-    const nameInput = requireInputElement("name_input");
+    const firstNameInput = requireInputElement("first_name_input");
+    const lastNameInput = requireInputElement("last_name_input");
+    const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
@@ -21,7 +23,12 @@ function attachCreateConversationListener(token) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        conversation: { from: fromInput.value, name: nameInput.value }
+        conversation: {
+          from: fromInput.value,
+          first_name: firstNameInput.value,
+          last_name: lastNameInput.value,
+          notes: notesTextarea.value
+        }
       })
     });
     handleFetchGenericError(request)

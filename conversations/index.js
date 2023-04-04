@@ -32,7 +32,8 @@ function displayConversations(token) {
         return `
         <tr>
           <td>${element.from.S}</td>
-          <td>${element.name?.S ?? ''}</td>
+          <td>${element.firstName?.S ?? ''}</td>
+          <td>${element.lastName?.S ?? ''}</td>
           <td><a href="/conversations/#${element.from.S}">Dettagli</a></td>
         </tr>`;
       }).join('');
@@ -74,8 +75,12 @@ function displayConversationDetails(token, from) {
 
       const conversationDetailsResponse = JSON.parse(success.content);
       const conversation = conversationDetailsResponse.Item;
-      const nameInput = requireInputElement("name_input");
-      nameInput.value = conversation.name?.S ?? '';
+      const firstNameInput = requireInputElement("first_name_input");
+      firstNameInput.value = conversation.firstName?.S ?? '';
+      const lastNameInput = requireInputElement("last_name_input");
+      lastNameInput.value = conversation.lastName?.S ?? '';
+      const notesTextarea = requireTextAreaElement("notes_textarea");
+      notesTextarea.value = conversation.notes?.S ?? '';
       const newAppointmentLink = requireAnchorElement("new_appointment_link");
       newAppointmentLink.href += `#${conversation.from.S}`;
 
@@ -119,7 +124,9 @@ function attachUpdateConversationDetailsListener(token, conversation) {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const nameInput = requireInputElement("name_input");
+    const firstNameInput = requireInputElement("first_name_input");
+    const lastNameInput = requireInputElement("last_name_input");
+    const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
@@ -129,7 +136,12 @@ function attachUpdateConversationDetailsListener(token, conversation) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        conversation: { from: conversation.from.S, name: nameInput.value }
+        conversation: {
+          from: conversation.from.S,
+          first_name: firstNameInput.value,
+          last_name: lastNameInput.value,
+          notes: notesTextarea.value
+        }
       })
     });
     handleFetchGenericError(request)

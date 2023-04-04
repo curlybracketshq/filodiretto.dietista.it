@@ -21,7 +21,9 @@ const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.
 /**
  * @typedef {Object} Conversation
  * @prop {{S: string}} from
- * @prop {?{S: string}} name
+ * @prop {?{S: string}} firstName
+ * @prop {?{S: string}} lastName
+ * @prop {?{S: string}} notes
  */
 
 /**
@@ -106,6 +108,18 @@ function requireAnchorElement(id) {
 function requireInputElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLInputElement)) {
+    throw new Error("Missing input element");
+  }
+  return element;
+}
+
+/**
+ * @param {any} id
+ * @returns {HTMLTextAreaElement}
+ */
+function requireTextAreaElement(id) {
+  const element = document.getElementById(id);
+  if (element == null || !(element instanceof HTMLTextAreaElement)) {
     throw new Error("Missing input element");
   }
   return element;

@@ -10,6 +10,7 @@ title: Conversazioni
       <tr>
         <th>Numero</th>
         <th>Nome</th>
+        <th>Cognome</th>
         <th>Operazioni</th>
       </tr>
     </thead>
@@ -22,7 +23,15 @@ title: Conversazioni
   <form id="conversation_details_form">
     <div>
       <label>Nome</label>
-      <input type="text" id="name_input" name="name" />
+      <input type="text" id="first_name_input" name="first_name" />
+    </div>
+    <div>
+      <label>Cognome</label>
+      <input type="text" id="last_name_input" name="last_name" />
+    </div>
+    <div>
+      <label>Note</label>
+      <textarea id="notes_textarea" name="notes" rows="5" cols="80"></textarea>
     </div>
     <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
