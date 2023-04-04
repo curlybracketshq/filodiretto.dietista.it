@@ -201,6 +201,40 @@ td {
   }
 }
 
+#calendar table {
+  table-layout: fixed;
+}
+
+#calendar td {
+  vertical-align: top;
+  width: 14%;
+  overflow: hidden;
+}
+
+#calendar .weekend,
+#calendar .prev_month,
+#calendar .next_month {
+  color: #999;
+}
+
+#calendar .day {
+  display: flex;
+  flex-direction: column;
+}
+
+#calendar ul {
+  margin: 0;
+  padding: 0;
+}
+
+#calendar li {
+  list-style-type: none;
+}
+
+#calendar .appointments {
+  font-size: 0.8rem;
+}
+
 /* Dynamic elements */
 
 #authenticated {
