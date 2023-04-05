@@ -36,8 +36,9 @@ function displayAppointmentDetails(token, from, datetime) {
 
       const appointmentDetailsResponse = JSON.parse(success.content);
       const appointment = appointmentDetailsResponse.Item;
-      const from = requireElement("from");
+      const from = requireAnchorElement("from");
       from.innerHTML = appointment.from.S;
+      from.href = `/conversations/#${appointment.from.S}`;
       const reminderSentAt = requireElement("reminder_sent_at");
       reminderSentAt.innerHTML = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
       attachSendAppointmentReminderListener(token, appointment);
