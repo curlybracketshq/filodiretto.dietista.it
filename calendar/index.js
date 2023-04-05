@@ -42,11 +42,11 @@ function displayCalendar(token) {
       calendar.innerHTML = sortedMonths.map((/** @type {string} */ yearMonth) => {
         const [year, month] = yearMonth.split('-');
         const [yearNumber, monthNumber] = [parseInt(year, 10), parseInt(month, 10) - 1];
-        const beginningOfMonth = new Date(yearNumber, monthNumber, 1);
-        const beginningOfPrevMonth = new Date(yearNumber, monthNumber - 1, 1);
-        const beginningOfNextMonth = new Date(yearNumber, monthNumber + 1, 1);
+        const beginningOfMonth = new Date(Date.UTC(yearNumber, monthNumber, 1));
+        const beginningOfPrevMonth = new Date(Date.UTC(yearNumber, monthNumber - 1, 1));
+        const beginningOfNextMonth = new Date(Date.UTC(yearNumber, monthNumber + 1, 1));
         const daysInMonth = Math.round((beginningOfNextMonth.getTime() - beginningOfMonth.getTime()) / 1000 / 60 / 60 / 24);
-        const endOfMonth = new Date(yearNumber, monthNumber, daysInMonth);
+        const endOfMonth = new Date(Date.UTC(yearNumber, monthNumber, daysInMonth));
         const daysInPrevMonth = Math.round((beginningOfMonth.getTime() - beginningOfPrevMonth.getTime()) / 1000 / 60 / 60 / 24);
         let calendarMonthWeeks = [[]];
         let week = 0;
@@ -62,7 +62,7 @@ function displayCalendar(token) {
           prevMonthDay++;
         }
         for (let day = 1; day <= daysInMonth; day++) {
-          const date = new Date(yearNumber, monthNumber, day);
+          const date = new Date(Date.UTC(yearNumber, monthNumber, day));
           const dayOfWeek = date.getUTCDay();
           const [isoDate, _time] = date.toISOString().split('T');
           const dailyAppointments = appointmentsByDay[isoDate] == null ? [] : appointmentsByDay[isoDate];
