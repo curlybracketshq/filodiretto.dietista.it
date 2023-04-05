@@ -165,11 +165,11 @@ function displayConversationDetails(token, from) {
             return;
           }
 
-          const appointmentDetailsResponse = JSON.parse(success.content);
-          if (appointmentDetailsResponse.Items.length == 0) {
+          const appointmentsResponse = JSON.parse(success.content);
+          if (appointmentsResponse.Items.length == 0) {
             appointments.innerHTML = '<p>Nessun appuntamento</p>';
           } else {
-            const appointmentsItems = appointmentDetailsResponse.Items.map((/** @type {Appointment} */ appointment) => {
+            const appointmentsItems = appointmentsResponse.Items.map((/** @type {Appointment} */ appointment) => {
               const [date, time] = appointment.datetime.S.split('T');
               return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${date}, ore ${time}</a></li>`;
             }).join('');
