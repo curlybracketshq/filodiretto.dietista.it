@@ -10,6 +10,7 @@ const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com
 const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointment";
 const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
 const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
+const MESSAGES_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoMessages";
 
 /**
  * @typedef {Object} Appointment
@@ -24,6 +25,13 @@ const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.
  * @prop {?{S: string}} firstName
  * @prop {?{S: string}} lastName
  * @prop {?{S: string}} notes
+ */
+
+/**
+ * @typedef {Object} Message
+ * @prop {{S: string}} from
+ * @prop {{S: string}} timestamp
+ * @prop {?{S: string}} text
  */
 
 /**
