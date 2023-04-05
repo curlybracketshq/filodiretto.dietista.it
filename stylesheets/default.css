@@ -175,6 +175,14 @@ td {
   padding: 2px 6px;
 }
 
+tbody > tr:nth-of-type(odd) {
+  background-color: #eee;
+}
+
+.operation {
+  text-align: center;
+}
+
 #content {
   display: none;
 }
@@ -200,6 +208,8 @@ td {
     -webkit-text-size-adjust: none;
   }
 }
+
+/* Special style for the calendar */
 
 #calendar table {
   table-layout: fixed;

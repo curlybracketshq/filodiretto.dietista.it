@@ -34,12 +34,51 @@ function displayConversations(token) {
           <td>${element.from.S}</td>
           <td>${element.firstName?.S ?? ''}</td>
           <td>${element.lastName?.S ?? ''}</td>
-          <td><a href="/conversations/#${element.from.S}">Dettagli</a></td>
+          <td class="operation"><a href="/conversations/#${element.from.S}">Dettagli</a></td>
+          <td class="operation"><a class="delete_conversation" href="#" data-from="${element.from.S}">Elimina</a></td>
         </tr>`;
       }).join('');
       const conversationsTableContent = requireElement("conversations_table_content");
       conversationsTableContent.innerHTML = tableContent;
+
+      attachDeleteConversationListeners(token);
     });
+}
+
+/**
+ * @param {string} token
+ */
+function attachDeleteConversationListeners(token) {
+  const elements = document.getElementsByClassName("delete_conversation");
+  let element;
+  for (let i = 0; i < elements.length; i++) {
+    element = elements[i];
+    if (!(element instanceof HTMLElement)) {
+      continue;
+    }
+    const from = element.dataset.from;
+    element.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      if (!confirm(`Vuoi eliminare ${from}?`)) {
+        return;
+      }
+
+      const params = new URLSearchParams('token=' + token + '&from=' + from);
+      const request = fetch(CONVERSATION_URL + '?' + params, {
+        method: "DELETE",
+      });
+      handleFetchGenericError(request)
+        .then(handleFetchAuthError)
+        .then(([_error, success]) => {
+          if (success == null) {
+            return;
+          }
+
+          window.location.replace("/conversations/");
+        });
+    });
+  }
 }
 
 /**
