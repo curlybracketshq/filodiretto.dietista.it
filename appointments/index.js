@@ -41,6 +41,7 @@ function displayAppointmentDetails(token, from, datetime) {
       const reminderSentAt = requireElement("reminder_sent_at");
       reminderSentAt.innerHTML = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
       attachSendAppointmentReminderListener(token, appointment);
+      attachDeleteAppointmentListener(token, appointment);
     });
 }
 
@@ -50,7 +51,6 @@ function displayAppointmentDetails(token, from, datetime) {
  */
 function attachSendAppointmentReminderListener(token, appointment) {
   const sendButton = requireButtonElement("send_appointment_reminder");
-  sendButton.disabled = false;
   sendButton.addEventListener("click", function () {
     if (!confirm("Vuoi mandare un promemoria per questo appuntamento?")) {
       return;
@@ -64,6 +64,8 @@ function attachSendAppointmentReminderListener(token, appointment) {
     const dateObj = new Date(date);
     const dateStr = dateToString(dateObj);
     sendButton.disabled = true;
+    sendButton.innerHTML = "Caricamento...";
+
     const request = fetch(SEND_APPOINTMENT_REMINDER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -77,7 +79,10 @@ function attachSendAppointmentReminderListener(token, appointment) {
       .then(handleFetchAuthError)
       .then(([error, success]) => {
         sendButton.disabled = false;
+        sendButton.innerHTML = "Invia promemoria";
+
         console.log(error, success);
+
         if (success == null) {
           return;
         }
@@ -85,6 +90,40 @@ function attachSendAppointmentReminderListener(token, appointment) {
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Promemoria inviato correttamente";
         infoMessage.style.display = "block";
+      });
+  });
+}
+
+
+/**
+ * @param {string} token
+ * @param {Appointment} appointment
+ */
+function attachDeleteAppointmentListener(token, appointment) {
+  const deleteAppointmentButton = requireButtonElement("delete_appointment");
+  deleteAppointmentButton.addEventListener("click", function () {
+    if (!confirm(`Vuoi eliminare questo appuntamento?`)) {
+      return;
+    }
+
+    deleteAppointmentButton.disabled = true;
+    deleteAppointmentButton.innerHTML = "Caricamento...";
+
+    const params = new URLSearchParams('token=' + token + '&from=' + appointment.from.S + '&datetime=' + appointment.datetime.S);
+    const request = fetch(APPOINTMENT_URL + '?' + params, {
+      method: "DELETE",
+    });
+    handleFetchGenericError(request)
+      .then(handleFetchAuthError)
+      .then(([_error, success]) => {
+        deleteAppointmentButton.disabled = false;
+        deleteAppointmentButton.innerHTML = "Elimina";
+
+        if (success == null) {
+          return;
+        }
+
+        window.location.replace("/calendar/");
       });
   });
 }
