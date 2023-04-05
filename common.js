@@ -96,7 +96,7 @@ function requireElement(id) {
 function requireAnchorElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLAnchorElement)) {
-    throw new Error("Missing element");
+    throw new Error("Missing anchor element");
   }
   return element;
 }
@@ -120,7 +120,7 @@ function requireInputElement(id) {
 function requireTextAreaElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLTextAreaElement)) {
-    throw new Error("Missing input element");
+    throw new Error("Missing textarea element");
   }
   return element;
 }
@@ -132,7 +132,7 @@ function requireTextAreaElement(id) {
 function requireSelectElement(id) {
   const element = document.getElementById(id);
   if (element == null || !(element instanceof HTMLSelectElement)) {
-    throw new Error("Missing input element");
+    throw new Error("Missing select element");
   }
   return element;
 }
