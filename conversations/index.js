@@ -129,11 +129,11 @@ function displayConversationDetails(token, from) {
       const nextAppointment = requireElement("next_appointment");
       nextAppointment.innerHTML = "Caricamento...";
 
-      const params = new URLSearchParams('token=' + token + '&from=' + from);
-      const request = fetch(NEXT_APPOINTMENT_URL + '?' + params, {
+      const nextAppointmentParams = new URLSearchParams('token=' + token + '&from=' + from);
+      const nextAppointmentRequest = fetch(NEXT_APPOINTMENT_URL + '?' + nextAppointmentParams, {
         method: "GET",
       });
-      handleFetchGenericError(request)
+      handleFetchGenericError(nextAppointmentRequest)
         .then(handleFetchAuthError)
         .then(([_error, success]) => {
           if (success == null) {
@@ -147,6 +147,33 @@ function displayConversationDetails(token, from) {
             const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
             const [date, time] = nextAppointmentDetails.datetime.S.split('T');
             nextAppointment.innerHTML = `<a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${date}, ore ${time}</a>`;
+          }
+        });
+
+      // Load contact appointments
+      const appointments = requireElement("appointments");
+      appointments.innerHTML = "<p>Caricamento...</p>";
+
+      const appointmentsParams = new URLSearchParams('token=' + token + '&from=' + from);
+      const appointmentsRequest = fetch(APPOINTMENTS_URL + '?' + appointmentsParams, {
+        method: "GET",
+      });
+      handleFetchGenericError(appointmentsRequest)
+        .then(handleFetchAuthError)
+        .then(([_error, success]) => {
+          if (success == null) {
+            return;
+          }
+
+          const appointmentDetailsResponse = JSON.parse(success.content);
+          if (appointmentDetailsResponse.Items.length == 0) {
+            appointments.innerHTML = '<p>Nessun appuntamento</p>';
+          } else {
+            const appointmentsItems = appointmentDetailsResponse.Items.map((/** @type {Appointment} */ appointment) => {
+              const [date, time] = appointment.datetime.S.split('T');
+              return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${date}, ore ${time}</a></li>`;
+            }).join('');
+            appointments.innerHTML = `<ul>${appointmentsItems}</ul>`;
           }
         });
     });
