@@ -197,10 +197,8 @@ function displayConversationDetails(token, from) {
             messages.innerHTML = '<p>Nessun messaggio</p>';
           } else {
             const messagesItems = messagesResponse.Items.map((/** @type {Message} */ message) => {
-              console.log({ message });
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
               const { body } = JSON.parse(message.text.S);
-              console.log({ date, body });
               return `<li>${date.toLocaleString()}<br>${body}</li>`;
             }).join('');
             messages.innerHTML = `<ul>${messagesItems}</ul>`;
