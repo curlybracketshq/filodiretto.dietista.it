@@ -54,7 +54,7 @@ function attachDeleteConversationListeners(token) {
   for (let i = 0; i < elements.length; i++) {
     element = elements[i];
     if (!(element instanceof HTMLElement)) {
-      continue;
+      throw new Error("Missing element");
     }
     const from = element.dataset.from;
     element.addEventListener("click", function (event) {
