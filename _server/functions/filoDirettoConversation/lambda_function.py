@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             return {"statusCode": 400, "body": "Missing from param", "headers": CORS_HEADERS}
     
         token = json.loads(event['queryStringParameters']['token'])
-        if not is_token_valid(token):
+        if not auth.is_token_valid(token):
             return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
     
         dynamodb = boto3.client('dynamodb')
@@ -64,7 +64,7 @@ def lambda_handler(event, context):
     elif event['httpMethod'] == 'PUT':
         body = json.loads(event['body'])
         token = json.loads(body['token'])
-        if not is_token_valid(token):
+        if not auth.is_token_valid(token):
             return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
         
         dynamodb = boto3.client('dynamodb')
@@ -98,7 +98,7 @@ def lambda_handler(event, context):
     elif event['httpMethod'] == 'POST':
         body = json.loads(event['body'])
         token = json.loads(body['token'])
-        if not is_token_valid(token):
+        if not auth.is_token_valid(token):
             return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
         
         dynamodb = boto3.client('dynamodb')
