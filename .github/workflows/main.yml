@@ -24,8 +24,9 @@ jobs:
           functions=$(ls _server/functions)
           for f in $functions
           do
-            cd _server/functions/$f
-            zip $f.zip lambda_function.py
-            aws lambda update-function-code --function-name $f --zip-file fileb://$f.zip
-            cd -
+            cd $GITHUB_WORKSPACE/_server/functions/$f
+            zip $GITHUB_WORKSPACE/$f.zip lambda_function.py
+            cd $GITHUB_WORKSPACE/_server
+            zip -ur $GITHUB_WORKSPACE/$f.zip common
+            aws lambda update-function-code --function-name $f --zip-file fileb://$GITHUB_WORKSPACE/$f.zip
           done

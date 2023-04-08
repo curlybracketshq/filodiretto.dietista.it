@@ -1,27 +1,15 @@
 import json
-import hashlib
 import boto3
-import os
+from common import auth
 
 print('Loading function')
 
-SECRET = os.environ['AUTH_SECRET'].encode('utf-8')
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
     'Access-Control-Allow-Headers': 'Content-Type',
 }
 SENDERS_TABLE = "filoDirettoSenders"
-
-
-def is_token_valid(token):
-    print(token)
-    m = hashlib.sha256()
-    m.update(token['timestamp'].encode('utf-8'))
-    m.update(token['nonce'].encode('utf-8'))
-    m.update(SECRET)
-    signature = m.hexdigest()
-    return signature == token['signature']
 
 
 def lambda_handler(event, context):
@@ -37,7 +25,7 @@ def lambda_handler(event, context):
             return {"statusCode": 400, "body": "Missing from param", "headers": CORS_HEADERS}
     
         token = json.loads(event['queryStringParameters']['token'])
-        if not is_token_valid(token):
+        if not auth.is_token_valid(token):
             return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
     
         dynamodb = boto3.client('dynamodb')

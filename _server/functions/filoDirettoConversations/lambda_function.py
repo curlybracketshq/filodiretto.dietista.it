@@ -1,11 +1,9 @@
 import json
-import hashlib
 import boto3
-import os
+from common import auth
 
 print('Loading function')
 
-SECRET = os.environ['AUTH_SECRET'].encode('utf-8')
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'OPTIONS,GET',
@@ -26,13 +24,7 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Missing token param", "headers": CORS_HEADERS}
 
     token = json.loads(event['queryStringParameters']['token'])
-    print(token)
-    m = hashlib.sha256()
-    m.update(token['timestamp'].encode('utf-8'))
-    m.update(token['nonce'].encode('utf-8'))
-    m.update(SECRET)
-    signature = m.hexdigest()
-    if signature != token['signature']:
+    if not auth.is_token_valid(token):
         return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
 
     dynamodb = boto3.client('dynamodb')
