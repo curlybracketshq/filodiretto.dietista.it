@@ -22,15 +22,10 @@ jobs:
           AWS_DEFAULT_REGION: "us-east-1"
         run: |
           functions=$(ls _server/functions)
-          echo $functions
           for f in $functions
           do
-            echo $f
-            pwd
             cd _server/functions/$f
-            pwd
             zip $f.zip lambda_function.py
             aws lambda update-function-code --function-name $f --zip-file fileb://$f.zip
             cd -
-            pwd
           done
