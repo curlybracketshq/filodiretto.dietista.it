@@ -1,0 +1,26 @@
+name: Deploy to Amazon Lambda
+
+on:
+  push:
+    paths:
+      - '_server/**'
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Test AWS CLI
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: 'us-east-1'
+      run: |
+        echo "TODO"
+    
+    - name: Update functions
+      id: update-functions
+      run: |
+        echo "TODO"
