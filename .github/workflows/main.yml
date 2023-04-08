@@ -27,7 +27,7 @@ jobs:
           do
             echo $f
             pwd
-            cd _server/functions$f
+            cd _server/functions/$f
             pwd
             zip $f.zip lambda_function.py
             aws lambda update-function-code --function-name $f --zip-file fileb://$f.zip
