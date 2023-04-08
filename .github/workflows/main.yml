@@ -3,7 +3,7 @@ name: update-aws-lambda-functions
 on:
   push:
     paths:
-      - '_server/**'
+      - "_server/**"
 
 jobs:
   deploy:
@@ -12,20 +12,23 @@ jobs:
     environment: production
 
     steps:
-    - name: Zip and update functions
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: 'us-east-1'
-      run: |
-        functions=$(ls _server/functions)
-        echo $functions
-        for f in $functions
-        do
-          echo $f
-          pwd
-          cd $f
-          pwd
-          zip $f.zip lambda_function.py
-          aws lambda update-function-code --function-name $f --zip-file fileb://$f.zip
-        done
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Zip and update functions
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-1"
+        run: |
+          functions=$(ls _server/functions)
+          echo $functions
+          for f in $functions
+          do
+            echo $f
+            pwd
+            cd $f
+            pwd
+            zip $f.zip lambda_function.py
+            aws lambda update-function-code --function-name $f --zip-file fileb://$f.zip
+          done
