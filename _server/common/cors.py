@@ -21,6 +21,5 @@ def access_control(methods):
             headers['Access-Control-Allow-Headers'] = 'Content-Type',
             response['headers'] = headers
             return response
-        new_f.func_name = f.func_name
         return new_f
     return add_cors_headers
