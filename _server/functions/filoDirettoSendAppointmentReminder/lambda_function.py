@@ -4,6 +4,7 @@ import boto3
 from datetime import datetime
 import os
 from common import auth
+from common import cors
 
 print('Loading function')
 
@@ -11,26 +12,19 @@ PHONE_NUMBER_ID = os.environ['WA_PHONE_NUMBER_ID']
 ACCESS_TOKEN = SECRET = os.environ['WA_ACCESS_TOKEN']
 MESSAGE_TEMPLATE_NAME = "meeting_reminder"
 MESSAGE_LANGUAGE_CODE = "it"
-CORS_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'OPTIONS,POST',
-    'Access-Control-Allow-Headers': 'Content-Type',
-}
 APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
+@cors.access_control(methods={'POST'})
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
-    if event['httpMethod'] == 'OPTIONS':
-        return {"statusCode": 200, "body": "Ok", "headers": CORS_HEADERS}
-    
     if event['httpMethod'] != 'POST':
-        return {"statusCode": 400, "body": "HTTP method not supported", "headers": CORS_HEADERS}
+        return {"statusCode": 400, "body": "HTTP method not supported"}
 
     body = json.loads(event['body'])
     token = json.loads(body['token'])
     if not auth.is_token_valid(token):
-        return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
+        return {"statusCode": 401, "body": "Authentication failed"}
     
     params = json.dumps({
         "messaging_product": "whatsapp",
@@ -70,7 +64,7 @@ def lambda_handler(event, context):
     conn.close()
 
     if response.status != 200:
-        return {"statusCode": 400, "body": data.decode("utf-8"), "headers": CORS_HEADERS}
+        return {"statusCode": 400, "body": data.decode("utf-8")}
     
     dynamodb = boto3.client('dynamodb')
     result = dynamodb.update_item(
@@ -93,4 +87,5 @@ def lambda_handler(event, context):
         UpdateExpression='SET #RSA = :rsa',
         ConditionExpression='#F = :f AND #D = :d',
     )
-    return {"statusCode": 200, "body": json.dumps(result), "headers": CORS_HEADERS}
+
+    return {"statusCode": 200, "body": json.dumps(result)}

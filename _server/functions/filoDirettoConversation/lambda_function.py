@@ -1,32 +1,26 @@
 import json
 import boto3
 from common import auth
+from common import cors
 
 print('Loading function')
 
-CORS_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'OPTIONS,GET,PUT,POST,DELETE',
-    'Access-Control-Allow-Headers': 'Content-Type',
-}
 SENDERS_TABLE = "filoDirettoSenders"
 
 
+@cors.access_control(methods={'GET', 'PUT', 'POST', 'DELETE'})
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
-    if event['httpMethod'] == 'OPTIONS':
-        return {"statusCode": 200, "body": "Ok", "headers": CORS_HEADERS}
-    
     if event['httpMethod'] == 'GET':
         if 'token' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing token param", "headers": CORS_HEADERS}
+            return {"statusCode": 400, "body": "Missing token param"}
         
         if 'from' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing from param", "headers": CORS_HEADERS}
+            return {"statusCode": 400, "body": "Missing from param"}
     
         token = json.loads(event['queryStringParameters']['token'])
         if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
+            return {"statusCode": 401, "body": "Authentication failed"}
     
         dynamodb = boto3.client('dynamodb')
         result = dynamodb.get_item(
@@ -34,21 +28,17 @@ def lambda_handler(event, context):
             Key={'from': {'S': event['queryStringParameters']['from']}},
         )
         
-        return {
-            "statusCode": 200,
-            "body": json.dumps(result),
-            "headers": CORS_HEADERS,
-        }
+        return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'DELETE':
         if 'token' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing token param", "headers": CORS_HEADERS}
+            return {"statusCode": 400, "body": "Missing token param"}
         
         if 'from' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing from param", "headers": CORS_HEADERS}
+            return {"statusCode": 400, "body": "Missing from param"}
     
         token = json.loads(event['queryStringParameters']['token'])
         if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
+            return {"statusCode": 401, "body": "Authentication failed"}
     
         dynamodb = boto3.client('dynamodb')
         result = dynamodb.delete_item(
@@ -56,16 +46,12 @@ def lambda_handler(event, context):
             Key={'from': {'S': event['queryStringParameters']['from']}},
         )
         
-        return {
-            "statusCode": 200,
-            "body": json.dumps(result),
-            "headers": CORS_HEADERS,
-        }
+        return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'PUT':
         body = json.loads(event['body'])
         token = json.loads(body['token'])
         if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
+            return {"statusCode": 401, "body": "Authentication failed"}
         
         dynamodb = boto3.client('dynamodb')
         result = dynamodb.update_item(
@@ -90,16 +76,12 @@ def lambda_handler(event, context):
             ConditionExpression='#F = :f',
         )
 
-        return {
-            "statusCode": 200,
-            "body": json.dumps(result),
-            "headers": CORS_HEADERS,
-        }
+        return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'POST':
         body = json.loads(event['body'])
         token = json.loads(body['token'])
         if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed", "headers": CORS_HEADERS}
+            return {"statusCode": 401, "body": "Authentication failed"}
         
         dynamodb = boto3.client('dynamodb')
         # Add a new sender conditionally so we don't overwrite existing items
@@ -117,10 +99,6 @@ def lambda_handler(event, context):
             ConditionExpression='attribute_not_exists(#F)',
         )
 
-        return {
-            "statusCode": 200,
-            "body": json.dumps(result),
-            "headers": CORS_HEADERS,
-        }
+        return {"statusCode": 200, "body": json.dumps(result)}
     else:
-        return {"statusCode": 400, "body": "HTTP method not supported", "headers": CORS_HEADERS}
+        return {"statusCode": 400, "body": "HTTP method not supported"}
