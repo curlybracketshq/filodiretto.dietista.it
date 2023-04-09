@@ -9,21 +9,15 @@ APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
 @cors.access_control(methods={'GET', 'PUT', 'POST', 'DELETE'})
+@auth.require_auth
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] == 'GET':
-        if 'token' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing token param"}
-        
         if 'from' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing from param"}
         
         if 'datetime' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing datetime param"}
-    
-        token = json.loads(event['queryStringParameters']['token'])
-        if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed"}
     
         dynamodb = boto3.client('dynamodb')
         result = dynamodb.get_item(
@@ -36,19 +30,12 @@ def lambda_handler(event, context):
         
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'DELETE':
-        if 'token' not in event['queryStringParameters']:
-            return {"statusCode": 400, "body": "Missing token param"}
-        
         if 'from' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing from param"}
         
         if 'datetime' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing datetime param"}
-    
-        token = json.loads(event['queryStringParameters']['token'])
-        if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed"}
-    
+
         dynamodb = boto3.client('dynamodb')
         result = dynamodb.delete_item(
             TableName=APPOINTMENTS_TABLE,
@@ -61,10 +48,7 @@ def lambda_handler(event, context):
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'PUT':
         body = json.loads(event['body'])
-        token = json.loads(body['token'])
-        if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed"}
-        
+
         dynamodb = boto3.client('dynamodb')
         # TODO: delete + update in a transaction
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
@@ -92,9 +76,6 @@ def lambda_handler(event, context):
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'POST':
         body = json.loads(event['body'])
-        token = json.loads(body['token'])
-        if not auth.is_token_valid(token):
-            return {"statusCode": 401, "body": "Authentication failed"}
         
         dynamodb = boto3.client('dynamodb')
         # Add a new appointment conditionally so we don't overwrite existing items

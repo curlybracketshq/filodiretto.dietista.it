@@ -16,16 +16,14 @@ APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
 @cors.access_control(methods={'POST'})
+@auth.require_auth
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] != 'POST':
         return {"statusCode": 400, "body": "HTTP method not supported"}
 
     body = json.loads(event['body'])
-    token = json.loads(body['token'])
-    if not auth.is_token_valid(token):
-        return {"statusCode": 401, "body": "Authentication failed"}
-    
+
     params = json.dumps({
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
