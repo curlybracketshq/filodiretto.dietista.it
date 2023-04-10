@@ -3,6 +3,7 @@ import boto3
 import datetime
 from common import auth
 from common import cors
+from common import errors
 
 print('Loading function')
 
@@ -10,6 +11,7 @@ APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
 @cors.access_control(methods={'GET'})
+@errors.notify_discord
 @auth.require_auth
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))

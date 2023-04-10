@@ -4,6 +4,7 @@ import hashlib
 import secrets
 import os
 from common import cors
+from common import errors
 
 print('Loading function')
 
@@ -12,6 +13,7 @@ SECRET = os.environ['AUTH_SECRET'].encode('utf-8')
 
 
 @cors.access_control(methods={'POST'})
+@errors.notify_discord
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] != 'POST':

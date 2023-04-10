@@ -3,6 +3,7 @@ import http.client
 import boto3
 import time
 import os
+from common import errors
 
 print('Loading function')
 
@@ -20,6 +21,7 @@ CHATGPT_SYSTEM_PROMPT_2 = os.environ['CHATGPT_SYSTEM_PROMPT_2']
 
 
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
+@errors.notify_discord
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     # https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
