@@ -4,14 +4,14 @@ import traceback
 import os
 
 
-def _send_error_message(e):
+def _send_error_message():
     WEBHOOK_ID = os.environ.get('DISCORD_WEBHOOK_ID')
     WEBHOOK_TOKEN = os.environ.get('DISCORD_WEBHOOK_TOKEN')
     if WEBHOOK_ID is None or WEBHOOK_TOKEN is None:
         print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
         return
 
-    params = json.dumps({"content": traceback.format_exception(e)})
+    params = json.dumps({"content": traceback.format_exc()})
     headers = {"Content-type": "application/json"}
     conn = http.client.HTTPSConnection("discord.com")
     conn.request("POST", "/api/webhooks/" + WEBHOOK_ID + "/" + WEBHOOK_TOKEN, params, headers)
@@ -27,8 +27,8 @@ def notify_discord(f):
     def new_f(event, context):
         try:
             return f(event, context)
-        except Exception as e:
-            _send_error_message(e)
+        except Exception:
+            _send_error_message()
 
         return {"statusCode": 500, "body": "Server error"}
     return new_f
