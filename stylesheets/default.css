@@ -115,7 +115,7 @@ footer nav {
 }
 
 fieldset {
-  margin-top: 2rem;
+  border: none;
 }
 
 form {
@@ -128,7 +128,8 @@ fieldset > div {
 
 label,
 input,
-legend {
+legend,
+select {
   display: table-cell;
   margin-bottom: 10px;
 }
@@ -141,19 +142,35 @@ label {
   padding-right: 10px;
 }
 
+select {
+  width: 100%;
+  padding: 4px;
+}
+
+.button {
+  display: inline-block;
+  background-color: #eee;
+  color: #000;
+  text-decoration: none;
+}
+
 input,
-button {
+button,
+select,
+.button {
   border: 1px solid #999;
   border-radius: 2px;
   font-size: 1rem;
 }
 
-button {
+input[type="submit"],
+button,
+.button {
   padding: 4px 8px;
   font-weight: bold;
 }
 
-button.primary {
+.primary {
   background-color: var(--primary);
   color: var(--background);
   border: 1px solid var(--primary);
