@@ -4,7 +4,7 @@ title: Conversazioni
 ---
 
 <div id="conversations">
-  <p><a href="{{ '/conversations/new/' | relative_url }}">Nuovo numero</a></p>
+  <p><a class="button" href="{{ '/conversations/new/' | relative_url }}">Nuovo numero</a></p>
   <table>
     <thead>
       <tr>
@@ -36,7 +36,9 @@ title: Conversazioni
     <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
   <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
-  <p><a id="new_appointment_link" href="{{ '/appointments/new/' | relative_url }}">Nuovo appuntamento</a></p>
+  <p>
+    <a id="new_appointment_link" class="button" href="{{ '/appointments/new/' | relative_url }}">Nuovo appuntamento</a>
+  </p>
   <h2>Appuntamenti</h2>
   <id id="appointments"></id>
   <h2>Messaggi</h2>

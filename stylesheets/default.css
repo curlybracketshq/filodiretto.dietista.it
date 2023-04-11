@@ -147,10 +147,11 @@ select {
   padding: 4px;
 }
 
+a:visited.button,
 .button {
   display: inline-block;
   background-color: #eee;
-  color: #000;
+  color: var(--foreground);
   text-decoration: none;
 }
 
