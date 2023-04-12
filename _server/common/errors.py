@@ -12,7 +12,7 @@ def _send_error_message(event):
         return
 
     params = json.dumps({
-        "content": event['httpMethod'] + " " + event['path'] + "\n\n" + traceback.format_exc(),
+        "content": event['httpMethod'] + " " + event['path'] + "\n\n" + traceback.format_exc() + "/n/n" + json.dumps(event),
     })
     headers = {"Content-type": "application/json"}
     conn = http.client.HTTPSConnection("discord.com")
