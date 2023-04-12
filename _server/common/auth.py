@@ -18,7 +18,7 @@ def _is_token_valid(token):
 def require_auth(f):
     def new_f(event, context):
         token = None
-        if 'token' in event.get('queryStringParameters', {}):
+        if event['queryStringParameters'] is not None and 'token' in event['queryStringParameters']:
             token = json.loads(event['queryStringParameters']['token'])
 
         if token is None:
