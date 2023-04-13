@@ -160,11 +160,13 @@ select,
 .button {
   border: 1px solid #999;
   border-radius: 2px;
+  -webkit-border-radius: 2px;
   font-size: 1rem;
 }
 
 input[type="submit"],
 button,
+a:visited.button,
 .button {
   padding: 4px 8px;
   font-weight: bold;
