@@ -18,6 +18,9 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "HTTP method not supported"}
 
     dynamodb = boto3.client('dynamodb')
-    results = dynamodb.scan(TableName=SENDERS_TABLE)
+    kwargs = {'TableName': SENDERS_TABLE}
+    if event['queryStringParameters'] is not None and 'last_evaluated_key' in event['queryStringParameters']:
+        kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
+    results = dynamodb.scan(**kwargs)
     
     return {"statusCode": 200, "body": json.dumps(results)}

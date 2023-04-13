@@ -2,6 +2,38 @@
 
 /**
  * @param {string} token
+ * @param {?string} lastEvaluatedKey
+ * @param {Array<Conversation>} items
+ * @returns {Promise<Array<Conversation>>}
+ */
+function fetchConversations(token, lastEvaluatedKey, items) {
+  let queryString = 'token=' + token;
+  if (lastEvaluatedKey != null) {
+    queryString += '&last_evaluated_key=' + lastEvaluatedKey;
+  }
+  const params = new URLSearchParams(queryString);
+  const request = fetch(CONVERSATIONS_URL + '?' + params, {
+    method: "GET",
+  });
+  return handleFetchGenericError(request)
+    .then(handleFetchAuthError)
+    .then(([_error, success]) => {
+      if (success == null) {
+        return [];
+      }
+
+      const conversationsResponse = JSON.parse(success.content);
+      items = items.concat(conversationsResponse.Items);
+      if (conversationsResponse.LastEvaluatedKey == null) {
+        return items;
+      }
+      const lastEvaluatedKey = JSON.stringify(conversationsResponse.LastEvaluatedKey);
+      return fetchConversations(token, lastEvaluatedKey, items);
+    });
+}
+
+/**
+ * @param {string} token
  */
 function displayConversations(token) {
   const loading = requireElement("loading");
@@ -9,17 +41,8 @@ function displayConversations(token) {
   const conversationDetails = requireElement("conversation_details");
   conversationDetails.style.display = "none";
 
-  const params = new URLSearchParams('token=' + token);
-  const request = fetch(CONVERSATIONS_URL + '?' + params, {
-    method: "GET",
-  });
-  handleFetchGenericError(request)
-    .then(handleFetchAuthError)
-    .then(([_error, success]) => {
-      if (success == null) {
-        return;
-      }
-
+  fetchConversations(token, null, [])
+    .then(items => {
       const loading = requireElement("loading");
       loading.style.display = "none";
       const conversations = requireElement("conversations");
@@ -27,8 +50,7 @@ function displayConversations(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const conversationsResponse = JSON.parse(success.content);
-      const tableContent = conversationsResponse.Items.map((/** @type {Conversation} */ element) => {
+      const tableContent = items.map((/** @type {Conversation} */ element) => {
         return `
         <tr>
           <td>${element.from.S}</td>
