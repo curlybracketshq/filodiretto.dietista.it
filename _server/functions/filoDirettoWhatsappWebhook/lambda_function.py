@@ -152,4 +152,4 @@ def lambda_handler(event, context):
         conn.close()
         return {"statusCode": 200, "body": "Ok"}
 
-    return {"statusCode": 400, "body": "HTTP method not supported"}
+    return {"statusCode": 405, "body": "Method not allowed"}

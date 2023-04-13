@@ -95,4 +95,4 @@ def lambda_handler(event, context):
 
         return {"statusCode": 200, "body": json.dumps(result)}
     else:
-        return {"statusCode": 400, "body": "HTTP method not supported"}
+        return {"statusCode": 405, "body": "Method not allowed"}

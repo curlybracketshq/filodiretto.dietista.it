@@ -15,7 +15,7 @@ APPOINTMENTS_TABLE = "filoDirettoAppointments"
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] != 'GET':
-        return {"statusCode": 400, "body": "HTTP method not supported"}
+        return {"statusCode": 405, "body": "Method not allowed"}
 
     dynamodb = boto3.client('dynamodb')
     

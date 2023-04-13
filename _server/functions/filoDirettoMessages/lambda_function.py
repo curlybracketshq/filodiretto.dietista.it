@@ -15,7 +15,7 @@ MESSAGES_TABLE = "filoDirettoMessages"
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] != 'GET':
-        return {"statusCode": 400, "body": "HTTP method not supported"}
+        return {"statusCode": 405, "body": "Method not allowed"}
 
     if 'from' not in event['queryStringParameters']:
         return {"statusCode": 400, "body": "Missing from param"}
