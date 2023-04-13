@@ -150,12 +150,11 @@ select {
 a:visited.button,
 .button {
   display: inline-block;
-  background-color: #eee;
-  color: var(--foreground);
   text-decoration: none;
 }
 
 input,
+input[type="submit"],
 button,
 select,
 .button {
@@ -169,6 +168,8 @@ button,
 .button {
   padding: 4px 8px;
   font-weight: bold;
+  background-color: #eee;
+  color: var(--foreground);
 }
 
 .primary {
