@@ -19,7 +19,7 @@ def lambda_handler(event, context):
 
     dynamodb = boto3.client('dynamodb')
     kwargs = {'TableName': SENDERS_TABLE}
-    if event['queryStringParameters'] is not None and 'last_evaluated_key' in event['queryStringParameters']:
+    if 'last_evaluated_key' in event['queryStringParameters']:
         kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
     results = dynamodb.scan(**kwargs)
     
