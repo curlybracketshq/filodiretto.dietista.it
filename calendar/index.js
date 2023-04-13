@@ -7,17 +7,8 @@ function displayCalendar(token) {
   const loading = requireElement("loading");
   loading.style.display = "block";
 
-  const params = new URLSearchParams('token=' + token);
-  const request = fetch(APPOINTMENTS_URL + '?' + params, {
-    method: "GET",
-  });
-  handleFetchGenericError(request)
-    .then(handleFetchAuthError)
-    .then(([_error, success]) => {
-      if (success == null) {
-        return;
-      }
-
+  fetchAppointments(token, null, null, [])
+    .then(items => {
       const loading = requireElement("loading");
       loading.style.display = "none";
       const calendar = requireElement("calendar");
@@ -25,8 +16,7 @@ function displayCalendar(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const appointmentsResponse = JSON.parse(success.content);
-      const [appointmentsByDay, months] = appointmentsResponse.Items.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
+      const [appointmentsByDay, months] = items.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
         const [date, _time] = element.datetime.S.split('T');
         const [year, month, _day] = date.split('-');
         const yearMonth = `${year}-${month}`;
@@ -66,7 +56,7 @@ function displayCalendar(token) {
           const dayOfWeek = date.getUTCDay();
           const [isoDate, _time] = date.toISOString().split('T');
           const dailyAppointments = appointmentsByDay[isoDate] == null ? [] : appointmentsByDay[isoDate];
-          const dailyAppointmentsItems = dailyAppointments.sort(function (/** @type {{ datetime: { S: number; }; }} */ a, /** @type {{ datetime: { S: number; }; }} */ b) {
+          const dailyAppointmentsItems = dailyAppointments.sort(function (/** @type {Appointment} */ a, /** @type {Appointment} */ b) {
             if (a.datetime.S < b.datetime.S) {
               return -1;
             }

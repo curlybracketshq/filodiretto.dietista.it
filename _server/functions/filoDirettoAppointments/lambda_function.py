@@ -18,19 +18,17 @@ def lambda_handler(event, context):
         return {"statusCode": 405, "body": "Method not allowed"}
 
     dynamodb = boto3.client('dynamodb')
-    
+
+    kwargs = {'TableName': APPOINTMENTS_TABLE}
+    if 'last_evaluated_key' in event['queryStringParameters']:
+        kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
+
     if 'from' in event['queryStringParameters']:
-        results = dynamodb.query(
-            TableName=APPOINTMENTS_TABLE,
-            ExpressionAttributeValues={
-                ':f': {'S': event['queryStringParameters']['from']},
-            },
-            ExpressionAttributeNames={
-                '#F': 'from',
-            },
-            KeyConditionExpression='#F = :f',
-        )
+        kwargs['ExpressionAttributeValues'] = {':f': {'S': event['queryStringParameters']['from']}}
+        kwargs['ExpressionAttributeNames'] = {'#F': 'from'}
+        kwargs['KeyConditionExpression'] = '#F = :f'
+        results = dynamodb.query(**kwargs)
     else:
-        results = dynamodb.scan(TableName=APPOINTMENTS_TABLE)
+        results = dynamodb.scan(**kwargs)
     
     return {"statusCode": 200, "body": json.dumps(results)}

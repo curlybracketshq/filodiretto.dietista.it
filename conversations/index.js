@@ -176,22 +176,12 @@ function displayConversationDetails(token, from) {
       const appointments = requireElement("appointments");
       appointments.innerHTML = "<p>Caricamento...</p>";
 
-      const appointmentsParams = new URLSearchParams('token=' + token + '&from=' + from);
-      const appointmentsRequest = fetch(APPOINTMENTS_URL + '?' + appointmentsParams, {
-        method: "GET",
-      });
-      handleFetchGenericError(appointmentsRequest)
-        .then(handleFetchAuthError)
-        .then(([_error, success]) => {
-          if (success == null) {
-            return;
-          }
-
-          const appointmentsResponse = JSON.parse(success.content);
-          if (appointmentsResponse.Items.length == 0) {
+      fetchAppointments(token, from, null, [])
+        .then(items => {
+          if (items.length == 0) {
             appointments.innerHTML = '<p>Nessun appuntamento</p>';
           } else {
-            const appointmentsItems = appointmentsResponse.Items.map((/** @type {Appointment} */ appointment) => {
+            const appointmentsItems = items.map((/** @type {Appointment} */ appointment) => {
               const [date, time] = appointment.datetime.S.split('T');
               return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${date}, ore ${time}</a></li>`;
             }).join('');
