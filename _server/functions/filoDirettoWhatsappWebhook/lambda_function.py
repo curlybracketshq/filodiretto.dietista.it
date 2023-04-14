@@ -20,6 +20,25 @@ CHATGPT_SYSTEM_PROMPT_1 = os.environ['CHATGPT_SYSTEM_PROMPT_1']
 CHATGPT_SYSTEM_PROMPT_2 = os.environ['CHATGPT_SYSTEM_PROMPT_2']
 
 
+def _send_discord_message(sender, message):
+    WEBHOOK_ID = os.environ.get('DISCORD_WEBHOOK_ID')
+    WEBHOOK_TOKEN = os.environ.get('DISCORD_WEBHOOK_TOKEN')
+    if WEBHOOK_ID is None or WEBHOOK_TOKEN is None:
+        print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
+        return
+
+    params = json.dumps({"content": "From: " + sender + "\n\n" + message})
+    headers = {"Content-type": "application/json"}
+    conn = http.client.HTTPSConnection("discord.com")
+    conn.request("POST", "/api/webhooks/" + WEBHOOK_ID + "/" + WEBHOOK_TOKEN, params, headers)
+    response = conn.getresponse()
+    print(response.status, response.reason)
+    data = response.read()
+    print("Response body:")
+    print(data)
+    conn.close()
+
+
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
 @errors.notify_discord
 def lambda_handler(event, context):
@@ -96,6 +115,9 @@ def lambda_handler(event, context):
                 'text': {'S': json.dumps(first_message['text'])},
             },
         )
+
+        print('Send Discord notification')
+        _send_discord_message(first_message['from'], first_message['text']['body'])
         
         print('NUMBER IN CHATGPT_ALLOWLIST', first_message['from'] in CHATGPT_ALLOWLIST)
         print('LAST MESSAGE LESS THAN AUTO_REPLY_MESSAGE_THRESHOLD', delta < AUTO_REPLY_MESSAGE_THRESHOLD)
