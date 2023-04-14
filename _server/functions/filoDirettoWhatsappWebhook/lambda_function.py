@@ -35,6 +35,28 @@ def _send_discord_message(sender, message):
     conn.close()
 
 
+def _chat_completions(message):
+    params = json.dumps({
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_1},
+            {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_2},
+            {"role": "user", "content": message},
+        ],
+    })
+
+    headers = {"Content-type": "application/json", "Authorization": "Bearer " + CHATGPT_API_KEY}
+    conn = http.client.HTTPSConnection("api.openai.com")
+    conn.request("POST", "/v1/chat/completions", params, headers)
+    response = conn.getresponse()
+    print(response.status, response.reason)
+    data = response.read()
+    print("Response body:")
+    print(data)
+    conn.close()
+    return json.loads(data.decode('utf-8'))
+
+
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
 @errors.notify_discord
 def lambda_handler(event, context):
@@ -123,25 +145,7 @@ def lambda_handler(event, context):
             return {"statusCode": 200, "body": "Ok"}
         
         if first_message['from'] in CHATGPT_ALLOWLIST:
-            params = json.dumps({
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_1},
-                    {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_2},
-                    {"role": "user", "content": first_message['text']['body']},
-                ],
-            })
-            
-            headers = {"Content-type": "application/json", "Authorization": "Bearer " + CHATGPT_API_KEY}
-            conn = http.client.HTTPSConnection("api.openai.com")
-            conn.request("POST", "/v1/chat/completions", params, headers)
-            response = conn.getresponse()
-            print(response.status, response.reason)
-            data = response.read()
-            print("Response body:")
-            print(data)
-            conn.close()
-            result = json.loads(data.decode('utf-8'))
+            result = _chat_completions(first_message['text']['body'])
             if 'choices' in result and result['choices']:
                 message_body = result['choices'][0]['message']['content']
             else:
