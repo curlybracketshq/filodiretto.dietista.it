@@ -57,6 +57,28 @@ def _chat_completions(message):
     return json.loads(data.decode('utf-8'))
 
 
+def _send_whatsapp_message(recipient, message):
+    params = json.dumps({
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": recipient,
+        "type": "text",
+        "text": {
+            "preview_url": True,
+            "body": message,
+        },
+    })
+    headers = {"Content-type": "application/json", "Authorization": "Bearer " + ACCESS_TOKEN}
+    conn = http.client.HTTPSConnection("graph.facebook.com")
+    conn.request("POST", "/v16.0/" + PHONE_NUMBER_ID + "/messages", params, headers)
+    response = conn.getresponse()
+    print(response.status, response.reason)
+    data = response.read()
+    print("Response body:")
+    print(data)
+    conn.close()
+
+
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
 @errors.notify_discord
 def lambda_handler(event, context):
@@ -153,25 +175,7 @@ def lambda_handler(event, context):
         else:
             message_body = GREETING_TEXT
 
-        params = json.dumps({
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": first_message['from'],
-            "type": "text",
-            "text": {
-                "preview_url": True,
-                "body": message_body,
-            },
-        })
-        headers = {"Content-type": "application/json", "Authorization": "Bearer " + ACCESS_TOKEN}
-        conn = http.client.HTTPSConnection("graph.facebook.com")
-        conn.request("POST", "/v16.0/" + PHONE_NUMBER_ID + "/messages", params, headers)
-        response = conn.getresponse()
-        print(response.status, response.reason)
-        data = response.read()
-        print("Response body:")
-        print(data)
-        conn.close()
+        _send_whatsapp_message(first_message['from'], message_body)
         return {"statusCode": 200, "body": "Ok"}
 
     return {"statusCode": 405, "body": "Method not allowed"}
