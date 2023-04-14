@@ -27,7 +27,7 @@ def _send_discord_message(sender, message):
         print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
         return
 
-    params = json.dumps({"content": "From: " + sender + "\n\n" + message})
+    params = json.dumps({"content": "From: " + sender + "\n" + message})
     headers = {"Content-type": "application/json"}
     conn = http.client.HTTPSConnection("discord.com")
     conn.request("POST", "/api/webhooks/" + WEBHOOK_ID + "/" + WEBHOOK_TOKEN, params, headers)
