@@ -18,19 +18,15 @@ CHATGPT_ALLOWLIST = set(json.loads(os.environ['CHATGPT_ALLOWLIST']))
 CHATGPT_API_KEY = os.environ['CHATGPT_API_KEY']
 CHATGPT_SYSTEM_PROMPT_1 = os.environ['CHATGPT_SYSTEM_PROMPT_1']
 CHATGPT_SYSTEM_PROMPT_2 = os.environ['CHATGPT_SYSTEM_PROMPT_2']
+DISCORD_MESSAGES_WEBHOOK_ID = os.environ.get('DISCORD_MESSAGES_WEBHOOK_ID')
+DISCORD_MESSAGES_WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN')
 
 
 def _send_discord_message(sender, message):
-    WEBHOOK_ID = os.environ.get('DISCORD_MESSAGES_WEBHOOK_ID')
-    WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN')
-    if WEBHOOK_ID is None or WEBHOOK_TOKEN is None:
-        print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
-        return
-
     params = json.dumps({"content": "From: " + sender + "\n" + message})
     headers = {"Content-type": "application/json"}
     conn = http.client.HTTPSConnection("discord.com")
-    conn.request("POST", "/api/webhooks/" + WEBHOOK_ID + "/" + WEBHOOK_TOKEN, params, headers)
+    conn.request("POST", "/api/webhooks/" + DISCORD_MESSAGES_WEBHOOK_ID + "/" + DISCORD_MESSAGES_WEBHOOK_TOKEN, params, headers)
     response = conn.getresponse()
     print(response.status, response.reason)
     data = response.read()
