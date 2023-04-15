@@ -22,8 +22,12 @@ DISCORD_MESSAGES_WEBHOOK_ID = os.environ.get('DISCORD_MESSAGES_WEBHOOK_ID')
 DISCORD_MESSAGES_WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN')
 
 
+def _sender_url(sender):
+    return "https://filodiretto.dietista.it/conversations/#" + sender
+
+
 def _send_discord_message(sender, message):
-    params = json.dumps({"content": "From: " + sender + "\n" + message})
+    params = json.dumps({"content": "From: " + _sender_url(sender) + "\n" + message})
     headers = {"Content-type": "application/json"}
     conn = http.client.HTTPSConnection("discord.com")
     conn.request("POST", "/api/webhooks/" + DISCORD_MESSAGES_WEBHOOK_ID + "/" + DISCORD_MESSAGES_WEBHOOK_TOKEN, params, headers)
