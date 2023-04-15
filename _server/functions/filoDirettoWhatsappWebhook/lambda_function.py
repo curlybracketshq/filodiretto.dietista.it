@@ -4,12 +4,11 @@ import boto3
 import time
 import os
 from common import errors
+from common import whatsapp
 
 print('Loading function')
 
-PHONE_NUMBER_ID = os.environ['WA_PHONE_NUMBER_ID']
 VERIFY_TOKEN = os.environ['WA_VERIFY_TOKEN']
-ACCESS_TOKEN = os.environ['WA_ACCESS_TOKEN']
 GREETING_TEXT = "Ciao e grazie per avermi contattato\n\nSe vuoi prenotare un appuntamento vai su https://cal.com/dietista\n\nPer qualsiasi altra richiesta scrivi a info@dietista.it\n\nDott.ssa Mara Micolucci"
 MESSAGES_TABLE = "filoDirettoMessages"
 SENDERS_TABLE = "filoDirettoSenders"
@@ -59,28 +58,6 @@ def _chat_completions(message):
     print(data)
     conn.close()
     return json.loads(data.decode('utf-8'))
-
-
-def _send_whatsapp_message(recipient, message):
-    params = json.dumps({
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        "to": recipient,
-        "type": "text",
-        "text": {
-            "preview_url": True,
-            "body": message,
-        },
-    })
-    headers = {"Content-type": "application/json", "Authorization": "Bearer " + ACCESS_TOKEN}
-    conn = http.client.HTTPSConnection("graph.facebook.com")
-    conn.request("POST", "/v16.0/" + PHONE_NUMBER_ID + "/messages", params, headers)
-    response = conn.getresponse()
-    print(response.status, response.reason)
-    data = response.read()
-    print("Response body:")
-    print(data)
-    conn.close()
 
 
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
@@ -179,7 +156,7 @@ def lambda_handler(event, context):
         else:
             message_body = GREETING_TEXT
 
-        _send_whatsapp_message(first_message['from'], message_body)
+        whatsapp.send_message(first_message['from'], message_body)
         return {"statusCode": 200, "body": "Ok"}
 
     return {"statusCode": 405, "body": "Method not allowed"}
