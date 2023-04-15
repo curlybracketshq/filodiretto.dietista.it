@@ -29,6 +29,9 @@ def lambda_handler(event, context):
                 'datetime': {'S': event['queryStringParameters']['datetime']},
             },
         )
+
+        if 'Item' not in result:
+            return {"statusCode": 404, "body": "Item not found"}
         
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'DELETE':
