@@ -271,3 +271,39 @@ function fetchAppointments(token, from, lastEvaluatedKey, items) {
       return fetchAppointments(token, from, lastEvaluatedKey, items);
     });
 }
+
+/**
+ * @param {string} token
+ * @param {?string} from
+ * @param {?string} lastEvaluatedKey
+ * @param {Array<Message>} items
+ * @returns {Promise<Array<Message>>}
+ */
+function fetchMessages(token, from, lastEvaluatedKey, items) {
+  let queryString = 'token=' + token;
+  if (from != null) {
+    queryString += '&from=' + from;
+  }
+  if (lastEvaluatedKey != null) {
+    queryString += '&last_evaluated_key=' + lastEvaluatedKey;
+  }
+  const params = new URLSearchParams(queryString);
+  const request = fetch(MESSAGES_URL + '?' + params, {
+    method: "GET",
+  });
+  return handleFetchGenericError(request)
+    .then(handleFetchAuthError)
+    .then(([_error, success]) => {
+      if (success == null) {
+        return [];
+      }
+
+      const response = JSON.parse(success.content);
+      items = items.concat(response.Items);
+      if (response.LastEvaluatedKey == null) {
+        return items;
+      }
+      const lastEvaluatedKey = JSON.stringify(response.LastEvaluatedKey);
+      return fetchMessages(token, from, lastEvaluatedKey, items);
+    });
+}

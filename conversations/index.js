@@ -193,22 +193,12 @@ function displayConversationDetails(token, from) {
       const messages = requireElement("messages");
       messages.innerHTML = "<p>Caricamento...</p>";
 
-      const messagesParams = new URLSearchParams('token=' + token + '&from=' + from);
-      const messagesRequest = fetch(MESSAGES_URL + '?' + messagesParams, {
-        method: "GET",
-      });
-      handleFetchGenericError(messagesRequest)
-        .then(handleFetchAuthError)
-        .then(([_error, success]) => {
-          if (success == null) {
-            return;
-          }
-
-          const messagesResponse = JSON.parse(success.content);
-          if (messagesResponse.Items.length == 0) {
+      fetchMessages(token, from, null, [])
+        .then(items => {
+          if (items.length == 0) {
             messages.innerHTML = '<p>Nessun messaggio</p>';
           } else {
-            const messagesItems = messagesResponse.Items.map((/** @type {Message} */ message) => {
+            const messagesItems = items.map((/** @type {Message} */ message) => {
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
               const { body } = JSON.parse(message.text.S);
               return `<li>${date.toLocaleString()}<br>${body}</li>`;

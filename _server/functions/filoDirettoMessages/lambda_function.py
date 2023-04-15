@@ -21,16 +21,15 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Missing from param"}
 
     dynamodb = boto3.client('dynamodb')
-    results = dynamodb.query(
-        TableName=MESSAGES_TABLE,
-        ExpressionAttributeValues={
-            ':f': {'S': event['queryStringParameters']['from']},
-        },
-        ExpressionAttributeNames={
-            '#F': 'from',
-        },
-        KeyConditionExpression='#F = :f',
-        ScanIndexForward=False,
-    )
+    kwargs = {
+        'TableName': MESSAGES_TABLE,
+        'ExpressionAttributeValues': {':f': {'S': event['queryStringParameters']['from']}},
+        'ExpressionAttributeNames': {'#F': 'from'},
+        'KeyConditionExpression': '#F = :f',
+        'ScanIndexForward': False,
+    }
+    if 'last_evaluated_key' in event['queryStringParameters']:
+        kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
+    results = dynamodb.query(**kwargs)
 
     return {"statusCode": 200, "body": json.dumps(results)}
