@@ -11,6 +11,8 @@ const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/
 const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
 const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
 const MESSAGES_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoMessages";
+const SEND_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendMessage";
+const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAutocompleteMessage";
 
 /**
  * @typedef {Object} Appointment

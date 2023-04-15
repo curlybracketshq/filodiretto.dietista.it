@@ -195,15 +195,51 @@ function displayConversationDetails(token, from) {
 
       fetchMessages(token, from, null, [])
         .then(items => {
+          let canReply = false;
           if (items.length == 0) {
             messages.innerHTML = '<p>Nessun messaggio</p>';
           } else {
-            const messagesItems = items.map((/** @type {Message} */ message) => {
+            const lastMessage = items[0];
+            const date = new Date(parseInt(lastMessage.timestamp.S, 10) * 1000);
+            const { body } = JSON.parse(lastMessage.text.S);
+            const now = new Date();
+            const delta = now.getTime() - date.getTime();
+            const lastMessageItem = `
+            <h3>Ultimo messaggio</h3>
+            <p>${date.toLocaleString()}<br><span id="last_message">${body}</span></p>`;
+            let replyBox;
+            if (delta < 60 * 60 * 24 * 1000) {
+              canReply = true;
+              replyBox = `
+              <form id="reply_form">
+                <div>
+                  <label>Risposta</label>
+                  <textarea id="reply_textarea" name="reply" rows="5" cols="60"></textarea>
+                </div>
+                <div><input type="submit" id="send_reply" value="Invia" /></div>
+              </form>
+              <button class="primary" id="autocomplete_reply">Autocompleta</button>`;
+            } else {
+              replyBox = `
+              <p>
+                <strong>Nota:</strong> non puoi rispondere perché l'ultimo messaggio è stato inviato più di 24 ore fa.
+              </p>`;
+            }
+            const messagesItems = items.slice(1).map((/** @type {Message} */ message) => {
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
               const { body } = JSON.parse(message.text.S);
               return `<li>${date.toLocaleString()}<br>${body}</li>`;
             }).join('');
-            messages.innerHTML = `<ul>${messagesItems}</ul>`;
+            messages.innerHTML = `
+            ${lastMessageItem}
+            ${replyBox}
+            <h3>Messaggi passati</h3>
+            <ul>${messagesItems}</ul>`;
+          }
+
+          if (canReply) {
+            attachSendReplyListener(token, conversation);
+            attachAutocompleteReplyListener(token);
           }
         });
     });
@@ -259,6 +295,104 @@ function attachUpdateConversationDetailsListener(token, conversation) {
 
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Conversazione aggiornata correttamente";
+        infoMessage.style.display = "block";
+      });
+  });
+}
+
+/**
+ * @param {string} token
+ */
+function attachAutocompleteReplyListener(token) {
+  const lastMessageElement = requireElement("last_message");
+  const message = lastMessageElement.innerText;
+  const submitButton = requireInputElement("send_reply");
+  const autocompleteButton = requireButtonElement("autocomplete_reply");
+
+  autocompleteButton.addEventListener("click", function (event) {
+    const replyTextarea = requireTextAreaElement("reply_textarea");
+
+    submitButton.disabled = true;
+    autocompleteButton.disabled = true;
+    autocompleteButton.innerHTML = "Caricamento...";
+
+    const request = fetch(AUTOCOMPLETE_MESSAGE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        message
+      })
+    });
+    handleFetchGenericError(request)
+      .then(handleFetchAuthError)
+      .then(([error, success]) => {
+        submitButton.disabled = false;
+        autocompleteButton.disabled = false;
+        autocompleteButton.innerHTML = "Autocompleta";
+
+        if (error != null) {
+          return;
+        }
+
+        if (success == null) {
+          throw new Error("Success can't be null");
+        }
+
+        const result = JSON.parse(success.content);
+        console.log(result);
+
+        replyTextarea.value = result.content;
+      });
+  });
+}
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ */
+function attachSendReplyListener(token, conversation) {
+  const submitButton = requireInputElement("send_reply");
+  const autocompleteButton = requireButtonElement("autocomplete_reply");
+  const form = requireElement("reply_form");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const replyTextarea = requireTextAreaElement("reply_textarea");
+
+    autocompleteButton.disabled = true;
+    submitButton.disabled = true;
+    submitButton.value = "Caricamento...";
+
+    const request = fetch(SEND_MESSAGE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        to: conversation.from.S,
+        content: replyTextarea.value
+      })
+    });
+    handleFetchGenericError(request)
+      .then(handleFetchAuthError)
+      .then(([error, success]) => {
+        autocompleteButton.disabled = false;
+        submitButton.disabled = false;
+        submitButton.value = "Invia";
+
+        if (error != null) {
+          return;
+        }
+
+        if (success == null) {
+          throw new Error("Success can't be null");
+        }
+
+        console.log(success.content);
+
+        const infoMessage = requireElement("info_message");
+        infoMessage.innerHTML = "Risposta inviata correttamente";
         infoMessage.style.display = "block";
       });
   });
