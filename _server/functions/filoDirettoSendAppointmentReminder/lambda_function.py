@@ -1,8 +1,9 @@
 import json
 import http.client
 import boto3
-from datetime import datetime
+from datetime import datetime, timezone
 import os
+import uuid
 from common import auth
 from common import cors
 from common import errors
@@ -13,6 +14,8 @@ PHONE_NUMBER_ID = os.environ['WA_PHONE_NUMBER_ID']
 ACCESS_TOKEN = SECRET = os.environ['WA_ACCESS_TOKEN']
 MESSAGE_TEMPLATE_NAME = "meeting_reminder"
 MESSAGE_LANGUAGE_CODE = "it"
+
+MESSAGES_TABLE = "filoDirettoMessages"
 APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
@@ -86,6 +89,20 @@ def lambda_handler(event, context):
         ReturnValues='ALL_NEW',
         UpdateExpression='SET #RSA = :rsa',
         ConditionExpression='#F = :f AND #D = :d',
+    )
+
+    dynamodb.put_item(
+        TableName=MESSAGES_TABLE,
+        Item={
+            # A bit confusing, but this is the primary key
+            'from': {'S': body['message']['to']},
+            'timestamp': {'S': str(int(datetime.now(timezone.utc).timestamp()))},
+            'id': {'S': str(uuid.uuid4())},
+            # Use the same format as Whatsapp messages for convenience
+            'text': {'S': json.dumps({'body': '<TEMPLATE: meeting_reminder, date: ' + body['message']['date'] + ',time: ' + body['message']['time'] + '>'})},
+            # Used to disambiguate messages send by the system
+            'source': {'S': 'filodiretto'},
+        },
     )
 
     return {"statusCode": 200, "body": json.dumps(result)}
