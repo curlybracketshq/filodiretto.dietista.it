@@ -1,20 +1,14 @@
 import json
 import http.client
 import boto3
-import time
 import os
 from common import errors
-from common import whatsapp
-from common import openai
 
 print('Loading function')
 
 VERIFY_TOKEN = os.environ['WA_VERIFY_TOKEN']
-GREETING_TEXT = "Ciao e grazie per avermi contattato\n\nSe vuoi prenotare un appuntamento vai su https://cal.com/dietista\n\nPer qualsiasi altra richiesta scrivi a info@dietista.it\n\nDott.ssa Mara Micolucci"
 MESSAGES_TABLE = "filoDirettoMessages"
 SENDERS_TABLE = "filoDirettoSenders"
-AUTO_REPLY_MESSAGE_THRESHOLD = 86400
-CHATGPT_ALLOWLIST = set(json.loads(os.environ['CHATGPT_ALLOWLIST']))
 DISCORD_MESSAGES_WEBHOOK_ID = os.environ.get('DISCORD_MESSAGES_WEBHOOK_ID')
 DISCORD_MESSAGES_WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN')
 
@@ -76,15 +70,7 @@ def lambda_handler(event, context):
             Limit=1,
         )
 
-        if results.get('Items', []):
-            is_first_message = False
-            now = int(time.time())
-            last_message_timestamp = int(results['Items'][0]['timestamp']['S'])
-            delta = now - last_message_timestamp
-        else:
-            # Send a reply if it's the first time we see this sender
-            is_first_message = True
-            delta = AUTO_REPLY_MESSAGE_THRESHOLD
+        if not results.get('Items', []):
             # Add a new sender conditionally so we don't overwrite existing items
             try:
                 dynamodb.put_item(
@@ -107,7 +93,7 @@ def lambda_handler(event, context):
             TableName=MESSAGES_TABLE,
             Item={
                 'from': {'S': first_message['from']},
-                'timestamp':{'S': first_message['timestamp']},
+                'timestamp': {'S': first_message['timestamp']},
                 'id': {'S': first_message['id']},
                 'text': {'S': json.dumps(first_message['text'])},
             },
@@ -115,24 +101,7 @@ def lambda_handler(event, context):
 
         print('Send Discord notification')
         _send_discord_message(first_message['from'], first_message['text']['body'])
-        
-        print('NUMBER IN CHATGPT_ALLOWLIST', first_message['from'] in CHATGPT_ALLOWLIST)
-        print('LAST MESSAGE LESS THAN AUTO_REPLY_MESSAGE_THRESHOLD', delta < AUTO_REPLY_MESSAGE_THRESHOLD)
-        
-        # Only reply if the last message has been sent more than 24 hours ago
-        if first_message['from'] not in CHATGPT_ALLOWLIST and delta < AUTO_REPLY_MESSAGE_THRESHOLD:
-            return {"statusCode": 200, "body": "Ok"}
-        
-        if first_message['from'] in CHATGPT_ALLOWLIST:
-            result = openai.chat_completions(first_message['text']['body'])
-            if 'choices' in result and result['choices']:
-                message_body = result['choices'][0]['message']['content']
-            else:
-                message_body = GREETING_TEXT
-        else:
-            message_body = GREETING_TEXT
 
-        whatsapp.send_message(first_message['from'], message_body)
         return {"statusCode": 200, "body": "Ok"}
 
     return {"statusCode": 405, "body": "Method not allowed"}
