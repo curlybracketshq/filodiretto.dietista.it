@@ -282,10 +282,11 @@ tbody > tr:nth-of-type(odd) {
 
 /* Special style for messages */
 
-#messages {
+#messages_list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 16px;
 }
 
 .message {

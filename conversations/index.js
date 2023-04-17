@@ -235,7 +235,7 @@ function displayConversationDetails(token, from) {
             }).join('');
             messages.innerHTML = `
             ${replyBox}
-            <div id="messages">${messagesItems}</div>`;
+            <div id="messages_list">${messagesItems}</div>`;
           }
 
           if (canReply) {
