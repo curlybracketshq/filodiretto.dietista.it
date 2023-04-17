@@ -195,21 +195,16 @@ function displayConversationDetails(token, from) {
 
       fetchMessages(token, from, null, [])
         .then(items => {
+          console.log(items);
           let canReply = false;
           if (items.length == 0) {
             messages.innerHTML = '<p>Nessun messaggio</p>';
           } else {
-            const lastMessage = items[0];
+            const userMessages = items.filter(message => message.source == null);
+            const lastMessage = userMessages.length > 0 ? userMessages[0] : { timestamp: { S: '0' } };
             const date = new Date(parseInt(lastMessage.timestamp.S, 10) * 1000);
-            const { body } = JSON.parse(lastMessage.text.S);
             const now = new Date();
             const delta = now.getTime() - date.getTime();
-            const lastMessageItem = `
-            <h3>Ultimo messaggio</h3>
-            <p>
-              ${date.toLocaleString()}<br>
-              <span id="last_message">${sanitizeHTML(body)}</span>
-            </p>`;
             let replyBox;
             if (delta < 60 * 60 * 24 * 1000) {
               canReply = true;
@@ -228,16 +223,19 @@ function displayConversationDetails(token, from) {
                 <strong>Nota:</strong> non puoi rispondere perché l'ultimo messaggio è stato inviato più di 24 ore fa.
               </p>`;
             }
-            const messagesItems = items.slice(1).map((/** @type {Message} */ message) => {
+            const messagesItems = items.map((/** @type {Message} */ message) => {
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
               const { body } = JSON.parse(message.text.S);
-              return `<li>${date.toLocaleString()}<br>${sanitizeHTML(body)}</li>`;
+              const source = message.source?.S ?? "";
+              return `
+              <div class="message ${source}">
+                <time datetime="2023-03-29">${date.toLocaleString()}</time>
+                <div class="message_body">${sanitizeHTML(body)}</div>
+              </div>`;
             }).join('');
             messages.innerHTML = `
-            ${lastMessageItem}
             ${replyBox}
-            <h3>Messaggi passati</h3>
-            <ul>${messagesItems}</ul>`;
+            <div id="messages">${messagesItems}</div>`;
           }
 
           if (canReply) {
@@ -307,7 +305,12 @@ function attachUpdateConversationDetailsListener(token, conversation) {
  * @param {string} token
  */
 function attachAutocompleteReplyListener(token) {
-  const lastMessageElement = requireElement("last_message");
+  // Where source is not 'filodiretto'
+  const userMessages = document.querySelectorAll('.message:not(.filodiretto) .message_body');
+  if (userMessages.length == 0 || !(userMessages[0] instanceof HTMLElement)) {
+    return;
+  }
+  const lastMessageElement = userMessages[0];
   const message = lastMessageElement.innerText;
   const submitButton = requireInputElement("send_reply");
   const autocompleteButton = requireButtonElement("autocomplete_reply");

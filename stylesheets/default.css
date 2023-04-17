@@ -3,6 +3,7 @@
   --foreground: #222222;
   --foreground-muted: #2222227f;
   --primary: #0d6efd;
+  --primary-muted: #8ebbff;
   --error: #dc3545;
   --size-extra-small: 0.3rem;
   --size-small: 0.5rem;
@@ -188,8 +189,8 @@ button:disabled {
 }
 
 button.primary:disabled {
-  background-color: #8ebbff;
-  border: 1px solid #8ebbff;
+  background-color: var(--primary-muted);
+  border: 1px solid var(--primary-muted);
   color: #fff;
 }
 
@@ -277,6 +278,33 @@ tbody > tr:nth-of-type(odd) {
 
 #calendar .appointments {
   font-size: 0.8rem;
+}
+
+/* Special style for messages */
+
+#messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  padding: 8px 12px;
+  width: fit-content;
+}
+
+.message.filodiretto {
+  text-align: right;
+  background-color: #f1f7ff;
+  border: 1px solid #b8d7fe;
+  margin-left: auto;
+}
+
+.message time {
+  font-size: 0.8rem;
+  color: #999;
 }
 
 /* Dynamic elements */

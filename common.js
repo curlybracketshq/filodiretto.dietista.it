@@ -34,6 +34,7 @@ const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazo
  * @prop {{S: string}} from
  * @prop {{S: string}} timestamp
  * @prop {?{S: string}} text
+ * @prop {?{S: string}} source
  */
 
 /**
