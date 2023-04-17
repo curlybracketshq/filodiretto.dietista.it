@@ -206,7 +206,10 @@ function displayConversationDetails(token, from) {
             const delta = now.getTime() - date.getTime();
             const lastMessageItem = `
             <h3>Ultimo messaggio</h3>
-            <p>${date.toLocaleString()}<br><span id="last_message">${body}</span></p>`;
+            <p>
+              ${date.toLocaleString()}<br>
+              <span id="last_message">${sanitizeHTML(body)}</span>
+            </p>`;
             let replyBox;
             if (delta < 60 * 60 * 24 * 1000) {
               canReply = true;
@@ -228,7 +231,7 @@ function displayConversationDetails(token, from) {
             const messagesItems = items.slice(1).map((/** @type {Message} */ message) => {
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
               const { body } = JSON.parse(message.text.S);
-              return `<li>${date.toLocaleString()}<br>${body}</li>`;
+              return `<li>${date.toLocaleString()}<br>${sanitizeHTML(body)}</li>`;
             }).join('');
             messages.innerHTML = `
             ${lastMessageItem}

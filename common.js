@@ -309,3 +309,15 @@ function fetchMessages(token, from, lastEvaluatedKey, items) {
       return fetchMessages(token, from, lastEvaluatedKey, items);
     });
 }
+
+/**
+ * Sanitize and encode all HTML in a user-submitted string
+ * https://portswigger.net/web-security/cross-site-scripting/preventing
+ * @param {String} str
+ * @return {String}
+ */
+function sanitizeHTML(str) {
+  return str.replace(/[^\w. ]/gi, function (c) {
+    return '&#' + c.charCodeAt(0) + ';';
+  });
+};
