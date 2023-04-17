@@ -1,7 +1,6 @@
-import json
-import http.client
 import traceback
 import os
+from common import discord
 
 
 def _send_error_message(event):
@@ -11,18 +10,11 @@ def _send_error_message(event):
         print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
         return
 
-    params = json.dumps({
-        "content": event['httpMethod'] + " " + event['path'] + "\n\n" + traceback.format_exc(),
-    })
-    headers = {"Content-type": "application/json"}
-    conn = http.client.HTTPSConnection("discord.com")
-    conn.request("POST", "/api/webhooks/" + WEBHOOK_ID + "/" + WEBHOOK_TOKEN, params, headers)
-    response = conn.getresponse()
-    print(response.status, response.reason)
-    data = response.read()
-    print("Response body:")
-    print(data)
-    conn.close()
+    discord.send_message(
+        WEBHOOK_ID,
+        WEBHOOK_TOKEN,
+        event['httpMethod'] + " " + event['path'] + "\n\n" + traceback.format_exc(),
+    )
 
 
 def notify_discord(f):

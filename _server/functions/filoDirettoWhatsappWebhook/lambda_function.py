@@ -1,8 +1,8 @@
 import json
-import http.client
 import boto3
 import os
 from common import errors
+from common import discord
 
 print('Loading function')
 
@@ -15,19 +15,6 @@ DISCORD_MESSAGES_WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN'
 
 def _sender_url(sender):
     return "https://filodiretto.dietista.it/conversations/#" + sender
-
-
-def _send_discord_message(sender, message):
-    params = json.dumps({"content": "From: " + _sender_url(sender) + "\n" + message})
-    headers = {"Content-type": "application/json"}
-    conn = http.client.HTTPSConnection("discord.com")
-    conn.request("POST", "/api/webhooks/" + DISCORD_MESSAGES_WEBHOOK_ID + "/" + DISCORD_MESSAGES_WEBHOOK_TOKEN, params, headers)
-    response = conn.getresponse()
-    print(response.status, response.reason)
-    data = response.read()
-    print("Response body:")
-    print(data)
-    conn.close()
 
 
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
@@ -100,7 +87,11 @@ def lambda_handler(event, context):
         )
 
         print('Send Discord notification')
-        _send_discord_message(first_message['from'], first_message['text']['body'])
+        discord.send_message(
+            DISCORD_MESSAGES_WEBHOOK_ID,
+            DISCORD_MESSAGES_WEBHOOK_TOKEN,
+            "From: " + _sender_url(first_message['from']) + "\n" + first_message['text']['body'],
+        )
 
         return {"statusCode": 200, "body": "Ok"}
 
