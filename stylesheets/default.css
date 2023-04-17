@@ -285,7 +285,7 @@ tbody > tr:nth-of-type(odd) {
 #messages_list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   margin-top: 16px;
 }
 
@@ -293,13 +293,13 @@ tbody > tr:nth-of-type(odd) {
   border: 1px solid #ccc;
   border-radius: 16px;
   padding: 8px 12px;
-  width: fit-content;
+  width: 80%;
 }
 
 .message.filodiretto {
   text-align: right;
-  background-color: #f1f7ff;
-  border: 1px solid #b8d7fe;
+  background-color: #ecfce7;
+  border: 1px solid #b8feb8;
   margin-left: auto;
 }
 
