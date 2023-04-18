@@ -11,7 +11,7 @@ function displayAppointmentDetails(token, from, datetime) {
   const dateObj = new Date(date);
   const month = dateObj.getUTCMonth() + 1;
   const day = dateObj.getUTCDate();
-  title.innerHTML = `Appuntamento del ${day} ${monthName(month).toLowerCase()} alle ${time}`;
+  title.innerHTML = `📅 Appuntamento del ${day} ${monthName(month).toLowerCase()} alle ${time}`;
 
   const loading = requireElement("loading");
   loading.style.display = "block";

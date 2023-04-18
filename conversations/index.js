@@ -109,7 +109,7 @@ function attachDeleteConversationListeners(token) {
  */
 function displayConversationDetails(token, from) {
   const title = requireElement("title");
-  title.innerHTML = `Numero: ${from}`;
+  title.innerHTML = `📇 Numero: ${from}`;
 
   const loading = requireElement("loading");
   loading.style.display = "block";
