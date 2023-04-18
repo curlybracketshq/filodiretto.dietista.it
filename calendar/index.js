@@ -7,8 +7,13 @@ function displayCalendar(token) {
   const loading = requireElement("loading");
   loading.style.display = "block";
 
+  let appointmentItems = [];
   fetchAppointments(token, null, null, [])
     .then(items => {
+      appointmentItems = items;
+      return fetchConversations(token, null, []);
+    })
+    .then(conversationItems => {
       const loading = requireElement("loading");
       loading.style.display = "none";
       const calendar = requireElement("calendar");
@@ -16,7 +21,12 @@ function displayCalendar(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const [appointmentsByDay, months] = items.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
+      const conversationItemsByNumber = conversationItems.reduce(function (acc, conversation) {
+        acc[conversation.from.S] = conversation;
+        return acc;
+      }, {});
+
+      const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
         const [date, _time] = element.datetime.S.split('T');
         const [year, month, _day] = date.split('-');
         const yearMonth = `${year}-${month}`;
@@ -66,14 +76,23 @@ function displayCalendar(token) {
             return 0;
           }).map(function (/** @type {Appointment} */ element) {
             const [_date, time] = element.datetime.S.split('T');
-            return `<li><a href="/appointments/#${element.from.S}|${element.datetime.S}">${time} (${element.from.S})</a></li>`;
+            const number = conversationItemsByNumber[element.from.S]
+            return `
+            <div class="appointment ${element.type?.S != null ? element.type.S : ""}">
+              <div class="first_line">
+                <div class="time"><a href="/appointments/#${element.from.S}|${element.datetime.S}">${time}</a></div>
+                <div class="reminder_sent">${element.reminderSentAt?.S != null ? "✅" : "" }</div>
+              </div>
+              <div class="appointment_type">${displayAppointmentType(element.type?.S)}</div>
+              <div class="full_name">${number.firstName.S} ${number.lastName.S}</div>
+            </div>`;
           }).join('');
           calendarMonthWeeks[week].push(`
           <td>
             <div class="day ${dayOfWeek == 0 || dayOfWeek == 6 ? 'weekend' : ''}">
               <div class="number">${day}</div>
               <div class="appointments">
-                <ul>${dailyAppointmentsItems}</ul>
+                ${dailyAppointmentsItems}
               </div>
             </div>
           </td>`);

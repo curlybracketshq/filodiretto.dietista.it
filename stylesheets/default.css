@@ -257,6 +257,7 @@ tbody > tr:nth-of-type(odd) {
   vertical-align: top;
   width: 14%;
   overflow: hidden;
+  padding: 2px;
 }
 
 #calendar .weekend,
@@ -281,6 +282,57 @@ tbody > tr:nth-of-type(odd) {
 
 #calendar .appointments {
   font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#calendar .appointment {
+  display: flex;
+  flex-direction: column;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 2px;
+  color: var(--foreground);
+}
+
+#calendar .appointment.control {
+  background-color: #e8ffe8;
+}
+
+#calendar .appointment.first_visit {
+  background-color: #ffe1fa;
+}
+
+#calendar .appointment.iris {
+  background-color: #fffce5;
+}
+
+#calendar .appointment.bioimpedance {
+  background-color: #e2faff;
+}
+
+#calendar .appointment.integration {
+  background-color: #ffe7e7;
+}
+
+#calendar .appointment.bach {
+  background-color: #e8e6ff;
+}
+
+#calendar .appointment .first_line {
+  display: flex;
+  justify-content: space-between;
+}
+
+#calendar .appointment .appointment_type {
+  font-size: 0.6rem;
+  color: #999;
+}
+
+#calendar .appointment .reminder_sent {
+  font-size: 0.5rem;
 }
 
 /* Special style for messages */
