@@ -313,6 +313,38 @@ function fetchMessages(token, from, lastEvaluatedKey, items) {
 }
 
 /**
+ * @param {string} token
+ * @param {?string} lastEvaluatedKey
+ * @param {Array<Conversation>} items
+ * @returns {Promise<Array<Conversation>>}
+ */
+function fetchConversations(token, lastEvaluatedKey, items) {
+  let queryString = 'token=' + token;
+  if (lastEvaluatedKey != null) {
+    queryString += '&last_evaluated_key=' + lastEvaluatedKey;
+  }
+  const params = new URLSearchParams(queryString);
+  const request = fetch(CONVERSATIONS_URL + '?' + params, {
+    method: "GET",
+  });
+  return handleFetchGenericError(request)
+    .then(handleFetchAuthError)
+    .then(([_error, success]) => {
+      if (success == null) {
+        return [];
+      }
+
+      const conversationsResponse = JSON.parse(success.content);
+      items = items.concat(conversationsResponse.Items);
+      if (conversationsResponse.LastEvaluatedKey == null) {
+        return items;
+      }
+      const lastEvaluatedKey = JSON.stringify(conversationsResponse.LastEvaluatedKey);
+      return fetchConversations(token, lastEvaluatedKey, items);
+    });
+}
+
+/**
  * Sanitize and encode all HTML in a user-submitted string
  * https://portswigger.net/web-security/cross-site-scripting/preventing
  * @param {String} str
