@@ -7,6 +7,7 @@ function displayCalendar(token) {
   const loading = requireElement("loading");
   loading.style.display = "block";
 
+  /** @type {Appointment[]} */
   let appointmentItems = [];
   fetchAppointments(token, null, null, [])
     .then(items => {
@@ -21,13 +22,13 @@ function displayCalendar(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const conversationItemsByNumber = conversationItems.reduce(function (acc, conversation) {
+      const conversationItemsByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
         acc[conversation.from.S] = conversation;
         return acc;
       }, {});
 
-      const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
-        const [date, _time] = element.datetime.S.split('T');
+      const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */ [appointmentsByDay, months], /** @type {Appointment} */ element) {
+        const [/** @type {string} */ date, _time] = element.datetime.S.split('T');
         const [year, month, _day] = date.split('-');
         const yearMonth = `${year}-${month}`;
         months[yearMonth] = true;
@@ -85,7 +86,7 @@ function displayCalendar(token) {
                 <div class="reminder_sent">${element.reminderSentAt?.S != null ? "✅" : "" }</div>
               </div>
               <div class="appointment_type">${displayAppointmentType(element.type?.S)}</div>
-              <div class="full_name">${number.firstName.S} ${number.lastName.S}</div>
+              <div class="full_name">${number.firstName?.S} ${number.lastName?.S}</div>
             </div>`;
           }).join('');
           calendarMonthWeeks[week].push(`

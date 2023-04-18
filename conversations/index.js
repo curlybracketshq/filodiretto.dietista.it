@@ -192,7 +192,11 @@ function displayConversationDetails(token, from) {
             }
             const messagesItems = items.map((/** @type {Message} */ message) => {
               const date = new Date(parseInt(message.timestamp.S, 10) * 1000);
-              const { body } = JSON.parse(message.text.S);
+              const text = message.text?.S;
+              if (text == null) {
+                throw new Error("Message text not present");
+              }
+              const { body } = JSON.parse(text);
               const source = message.source?.S ?? "";
               return `
               <div class="message ${source}">
