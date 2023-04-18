@@ -53,23 +53,6 @@ function displayAppointmentDetails(token, from, datetime) {
 }
 
 /**
- * @param {any} appointmentType
- * @returns {string}
- */
-function displayAppointmentType(appointmentType) {
-  switch (appointmentType) {
-    case "control": return "Controllo";
-    case "first_visit": return "Prima visita";
-    case "iris": return "Iri";
-    case "bioimpedance": return "Bioimpedenza";
-    case "integration": return "Int. alim";
-    case "bach": return "Fiori B";
-  }
-
-  return "";
-}
-
-/**
  * @param {string} token
  * @param {Appointment} appointment
  */
