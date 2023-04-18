@@ -48,6 +48,7 @@ function displayCalendar(token) {
         const daysInMonth = Math.round((beginningOfNextMonth.getTime() - beginningOfMonth.getTime()) / 1000 / 60 / 60 / 24);
         const endOfMonth = new Date(Date.UTC(yearNumber, monthNumber, daysInMonth));
         const daysInPrevMonth = Math.round((beginningOfMonth.getTime() - beginningOfPrevMonth.getTime()) / 1000 / 60 / 60 / 24);
+        /** @type string[][] */
         let calendarMonthWeeks = [[]];
         let week = 0;
         let prevMonthDay = daysInPrevMonth - beginningOfMonth.getUTCDay() + 1;
