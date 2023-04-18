@@ -38,6 +38,9 @@ function displayCreateAppointment(token) {
       const fromSelect = requireElement("from_select");
       fromSelect.innerHTML = conversationOptions;
 
+      const datetimeInput = requireInputElement("datetime_input");
+      datetimeInput.value = new Date().toISOString().slice(0, -8);
+
       attachCreateAppointmentListener(token);
     });
 }
