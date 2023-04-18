@@ -1,7 +1,5 @@
 {
-  "compilerOptions": {
-    "strict": true
-  },
+  "extends": "../jsconfig",
   "include": [
     "index.js",
     "../common.js"
