@@ -195,7 +195,6 @@ function displayConversationDetails(token, from) {
 
       fetchMessages(token, from, null, [])
         .then(items => {
-          console.log(items);
           let canReply = false;
           if (items.length == 0) {
             messages.innerHTML = '<p>Nessun messaggio</p>';
@@ -292,7 +291,6 @@ function attachUpdateConversationDetailsListener(token, conversation) {
         }
 
         const result = JSON.parse(success.content);
-        console.log(result);
 
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Conversazione aggiornata correttamente";
@@ -346,7 +344,6 @@ function attachAutocompleteReplyListener(token) {
         }
 
         const result = JSON.parse(success.content);
-        console.log(result);
 
         replyTextarea.value = result.content;
       });
