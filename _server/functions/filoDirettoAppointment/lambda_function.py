@@ -94,7 +94,7 @@ def lambda_handler(event, context):
         # Set reminder sent at now arbitrarily if the "reminder sent" checkbox
         # is marked
         if body['appointment']['reminder_sent']:
-            item['reminderSentAt'] = {'S': datetime.now().isoformat(timespec='minutes')},
+            item['reminderSentAt'] = {'S': datetime.now().isoformat(timespec='minutes')}
 
         # Add a new appointment conditionally so we don't overwrite existing items
         result = dynamodb.put_item(
