@@ -132,7 +132,10 @@ input,
 legend,
 select {
   display: table-cell;
-  margin-bottom: 10px;
+}
+
+form > div {
+  margin-bottom: 12px;
 }
 
 legend {
