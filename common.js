@@ -358,7 +358,7 @@ function sanitizeHTML(str) {
 
 /**
  * @param {any} appointmentType
- * @returns {string}
+ * @returns {?string}
  */
 function displayAppointmentType(appointmentType) {
   switch (appointmentType) {
@@ -370,5 +370,5 @@ function displayAppointmentType(appointmentType) {
     case "bach": return "Fiori B";
   }
 
-  return "";
+  return null;
 }
