@@ -18,6 +18,7 @@ const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazo
  * @typedef {Object} Appointment
  * @prop {{S: string}} from
  * @prop {{S: string}} datetime
+ * @prop {?{S: string}} type
  * @prop {?{S: string}} reminderSentAt
  */
 

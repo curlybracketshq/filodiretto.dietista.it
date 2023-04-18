@@ -36,14 +36,37 @@ function displayAppointmentDetails(token, from, datetime) {
 
       const appointmentDetailsResponse = JSON.parse(success.content);
       const appointment = appointmentDetailsResponse.Item;
+
       const from = requireAnchorElement("from");
       from.innerHTML = appointment.from.S;
       from.href = `/conversations/#${appointment.from.S}`;
+
+      const appointmentType = requireElement("appointment_type");
+      appointmentType.innerHTML = displayAppointmentType(appointment.type.S);
+
       const reminderSentAt = requireElement("reminder_sent_at");
       reminderSentAt.innerHTML = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
+
       attachSendAppointmentReminderListener(token, appointment);
       attachDeleteAppointmentListener(token, appointment);
     });
+}
+
+/**
+ * @param {any} appointmentType
+ * @returns {string}
+ */
+function displayAppointmentType(appointmentType) {
+  switch (appointmentType) {
+    case "control": return "Controllo";
+    case "first_visit": return "Prima visita";
+    case "iris": return "Iri";
+    case "bioimpedance": return "Bioimpedenza";
+    case "integration": return "Int. alim";
+    case "bach": return "Fiori B";
+  }
+
+  return "";
 }
 
 /**
