@@ -1,5 +1,6 @@
 import json
 import boto3
+from datetime import datetime
 from common import auth
 from common import cors
 from common import errors
@@ -83,13 +84,22 @@ def lambda_handler(event, context):
         body = json.loads(event['body'])
         
         dynamodb = boto3.client('dynamodb')
+
+        item = {
+            'from': {'S': body['appointment']['from']},
+            'datetime': {'S': body['appointment']['datetime']},
+            'type': {'S': body['appointment']['appointment_type']},
+        }
+
+        # Set reminder sent at now arbitrarily if the "reminder sent" checkbox
+        # is marked
+        if body['appointment']['reminder_sent']:
+            item['reminderSentAt'] = {'S': datetime.now().isoformat(timespec='minutes')},
+
         # Add a new appointment conditionally so we don't overwrite existing items
         result = dynamodb.put_item(
             TableName=APPOINTMENTS_TABLE,
-            Item={
-                'from': {'S': body['appointment']['from']},
-                'datetime': {'S': body['appointment']['datetime']},
-            },
+            Item=item,
             ExpressionAttributeNames={
                 '#F': 'from',
             },

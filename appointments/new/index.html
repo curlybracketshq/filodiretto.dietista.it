@@ -13,6 +13,23 @@ title: 📅 Nuovo appuntamento
       <label>Data e ora</label>
       <input type="datetime-local" id="datetime_input" name="datetime" step="300" required />
     </div>
+    <div>
+      <label>Tipo di appuntamento</label>
+      <select id="appointment_type_select" name="appointment_type">
+        <option value="control">Controllo</option>
+        <option value="first_visit">Prima visita</option>
+        <option value="iris">Iri</option>
+        <option value="bioimpedance">Bioimpedenza</option>
+        <option value="integration">Int. alim.</option>
+        <option value="bach">Fiori B</option>
+      </select>
+    </div>
+    <div>
+      <label class="checkbox" for="reminder_sent_input">
+        <input type="checkbox" id="reminder_sent_input" name="reminder_sent" />
+        Promemoria già inviato
+      </label>
+    </div>
     <div><input type="submit" id="create_appointment" value="Crea" /></div>
   </form>
 </div>

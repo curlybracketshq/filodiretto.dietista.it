@@ -57,6 +57,8 @@ function attachCreateAppointmentListener(token) {
 
     const fromSelect = requireSelectElement("from_select");
     const datetimeInput = requireInputElement("datetime_input");
+    const appointmentTypeSelect = requireSelectElement("appointment_type_select");
+    const reminderSentInput = requireInputElement("reminder_sent_input");
 
     if (fromSelect.value == '') {
       throw new Error("Invalid from value");
@@ -70,7 +72,12 @@ function attachCreateAppointmentListener(token) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        appointment: { from: fromSelect.value, datetime: datetimeInput.value }
+        appointment: {
+          from: fromSelect.value,
+          datetime: datetimeInput.value,
+          appointment_type: appointmentTypeSelect.value,
+          reminder_sent: reminderSentInput.checked
+        }
       })
     });
     handleFetchGenericError(request)
