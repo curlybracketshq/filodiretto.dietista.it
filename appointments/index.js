@@ -35,6 +35,7 @@ function displayAppointmentDetails(token, from, datetime) {
       content.style.display = "block";
 
       const appointmentDetailsResponse = JSON.parse(success.content);
+      /** @type {Appointment} */
       const appointment = appointmentDetailsResponse.Item;
 
       const from = requireAnchorElement("from");
@@ -42,7 +43,7 @@ function displayAppointmentDetails(token, from, datetime) {
       from.href = `/conversations/#${appointment.from.S}`;
 
       const appointmentType = requireElement("appointment_type");
-      appointmentType.innerHTML = displayAppointmentType(appointment.type.S);
+      appointmentType.innerHTML = displayAppointmentType(appointment.type?.S);
 
       const reminderSentAt = requireElement("reminder_sent_at");
       reminderSentAt.innerHTML = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
