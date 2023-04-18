@@ -39,7 +39,7 @@ function displayCreateAppointment(token) {
       fromSelect.innerHTML = conversationOptions;
 
       const datetimeInput = requireInputElement("datetime_input");
-      datetimeInput.value = new Date().toISOString().slice(0, -8);
+      datetimeInput.value = new Date().toISOString().slice(0, -9) + '0';
 
       attachCreateAppointmentListener(token);
     });
