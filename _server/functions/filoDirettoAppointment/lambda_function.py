@@ -88,6 +88,9 @@ def lambda_handler(event, context):
         item = {
             'from': {'S': body['appointment']['from']},
             'datetime': {'S': body['appointment']['datetime']},
+            # Take just the YYYY-MM part (first 7 chars) of the datetime value
+            # Used as the primary key of the `month-datetime-index` GSI
+            'month': {'S': body['appointment']['datetime'][:7]},
             'type': {'S': body['appointment']['appointment_type']},
         }
 

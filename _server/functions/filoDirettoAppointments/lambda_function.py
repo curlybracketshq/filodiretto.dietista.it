@@ -20,6 +20,7 @@ def lambda_handler(event, context):
     dynamodb = boto3.client('dynamodb')
 
     kwargs = {'TableName': APPOINTMENTS_TABLE}
+
     if 'last_evaluated_key' in event['queryStringParameters']:
         kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
 
@@ -27,6 +28,16 @@ def lambda_handler(event, context):
         kwargs['ExpressionAttributeValues'] = {':f': {'S': event['queryStringParameters']['from']}}
         kwargs['ExpressionAttributeNames'] = {'#F': 'from'}
         kwargs['KeyConditionExpression'] = '#F = :f'
+        results = dynamodb.query(**kwargs)
+    elif 'month' in event['queryStringParameters'] and 'before' in event['queryStringParameters'] and 'after' in event['queryStringParameters']:
+        kwargs['ExpressionAttributeValues'] = {
+            ':month': {'S': event['queryStringParameters']['month']},
+            ':before': {'S': event['queryStringParameters']['before']},
+            ':after': {'S': event['queryStringParameters']['after']},
+        }
+        kwargs['ExpressionAttributeNames'] = {'#M': 'month', '#D': 'datetime'}
+        kwargs['KeyConditionExpression'] = '#M = :month AND #D BETWEEN :after AND :before'
+        kwargs['IndexName'] = 'month-datetime-index'
         results = dynamodb.query(**kwargs)
     else:
         results = dynamodb.scan(**kwargs)
