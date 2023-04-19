@@ -85,7 +85,7 @@ function displayCalendar(token) {
                 <div class="time"><a href="/appointments/#${element.from.S}|${element.datetime.S}">${time}</a></div>
                 <div class="reminder_sent">${element.reminderSentAt?.S != null ? "✅" : "" }</div>
               </div>
-              <div class="appointment_type">${displayAppointmentType(element.type?.S)}</div>
+              <div class="appointment_type">${displayAppointmentType(element.type?.S) ?? ''}</div>
               <div class="full_name">${number.firstName?.S} ${number.lastName?.S}</div>
             </div>`;
           }).join('');
