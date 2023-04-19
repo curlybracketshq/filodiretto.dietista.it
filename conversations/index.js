@@ -144,7 +144,7 @@ function displayConversationDetails(token, from) {
       const appointments = requireElement("appointments");
       appointments.innerHTML = "<p>Caricamento...</p>";
 
-      fetchAppointments(token, from, null, [])
+      fetchAppointments(token, from, null, null, [])
         .then(items => {
           if (items.length == 0) {
             appointments.innerHTML = '<p>Nessun appuntamento</p>';

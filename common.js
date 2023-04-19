@@ -243,14 +243,23 @@ function handleFetchAuthError([error, success]) {
 /**
  * @param {string} token
  * @param {?string} from
+ * @param {?{'month': string, 'before': string, 'after': string}} monthBeforeAfter
  * @param {?string} lastEvaluatedKey
  * @param {Array<Appointment>} items
  * @returns {Promise<Array<Appointment>>}
  */
-function fetchAppointments(token, from, lastEvaluatedKey, items) {
+function fetchAppointments(token, from, monthBeforeAfter, lastEvaluatedKey, items) {
   let queryString = 'token=' + token;
+  if (from != null && monthBeforeAfter != null) {
+    throw new Error("Too many query parameters");
+  }
   if (from != null) {
     queryString += '&from=' + from;
+  }
+  if (monthBeforeAfter != null) {
+    queryString += '&month=' + monthBeforeAfter.month;
+    queryString += '&before=' + monthBeforeAfter.before;
+    queryString += '&after=' + monthBeforeAfter.after;
   }
   if (lastEvaluatedKey != null) {
     queryString += '&last_evaluated_key=' + lastEvaluatedKey;
@@ -272,7 +281,7 @@ function fetchAppointments(token, from, lastEvaluatedKey, items) {
         return items;
       }
       const lastEvaluatedKey = JSON.stringify(response.LastEvaluatedKey);
-      return fetchAppointments(token, from, lastEvaluatedKey, items);
+      return fetchAppointments(token, from, monthBeforeAfter, lastEvaluatedKey, items);
     });
 }
 

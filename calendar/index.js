@@ -9,7 +9,7 @@ function displayCalendar(token) {
 
   /** @type {Appointment[]} */
   let appointmentItems = [];
-  fetchAppointments(token, null, null, [])
+  fetchAppointments(token, null, null, null, [])
     .then(items => {
       appointmentItems = items;
       return fetchConversations(token, null, []);
