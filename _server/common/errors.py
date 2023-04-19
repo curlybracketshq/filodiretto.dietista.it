@@ -10,10 +10,14 @@ def _send_error_message(event):
         print("WEBHOOK_ID/WEBHOOK_TOKEN NOT SET")
         return
 
+    user_agent = 'User-agent unknown'
+    if 'User-Agent' in event:
+        user_agent = event['User-Agent']
+
     discord.send_message(
         WEBHOOK_ID,
         WEBHOOK_TOKEN,
-        event['httpMethod'] + " " + event['path'] + "\n\n" + traceback.format_exc(),
+        event['httpMethod'] + " " + event['path'] + "\n" + user_agent +  "\n\n" + traceback.format_exc(),
     )
 
 
