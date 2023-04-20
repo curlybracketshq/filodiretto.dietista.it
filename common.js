@@ -200,6 +200,9 @@ function displayAuthenticatedLayout(username) {
     localStorage.removeItem(USERNAME_KEY);
     window.location.replace("/");
   });
+
+  const subtitle = requireElement("subtitle");
+  subtitle.style.display = "none";
 }
 
 function displayAnonymousLayout() {
