@@ -136,7 +136,10 @@ function displayConversationDetails(token, from) {
           } else {
             const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
             const date = new Date(nextAppointmentDetails.datetime.S);
-            nextAppointment.innerHTML = `<a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${formatDateTime(date)}</a>`;
+            nextAppointment.innerHTML = `
+            <a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${formatDateTime(date)}</a>
+            ${nextAppointmentDetails.type?.S != null ? '(' + displayAppointmentType(nextAppointmentDetails.type.S) + ')' : ''}
+            `;
           }
         });
 
@@ -151,7 +154,11 @@ function displayConversationDetails(token, from) {
           } else {
             const appointmentsItems = items.map((/** @type {Appointment} */ appointment) => {
               const date = new Date(appointment.datetime.S);
-              return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${formatDateTime(date)}</a></li>`;
+              return `
+              <li>
+                <a href="/appointments/#${from}|${appointment.datetime.S}">${formatDateTime(date)}</a>
+                ${appointment.type?.S != null ? '(' + displayAppointmentType(appointment.type.S) + ')' : ''}
+              </li>`;
             }).join('');
             appointments.innerHTML = `<ul>${appointmentsItems}</ul>`;
           }
