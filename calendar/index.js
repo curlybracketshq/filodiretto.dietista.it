@@ -84,7 +84,7 @@ function displayCalendar(token) {
             return 0;
           }).map(function (/** @type {Appointment} */ element) {
             const [_date, time] = element.datetime.S.split('T');
-            const number = conversationItemsByNumber[element.from.S]
+            const conversation = conversationItemsByNumber[element.from.S];
             return `
             <div class="appointment ${element.type?.S != null ? element.type.S : ""}">
               <div class="first_line">
@@ -92,7 +92,7 @@ function displayCalendar(token) {
                 <div class="reminder_sent">${element.reminderSentAt?.S != null ? "✅" : ""}</div>
               </div>
               <div class="appointment_type">${displayAppointmentType(element.type?.S) ?? ''}</div>
-              <div class="full_name">${number.firstName?.S} ${number.lastName?.S}</div>
+              <div class="full_name"><a href="/conversations/#${conversation.from.S}">${conversation.firstName?.S} ${conversation.lastName?.S}</a></div>
             </div>`;
           }).join('');
           calendarMonthWeeks[week].push(`
