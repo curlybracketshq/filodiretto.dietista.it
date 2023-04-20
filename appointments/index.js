@@ -66,7 +66,7 @@ function attachSendAppointmentReminderListener(token, appointment) {
     }
 
     const dateObj = new Date(appointment.datetime.S);
-    const date = formatDate(dateObj);
+    const date = formatDateLong(dateObj);
     const time = formatTime(dateObj);
     sendButton.disabled = true;
     sendButton.innerHTML = "Caricamento...";

@@ -57,6 +57,18 @@ function formatDate(date) {
  * @param {Date} date
  * @returns {string}
  */
+function formatDateLong(date) {
+  return new Intl.DateTimeFormat(LOCALE, {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+  }).format(date);
+}
+
+/**
+ * @param {Date} date
+ * @returns {string}
+ */
 function formatDateTime(date) {
   return new Intl.DateTimeFormat(LOCALE, {
     year: "2-digit",
