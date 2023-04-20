@@ -33,7 +33,8 @@ function displayCalendar(token) {
       }, {});
 
       const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
-        const [/** @type {string} */ date, _time] = element.datetime.S.split('T');
+        const datetimeComponents = element.datetime.S.split('T');
+        const [date, _time] = datetimeComponents;
         const [year, month, _day] = date.split('-');
         const yearMonth = `${year}-${month}`;
         months[yearMonth] = true;
