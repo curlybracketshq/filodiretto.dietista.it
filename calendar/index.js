@@ -32,7 +32,7 @@ function displayCalendar(token) {
         return acc;
       }, {});
 
-      const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */ [appointmentsByDay, months], /** @type {Appointment} */ element) {
+      const [appointmentsByDay, months] = appointmentItems.reduce(function (/** @type {[Object.<string, Appointment[]>, Object.<string, Boolean>]} */[appointmentsByDay, months], /** @type {Appointment} */ element) {
         const [/** @type {string} */ date, _time] = element.datetime.S.split('T');
         const [year, month, _day] = date.split('-');
         const yearMonth = `${year}-${month}`;
