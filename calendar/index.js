@@ -12,6 +12,11 @@ function displayCalendar(token) {
   fetchAppointments(token, null, null, null, [])
     .then(items => {
       appointmentItems = items;
+
+      if (items.length == 0) {
+        return [];
+      }
+
       return fetchConversations(token, null, []);
     })
     .then(conversationItems => {
