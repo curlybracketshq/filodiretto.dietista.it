@@ -42,11 +42,11 @@ function displayTodaysAppointments(token) {
         appointments.innerHTML = '<p>Nessun appuntamento</p>';
       } else {
         const appointmentsItems = appointmentItems.map((/** @type {Appointment} */ appointment) => {
-          const [_date, time] = appointment.datetime.S.split('T');
+          const date = new Date(appointment.datetime.S);
           const conversation = conversationItemsByNumber[appointment.from.S];
           return `
           <li>
-            <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${time}</a>
+            <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${formatTime(date)}</a>
             -
             <a href="/conversations/#${conversation.from.S}">${conversation.firstName?.S} ${conversation.lastName?.S}</a>
             ${appointment.type?.S != null ? '(' + displayAppointmentType(appointment.type.S) + ')' : ''}
