@@ -40,10 +40,15 @@ function displayAppointmentDetails(token, from, datetime) {
       from.href = `/conversations/#${appointment.from.S}`;
 
       const appointmentType = requireElement("appointment_type");
-      appointmentType.innerHTML = displayAppointmentType(appointment.type?.S) ?? 'non specificato';
+      appointmentType.innerText = displayAppointmentType(appointment.type?.S) ?? 'non specificato';
 
       const reminderSentAt = requireElement("reminder_sent_at");
-      reminderSentAt.innerHTML = appointment.reminderSentAt == null ? 'non inviato' : `inviato il ${appointment.reminderSentAt.S}`;
+      let reminderSentAtStr = "non inviato";
+      if (appointment.reminderSentAt != null) {
+        const date = new Date(appointment.reminderSentAt.S + ':00Z');
+        reminderSentAtStr = `inviato il ${formatDateTime(date)}`;
+      }
+      reminderSentAt.innerText = reminderSentAtStr;
 
       attachSendAppointmentReminderListener(token, appointment);
       attachDeleteAppointmentListener(token, appointment);
@@ -61,8 +66,12 @@ function attachSendAppointmentReminderListener(token, appointment) {
       return;
     }
 
-    if (appointment.reminderSentAt != null && !confirm(`Hai già inviato un promemoria in data ${appointment.reminderSentAt.S}, vuoi inviare un altro promemoria?`)) {
-      return;
+    if (appointment.reminderSentAt != null) {
+      const reminderSentAtDate = new Date(appointment.reminderSentAt.S + ':00Z');
+      const confirmMessage = `Hai già inviato un promemoria in data ${formatDateTime(reminderSentAtDate)}.\nVuoi inviare un altro promemoria?`;
+      if (!confirm(confirmMessage)) {
+        return;
+      }
     }
 
     const dateObj = new Date(appointment.datetime.S);
@@ -95,6 +104,10 @@ function attachSendAppointmentReminderListener(token, appointment) {
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Promemoria inviato correttamente";
         infoMessage.style.display = "block";
+
+        const reminderSentAt = requireElement("reminder_sent_at");
+        const date = new Date();
+        reminderSentAt.innerText = `inviato il ${formatDateTime(date)}`;
       });
   });
 }
