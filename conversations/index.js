@@ -135,8 +135,8 @@ function displayConversationDetails(token, from) {
             nextAppointment.innerHTML = 'Nessun appuntamento';
           } else {
             const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
-            const [date, time] = nextAppointmentDetails.datetime.S.split('T');
-            nextAppointment.innerHTML = `<a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${date}, ore ${time}</a>`;
+            const date = new Date(nextAppointmentDetails.datetime.S);
+            nextAppointment.innerHTML = `<a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${formatDateTime(date)}</a>`;
           }
         });
 
@@ -150,8 +150,8 @@ function displayConversationDetails(token, from) {
             appointments.innerHTML = '<p>Nessun appuntamento</p>';
           } else {
             const appointmentsItems = items.map((/** @type {Appointment} */ appointment) => {
-              const [date, time] = appointment.datetime.S.split('T');
-              return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${date}, ore ${time}</a></li>`;
+              const date = new Date(appointment.datetime.S);
+              return `<li><a href="/appointments/#${from}|${appointment.datetime.S}">${formatDateTime(date)}</a></li>`;
             }).join('');
             appointments.innerHTML = `<ul>${appointmentsItems}</ul>`;
           }
