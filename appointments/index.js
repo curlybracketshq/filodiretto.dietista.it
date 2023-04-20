@@ -7,11 +7,8 @@
  */
 function displayAppointmentDetails(token, from, datetime) {
   const title = requireElement("title");
-  const [date, time] = datetime.split('T');
-  const dateObj = new Date(date);
-  const month = dateObj.getUTCMonth() + 1;
-  const day = dateObj.getUTCDate();
-  title.innerHTML = `📅 Appuntamento del ${day} ${monthName(month).toLowerCase()} alle ${time}`;
+  const dateObj = new Date(datetime);
+  title.innerHTML = `📅 Appuntamento ${formatDateTime(dateObj)}`;
 
   const loading = requireElement("loading");
   loading.style.display = "block";
@@ -68,9 +65,9 @@ function attachSendAppointmentReminderListener(token, appointment) {
       return;
     }
 
-    const [date, time] = appointment.datetime.S.split('T');
-    const dateObj = new Date(date);
-    const dateStr = dateToString(dateObj);
+    const dateObj = new Date(appointment.datetime.S);
+    const date = formatDate(dateObj);
+    const time = formatTime(dateObj);
     sendButton.disabled = true;
     sendButton.innerHTML = "Caricamento...";
 
@@ -80,7 +77,7 @@ function attachSendAppointmentReminderListener(token, appointment) {
       body: JSON.stringify({
         token,
         appointment: { from: appointment.from.S, datetime: appointment.datetime.S },
-        message: { to: appointment.from.S, date: dateStr, time }
+        message: { to: appointment.from.S, date, time }
       })
     });
     handleFetchGenericError(request)

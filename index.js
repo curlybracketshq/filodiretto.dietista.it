@@ -5,13 +5,9 @@
  */
 function displayTodaysAppointments(token) {
   const todayElement = requireElement("today");
-  const today = new Date();
-  const formattedDate = new Intl.DateTimeFormat("it-IT", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(today);
-  todayElement.innerText = `📅 Appuntamenti di oggi (${formattedDate})`;
+  const now = new Date();
+  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  todayElement.innerText = `📅 Appuntamenti di oggi (${formatDate(now)})`;
 
   // Load today's appointments
   const appointments = requireElement("todays_appointments");
@@ -23,14 +19,38 @@ function displayTodaysAppointments(token) {
   const month = isoToday.slice(0, 7);
   const before = isoTomorrow.slice(0, 10);
   const after = isoToday.slice(0, 10);
+
+  /** @type {Appointment[]} */
+  let appointmentItems = [];
   fetchAppointments(token, null, { month, before, after }, null, [])
     .then(items => {
+      appointmentItems = items;
+
       if (items.length == 0) {
+        return [];
+      }
+
+      return fetchConversations(token, null, []);
+    })
+    .then(conversationItems => {
+      const conversationItemsByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
+        acc[conversation.from.S] = conversation;
+        return acc;
+      }, {});
+
+      if (appointmentItems.length == 0) {
         appointments.innerHTML = '<p>Nessun appuntamento</p>';
       } else {
-        const appointmentsItems = items.map((/** @type {Appointment} */ appointment) => {
+        const appointmentsItems = appointmentItems.map((/** @type {Appointment} */ appointment) => {
           const [_date, time] = appointment.datetime.S.split('T');
-          return `<li><a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${time}</a> - <a href="/conversations/#${appointment.from.S}">${appointment.from.S}</a></li>`;
+          const conversation = conversationItemsByNumber[appointment.from.S];
+          return `
+          <li>
+            <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${time}</a>
+            -
+            <a href="/conversations/#${conversation.from.S}">${conversation.firstName?.S} ${conversation.lastName?.S}</a>
+            ${appointment.type?.S != null ? '(' + displayAppointmentType(appointment.type.S) + ')' : ''}
+          </li>`;
         }).join('');
         appointments.innerHTML = `<ul>${appointmentsItems}</ul>`;
       }

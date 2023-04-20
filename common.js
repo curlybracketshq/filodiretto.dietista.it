@@ -3,6 +3,9 @@
 const TOKEN_KEY = 'TOKEN';
 const USERNAME_KEY = 'USERNAME';
 
+const LOCALE = Intl.DateTimeFormat().resolvedOptions().locale;
+console.log('LOCALE', LOCALE);
+
 const LOGIN_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAuth";
 const CONVERSATIONS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversations";
 const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversation";
@@ -39,54 +42,58 @@ const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazo
  */
 
 /**
- * @param {number} month
+ * @param {Date} date
  * @returns {string}
  */
-function monthName(month) {
-  switch (month) {
-    case 1: return "Gennaio";
-    case 2: return "Febbraio";
-    case 3: return "Marzo";
-    case 4: return "Aprile";
-    case 5: return "Maggio";
-    case 6: return "Giugno";
-    case 7: return "Luglio";
-    case 8: return "Agosto";
-    case 9: return "Settembre";
-    case 10: return "Ottobre";
-    case 11: return "Novembre";
-    case 12: return "Dicembre";
-  }
-  throw new Error("Unexpected input: " + month);
-}
-
-/**
- * @param {number} weekday
- * @returns {string}
- */
-function weekdayName(weekday) {
-  switch (weekday) {
-    case 0: return 'Domenica';
-    case 1: return 'Lunedì';
-    case 2: return 'Martedì';
-    case 3: return 'Mercoledì';
-    case 4: return 'Giovedì';
-    case 5: return 'Venerdì';
-    case 6: return 'Sabato';
-  }
-  throw new Error("Unexpected input: " + weekday);
+function formatDate(date) {
+  return new Intl.DateTimeFormat(LOCALE, {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
 }
 
 /**
  * @param {Date} date
  * @returns {string}
  */
-function dateToString(date) {
-  const weekday = date.getUTCDay();
-  const month = date.getUTCMonth() + 1;
-  const day = date.getUTCDate();
+function formatDateTime(date) {
+  return new Intl.DateTimeFormat(LOCALE, {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
 
-  return `${weekdayName(weekday)} ${day} ${monthName(month)}`.toLowerCase();
+/**
+ * @param {Date} date
+ * @returns {string}
+ */
+function formatTime(date) {
+  return new Intl.DateTimeFormat(LOCALE, {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
+/**
+ * @param {Date} date
+ * @returns {string}
+ */
+function monthName(date) {
+  return new Intl.DateTimeFormat(LOCALE, {
+    month: "long",
+  }).format(date);
+}
+
+/**
+ * @param {string} string
+ * @returns {string}
+ */
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 /**

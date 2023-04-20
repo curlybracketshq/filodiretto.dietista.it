@@ -122,7 +122,7 @@ function displayCalendar(token) {
         }
 
         return `
-        <h2>${monthName(parseInt(month, 10))} ${year}</h2>
+        <h2>${capitalizeFirstLetter(monthName(beginningOfMonth))} ${year}</h2>
         <table>
         <thead>
         <tr>
