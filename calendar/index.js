@@ -52,6 +52,7 @@ function displayCalendar(token) {
         const [year, month] = yearMonth.split('-');
         const [yearNumber, monthNumber] = [parseInt(year, 10), parseInt(month, 10) - 1];
         const beginningOfMonth = new Date(Date.UTC(yearNumber, monthNumber, 1));
+        const beginningOfMonthLocal = new Date(yearMonth + '-01T00:00');
         const beginningOfPrevMonth = new Date(Date.UTC(yearNumber, monthNumber - 1, 1));
         const beginningOfNextMonth = new Date(Date.UTC(yearNumber, monthNumber + 1, 1));
         const daysInMonth = Math.round((beginningOfNextMonth.getTime() - beginningOfMonth.getTime()) / 1000 / 60 / 60 / 24);
@@ -124,7 +125,7 @@ function displayCalendar(token) {
         }
 
         return `
-        <h2>${capitalizeFirstLetter(monthName(beginningOfMonth))} ${year}</h2>
+        <h2>${capitalizeFirstLetter(monthName(beginningOfMonthLocal))} ${year}</h2>
         <table>
         <thead>
         <tr>
