@@ -48,7 +48,7 @@ function displayTodaysAppointments(token) {
           <li>
             <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${formatTime(date)}</a>
             -
-            <a href="/conversations/#${conversation.from.S}">${conversation.firstName?.S} ${conversation.lastName?.S}</a>
+            <a href="/conversations/#${conversation.from.S}">${fullName(conversation)}</a>
             ${appointment.type?.S != null ? '(' + displayAppointmentType(appointment.type.S) + ')' : ''}
           </li>`;
         }).join('');

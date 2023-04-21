@@ -403,3 +403,14 @@ function displayAppointmentType(appointmentType) {
 
   return null;
 }
+
+/**
+ * @param {Conversation} conversation
+ */
+function fullName(conversation) {
+  return [
+    conversation.firstName?.S,
+    conversation.lastName?.S
+  ].filter(s => s != null && s != '')
+    .join(' ');
+}
