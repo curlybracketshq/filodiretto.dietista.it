@@ -1,18 +1,22 @@
 <nav id="menu">
-  🏠 <a href="{{ '/' | relative_url }}">Home</a>
-  <span>·</span>
   <div id="anonymous">
-    <a href="{{ '/login/' | relative_url }}">Accedi</a>
-    <span>·</span>
-    <a href="https://dietista.it">Dietista.it</a>
+    <div class="line">
+      <div class="left">🏠 <a href="{{ '/' | relative_url }}">Home</a></div>
+      <div class="gap"></div>
+      <div class="right">🔑 <a href="{{ '/login/' | relative_url }}">Accedi</a></div>
+    </div>
   </div>
   <div id="authenticated">
-    💬 <a href="{{ '/conversations/' | relative_url }}">Conversazioni</a>
-    <span>·</span>
-    🗓️ <a href="{{ '/calendar/' | relative_url }}">Calendario</a>
-    <span>·</span>
-    Utente: <span id="username"></span>
-    <span>·</span>
-    <a id="logout" href="#">Esci</a>
+    <div class="line">
+      <div class="left">🏠 <a href="{{ '/' | relative_url }}">Home</a></div>
+      <div class="gap"></div>
+      <div class="right">Utente: <span id="username"></span></div>
+      <div class="right"><a id="logout" href="#">Esci</a></div>
+    </div>
+    <div class="line">
+      <div class="left">💬 <a href="{{ '/conversations/' | relative_url }}">Conversazioni</a></div>
+      <div class="left">🗓️ <a href="{{ '/calendar/' | relative_url }}">Calendario</a></div>
+      <div class="left">💡 <a href="{{ '/insights/' | relative_url }}">In sintesi</a></div>
+    </div>
   </div>
 </nav>

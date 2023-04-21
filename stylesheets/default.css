@@ -98,12 +98,27 @@ a>*,
   align-items: center;
 }
 
-nav,
 nav > div {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: var(--size-extra-small);
   flex-wrap: wrap;
+}
+
+nav .line {
+  display: flex;
+  gap: var(--size-extra-small);
+  flex-wrap: wrap;
+}
+
+nav .line div.left + div.left::before,
+nav .line div.right + div.right::before {
+  content: "·";
+  margin-right: var(--size-extra-small);
+}
+
+nav .line .gap {
+  margin: auto;
 }
 
 footer {
