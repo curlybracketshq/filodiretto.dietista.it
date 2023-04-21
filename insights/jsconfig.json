@@ -1,0 +1,7 @@
+{
+  "extends": "../jsconfig",
+  "include": [
+    "index.js",
+    "../common.js"
+  ]
+}
