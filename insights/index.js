@@ -59,7 +59,7 @@ function displayConversations(token, { start, end }) {
         return acc;
       }, {});
 
-      intro.innerText = `Questa settimana hai avuto ${pluralN(appointmentItems.length, "appuntamento", "appuntamenti")} dove hai incontrato ${pluralN(Object.keys(appointmentsByNumber).length, "persona", "persone diverse")}.`;
+      intro.innerText = `La scorsa settimana hai avuto ${pluralN(appointmentItems.length, "appuntamento", "appuntamenti")} dove hai incontrato ${pluralN(Object.keys(appointmentsByNumber).length, "persona", "persone diverse")}.`;
 
       if (appointmentItems.length == 0) {
         conversations.innerHTML = '<p>Nessun contatto</p>';
