@@ -200,9 +200,6 @@ function displayAuthenticatedLayout(username) {
     localStorage.removeItem(USERNAME_KEY);
     window.location.replace("/");
   });
-
-  const subtitle = requireElement("subtitle");
-  subtitle.style.display = "none";
 }
 
 function displayAnonymousLayout() {
@@ -406,6 +403,7 @@ function displayAppointmentType(appointmentType) {
 
 /**
  * @param {Conversation} conversation
+ * @returns {string}
  */
 function fullName(conversation) {
   return [
@@ -413,4 +411,24 @@ function fullName(conversation) {
     conversation.lastName?.S
   ].filter(s => s != null && s != '')
     .join(' ');
+}
+
+/**
+ * @param {number} n
+ * @param {string} s
+ * @param {string} p
+ * @returns {string}
+ */
+function plural(n, s, p) {
+  return n == 1 ? s : p;
+}
+
+/**
+ * @param {number} n
+ * @param {string} s
+ * @param {string} p
+ * @returns {string}
+ */
+function pluralN(n, s, p) {
+  return `${n} ${plural(n, s, p)}`;
 }

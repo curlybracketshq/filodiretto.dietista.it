@@ -1,5 +1,8 @@
 {
   "extends": "../jsconfig",
+  "compilerOptions": {
+    "target": "es2015"
+  },
   "include": [
     "index.js",
     "../common.js"

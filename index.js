@@ -69,6 +69,8 @@ function main() {
   const token = localStorage.getItem(TOKEN_KEY);
   const username = localStorage.getItem(USERNAME_KEY);
   if (token != null && username != null) {
+    const subtitle = requireElement("subtitle");
+    subtitle.style.display = "none";
     displayAuthenticatedLayout(username);
     displayTodaysAppointments(token);
     authenticatedContent.style.display = "block";
