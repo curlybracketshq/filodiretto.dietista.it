@@ -1,5 +1,7 @@
 //@ts-check
 
+const NO_APPOINTMENTS = "La scorsa settimana non hai avuto nessun appuntamento.";
+
 /**
  * @param {string} token
  * @param {{start: Date, end: Date}} timeRange
@@ -60,6 +62,11 @@ function displayConversations(token, { start, end }) {
         return acc;
       }, {});
 
+      if (appointmentItems.length == 0) {
+        intro.innerText = NO_APPOINTMENTS;
+        return { appointmentsByNumber, conversationItemsByNumber };
+      }
+
       intro.innerHTML = `
       La scorsa settimana hai avuto
       <strong>${pluralN(appointmentItems.length, "appuntamento", "appuntamenti")}</strong>
@@ -89,13 +96,16 @@ function displayConversations(token, { start, end }) {
  * @param {Object.<string, Conversation>} conversationItemsByNumber
  */
 function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsByNumber) {
+  const missingFollowUps = requireElement("missing_follow_ups");
   const missingFollowUpsIntro = requireElement("missing_follow_ups_intro");
   missingFollowUpsIntro.innerText = "Caricamento...";
 
-  const missingFollowUps = requireElement("missing_follow_ups");
+  const numbers = Object.keys(appointmentsByNumber);
+  if (numbers.length == 0) {
+    missingFollowUpsIntro.innerText = NO_APPOINTMENTS;
+    return;
+  }
 
-
-  const numbers = Object.keys(appointmentsByNumber)
   /** @type {Promise<?Appointment>[]} */
   const promises = numbers.map(number => {
     const nextAppointmentParams = new URLSearchParams('token=' + token + '&from=' + number);
@@ -124,10 +134,6 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsB
         missingFollowUpsIntro.innerText = "Tutte le persone che hai incontrato la scorsa settimana hanno in programma un appuntamento futuro.";
       } else {
         missingFollowUpsIntro.innerText = "Alcune delle persone che hai incontrato la scorsa settimana non hanno in programma nessun appuntamento futuro.";
-      }
-
-      if (numbers.length == 0) {
-        return;
       }
 
       const listItems = nextAppointments.map((appointment, i) => {
