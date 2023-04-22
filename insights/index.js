@@ -3,6 +3,7 @@
 /**
  * @param {string} token
  * @param {{start: Date, end: Date}} timeRange
+ * @returns {Promise<{appointmentsByNumber: Object.<string, Appointment[]>, conversationItemsByNumber: Object.<string, Conversation>}>}
  */
 function displayConversations(token, { start, end }) {
   // Load week's appointments
@@ -32,8 +33,8 @@ function displayConversations(token, { start, end }) {
 
   /** @type {Appointment[]} */
   let appointmentItems = [];
-  const responses = requests.map(request => fetchAppointments(token, null, request, null, []));
-  Promise.all(responses)
+  const promises = requests.map(request => fetchAppointments(token, null, request, null, []));
+  return Promise.all(promises)
     .then(responses => responses.reduce((acc, items) => acc.concat(items), []))
     .then(items => {
       appointmentItems = items;
@@ -59,7 +60,11 @@ function displayConversations(token, { start, end }) {
         return acc;
       }, {});
 
-      intro.innerText = `La scorsa settimana hai avuto ${pluralN(appointmentItems.length, "appuntamento", "appuntamenti")} dove hai incontrato ${pluralN(Object.keys(appointmentsByNumber).length, "persona", "persone diverse")}.`;
+      intro.innerHTML = `
+      La scorsa settimana hai avuto
+      <strong>${pluralN(appointmentItems.length, "appuntamento", "appuntamenti")}</strong>
+      dove hai incontrato
+      <strong>${pluralN(Object.keys(appointmentsByNumber).length, "persona", "persone diverse")}</strong>.`;
 
       if (appointmentItems.length == 0) {
         conversations.innerHTML = '<p>Nessun contatto</p>';
@@ -73,9 +78,79 @@ function displayConversations(token, { start, end }) {
         }).join('');
         conversations.innerHTML = `<ul>${listItems}</ul>`;
       }
+
+      return { appointmentsByNumber, conversationItemsByNumber };
     });
 }
 
+/**
+ * @param {string} token
+ * @param {Object.<string, Appointment[]>} appointmentsByNumber
+ * @param {Object.<string, Conversation>} conversationItemsByNumber
+ */
+function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsByNumber) {
+  const missingFollowUpsIntro = requireElement("missing_follow_ups_intro");
+  missingFollowUpsIntro.innerText = "Caricamento...";
+
+  const missingFollowUps = requireElement("missing_follow_ups");
+
+
+  const numbers = Object.keys(appointmentsByNumber)
+  /** @type {Promise<?Appointment>[]} */
+  const promises = numbers.map(number => {
+    const nextAppointmentParams = new URLSearchParams('token=' + token + '&from=' + number);
+    const nextAppointmentRequest = fetch(NEXT_APPOINTMENT_URL + '?' + nextAppointmentParams, {
+      method: "GET",
+    });
+    return handleFetchGenericError(nextAppointmentRequest)
+      .then(handleFetchAuthError)
+      .then(([_error, success]) => {
+        if (success == null) {
+          return null;
+        }
+
+        const appointmentDetailsResponse = JSON.parse(success.content);
+        if (appointmentDetailsResponse.Items.length == 0) {
+          return null;
+        } else {
+          return appointmentDetailsResponse.Items[0];
+        }
+      });
+  });
+
+  Promise.all(promises)
+    .then(nextAppointments => {
+      if (nextAppointments.filter(appointment => appointment != null).length == numbers.length) {
+        missingFollowUpsIntro.innerText = "Tutte le persone che hai incontrato la scorsa settimana hanno in programma un appuntamento futuro.";
+      } else {
+        missingFollowUpsIntro.innerText = "Alcune delle persone che hai incontrato la scorsa settimana non hanno in programma nessun appuntamento futuro.";
+      }
+
+      if (numbers.length == 0) {
+        return;
+      }
+
+      const listItems = nextAppointments.map((appointment, i) => {
+        const conversation = conversationItemsByNumber[numbers[i]];
+        let nextAppointmentStr;
+        if (appointment == null) {
+          nextAppointmentStr = "- Nessun appuntamento futuro";
+        } else {
+          const dateObj = new Date(appointment.datetime.S);
+          nextAppointmentStr = `
+          - Prossimo appuntamento:
+          <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${formatDateTime(dateObj)}</a>`;
+        }
+
+        return `
+        <li>
+          <a href="/conversations/#${conversation.from.S}">${fullName(conversation)}</a>
+          ${nextAppointmentStr}
+        </li>`;
+      }).join('');
+      missingFollowUps.innerHTML = `<ul>${listItems}</ul>`;
+    });
+}
 
 function main() {
   const loading = requireElement("loading");
@@ -97,7 +172,10 @@ function main() {
     subtitle.style.display = "block";
 
     displayAuthenticatedLayout(username);
-    displayConversations(token, { start: beginningOfWeek, end: endOfWeek });
+    displayConversations(token, { start: beginningOfWeek, end: endOfWeek })
+      .then(({ appointmentsByNumber, conversationItemsByNumber }) => {
+        displayMissingFollowUps(token, appointmentsByNumber, conversationItemsByNumber);
+      });
   } else {
     window.location.replace("/login/");
   }
