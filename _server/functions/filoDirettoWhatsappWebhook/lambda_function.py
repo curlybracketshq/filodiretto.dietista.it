@@ -3,6 +3,7 @@ import boto3
 import os
 from common import errors
 from common import discord
+from common import db
 
 print('Loading function')
 
@@ -48,14 +49,7 @@ def lambda_handler(event, context):
             
         dynamodb = boto3.client('dynamodb')
         dynamodb_resource = boto3.resource('dynamodb')
-        results = dynamodb.query(
-            TableName=MESSAGES_TABLE,
-            ExpressionAttributeValues={':v1': {'S': first_message['from']}},
-            ExpressionAttributeNames={'#from_field': 'from'},
-            KeyConditionExpression='#from_field = :v1',
-            ScanIndexForward=False,
-            Limit=1,
-        )
+        results = db.query_last_message_from(first_message['from'])
 
         if not results.get('Items', []):
             # Add a new sender conditionally so we don't overwrite existing items
