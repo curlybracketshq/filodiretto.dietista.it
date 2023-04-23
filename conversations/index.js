@@ -21,7 +21,7 @@ function displayConversations(token) {
       const tableContent = items.map((/** @type {Conversation} */ element) => {
         return `
         <tr>
-          <td>${element.from.S}</td>
+          <td>${formatPhoneNumber(element.from.S)}</td>
           <td>${element.firstName?.S ?? ''}</td>
           <td>${element.lastName?.S ?? ''}</td>
           <td class="operation"><a href="/conversations/#${element.from.S}">Dettagli</a></td>
@@ -50,7 +50,11 @@ function attachDeleteConversationListeners(token) {
     element.addEventListener("click", function (event) {
       event.preventDefault();
 
-      if (!confirm(`Vuoi eliminare ${from}?`)) {
+      if (from == null) {
+        return;
+      }
+
+      if (!confirm(`Vuoi eliminare ${formatPhoneNumber(from)}?`)) {
         return;
       }
 
@@ -77,7 +81,7 @@ function attachDeleteConversationListeners(token) {
  */
 function displayConversationDetails(token, from) {
   const title = requireElement("title");
-  title.innerHTML = `📇 Numero: ${from}`;
+  title.innerHTML = `📇 Numero: ${formatPhoneNumber(from)}`;
 
   const loading = requireElement("loading");
   loading.style.display = "block";

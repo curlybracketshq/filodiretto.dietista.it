@@ -109,6 +109,18 @@ function capitalizeFirstLetter(string) {
 }
 
 /**
+ * @param {string} string
+ * @returns {string}
+ */
+function formatPhoneNumber(string) {
+  const match = string.match(/(1|39)(\d{3})(\d{3})(\d{4})/);
+  if (match == null || match.length != 5 || match[0].length != string.length) {
+    return string;
+  }
+  return `+${match[1]} ${match[2]} ${match[3]} ${match[4]}`;
+}
+
+/**
  * @param {any} id
  * @returns {HTMLElement}
  */

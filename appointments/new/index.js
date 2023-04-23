@@ -33,7 +33,7 @@ function displayCreateAppointment(token) {
       let conversationOptions = `<option value="">Seleziona numero</option>`;
       conversationOptions += conversationsResponse.Items.map((/** @type {Conversation} */ element) => {
         return `
-        <option value="${element.from.S}" ${preselected == element.from.S ? 'selected' : ''}>${fullName(element)} (${element.from.S})</option>`;
+        <option value="${element.from.S}" ${preselected == element.from.S ? 'selected' : ''}>${fullName(element)} (${formatPhoneNumber(element.from.S)})</option>`;
       }).join('');
       const fromSelect = requireElement("from_select");
       fromSelect.innerHTML = conversationOptions;
