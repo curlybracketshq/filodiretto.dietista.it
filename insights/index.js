@@ -131,16 +131,16 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsB
   Promise.all(promises)
     .then(nextAppointments => {
       if (nextAppointments.filter(appointment => appointment != null).length == numbers.length) {
-        missingFollowUpsIntro.innerText = "Tutte le persone che hai incontrato la scorsa settimana hanno in programma un appuntamento futuro.";
+        missingFollowUpsIntro.innerText = "✅ Tutte le persone che hai incontrato la scorsa settimana hanno in programma un appuntamento futuro.";
       } else {
-        missingFollowUpsIntro.innerText = "Alcune delle persone che hai incontrato la scorsa settimana non hanno in programma nessun appuntamento futuro.";
+        missingFollowUpsIntro.innerText = "⚠️ Alcune delle persone che hai incontrato la scorsa settimana non hanno in programma nessun appuntamento futuro.";
       }
 
       const listItems = nextAppointments.map((appointment, i) => {
         const conversation = conversationItemsByNumber[numbers[i]];
         let nextAppointmentStr;
         if (appointment == null) {
-          nextAppointmentStr = "- Nessun appuntamento futuro";
+          nextAppointmentStr = "- ⚠️ Nessun appuntamento futuro";
         } else {
           const dateObj = new Date(appointment.datetime.S);
           nextAppointmentStr = `
