@@ -49,7 +49,7 @@ def lambda_handler(event, context):
             
         dynamodb = boto3.client('dynamodb')
         dynamodb_resource = boto3.resource('dynamodb')
-        results = db.query_last_message_from(first_message['from'])
+        results = db.query_messages(first_message['from'], limit=1)
 
         if not results.get('Items', []):
             # Add a new sender conditionally so we don't overwrite existing items

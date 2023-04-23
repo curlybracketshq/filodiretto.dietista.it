@@ -3,13 +3,21 @@ import boto3
 MESSAGES_TABLE = "filoDirettoMessages"
 
 
-def query_last_message_from(number):
+def query_messages(number, limit=None, exclusive_start_key=None):
     dynamodb = boto3.client('dynamodb')
-    return dynamodb.query(
-        TableName=MESSAGES_TABLE,
-        ExpressionAttributeValues={':f': {'S': number}},
-        ExpressionAttributeNames={'#F': 'from'},
-        KeyConditionExpression='#F = :f',
-        ScanIndexForward=False,
-        Limit=1,
-    )
+
+    kwargs = {
+        'TableName': MESSAGES_TABLE,
+        'ExpressionAttributeValues': {':f': {'S': number}},
+        'ExpressionAttributeNames': {'#F': 'from'},
+        'KeyConditionExpression': '#F = :f',
+        'ScanIndexForward': False,
+    }
+
+    if limit is not None:
+        kwargs['Limit'] = limit
+
+    if exclusive_start_key is not None:
+        kwargs['ExclusiveStartKey'] = exclusive_start_key
+
+    return dynamodb.query(**kwargs)
