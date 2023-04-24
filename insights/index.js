@@ -80,7 +80,7 @@ function displayConversations(token, { start, end }) {
           const conversation = conversationItemsByNumber[number];
           return `
           <li>
-            <a href="/conversations/#${conversation.from.S}">${fullName(conversation)}</a>
+            <a href="${conversationURL(conversation)}">${fullName(conversation)}</a>
           </li>`;
         }).join('');
         conversations.innerHTML = `<ul>${listItems}</ul>`;
@@ -145,12 +145,12 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsB
           const dateObj = new Date(appointment.datetime.S);
           nextAppointmentStr = `
           - Prossimo appuntamento:
-          <a href="/appointments/#${appointment.from.S}|${appointment.datetime.S}">${formatDateTime(dateObj)}</a>`;
+          <a href="${appointmentURL(appointment)}">${formatDateTime(dateObj)}</a>`;
         }
 
         return `
         <li>
-          <a href="/conversations/#${conversation.from.S}">${fullName(conversation)}</a>
+          <a href="${conversationURL(conversation)}">${fullName(conversation)}</a>
           ${nextAppointmentStr}
         </li>`;
       }).join('');

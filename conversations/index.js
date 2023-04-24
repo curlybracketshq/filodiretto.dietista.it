@@ -24,7 +24,7 @@ function displayConversations(token) {
           <td>${formatPhoneNumber(element.from.S)}</td>
           <td>${element.firstName?.S ?? ''}</td>
           <td>${element.lastName?.S ?? ''}</td>
-          <td class="operation"><a href="/conversations/#${element.from.S}">Dettagli</a></td>
+          <td class="operation"><a href="${conversationURL(element)}">Dettagli</a></td>
           <td class="operation"><a class="delete_conversation" href="#" data-from="${element.from.S}">Elimina</a></td>
         </tr>`;
       }).join('');
@@ -141,7 +141,7 @@ function displayConversationDetails(token, from) {
             const nextAppointmentDetails = appointmentDetailsResponse.Items[0];
             const date = new Date(nextAppointmentDetails.datetime.S);
             nextAppointment.innerHTML = `
-            <a href="/appointments/#${from}|${nextAppointmentDetails.datetime.S}">${formatDateTime(date)}</a>
+            <a href="${appointmentURL(nextAppointmentDetails)}">${formatDateTime(date)}</a>
             ${nextAppointmentDetails.type?.S != null ? '(' + displayAppointmentType(nextAppointmentDetails.type.S) + ')' : ''}
             `;
           }
@@ -160,7 +160,7 @@ function displayConversationDetails(token, from) {
               const date = new Date(appointment.datetime.S);
               return `
               <li>
-                <a href="/appointments/#${from}|${appointment.datetime.S}">${formatDateTime(date)}</a>
+                <a href="${appointmentURL(appointment)}">${formatDateTime(date)}</a>
                 ${appointment.type?.S != null ? '(' + displayAppointmentType(appointment.type.S) + ')' : ''}
               </li>`;
             }).join('');

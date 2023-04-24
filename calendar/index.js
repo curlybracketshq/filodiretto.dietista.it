@@ -91,11 +91,11 @@ function displayCalendar(token) {
             return `
             <div class="appointment ${element.type?.S != null ? element.type.S : ""}">
               <div class="first_line">
-                <div class="time"><a href="/appointments/#${element.from.S}|${element.datetime.S}">${formatTime(date)}</a></div>
+                <div class="time"><a href="${appointmentURL(element)}">${formatTime(date)}</a></div>
                 <div class="reminder_sent">${element.reminderSentAt?.S != null ? "✅" : ""}</div>
               </div>
               <div class="appointment_type">${displayAppointmentType(element.type?.S) ?? ''}</div>
-              <div class="full_name"><a href="/conversations/#${conversation.from.S}">${fullName(conversation)}</a></div>
+              <div class="full_name"><a href="${conversationURL(conversation)}">${fullName(conversation)}</a></div>
             </div>`;
           }).join('');
           calendarMonthWeeks[week].push(`

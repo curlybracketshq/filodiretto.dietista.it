@@ -193,6 +193,22 @@ function requireButtonElement(id) {
 }
 
 /**
+ * @param {Appointment} appointment
+ * @returns {string}
+ */
+function appointmentURL(appointment) {
+  return `/appointments/#${appointment.from.S}|${appointment.datetime.S}`;
+}
+
+/**
+ * @param {Conversation} conversation
+ * @returns {string}
+ */
+function conversationURL(conversation) {
+  return `/conversations/#${conversation.from.S}`;
+}
+
+/**
  * @param {string} username
  */
 function displayAuthenticatedLayout(username) {
