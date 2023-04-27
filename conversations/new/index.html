@@ -7,7 +7,11 @@ title: 📇 Nuovo numero
   <form id="new_conversation_form">
     <div>
       <label>Numero</label>
-      <input type="text" id="from_input" name="from" />
+      <input type="text" id="from_input" name="from" required pattern="\d+" />
+      <p class="help">
+        Formato: solo cifre, incluso il prefisso internazionale.<br>
+        Esempio: 393701231234
+      </p>
     </div>
     <div>
       <label>Nome</label>

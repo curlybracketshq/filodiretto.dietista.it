@@ -212,6 +212,11 @@ button.primary:disabled {
   color: #fff;
 }
 
+p.help {
+  color: #666;
+  font-size: 0.8rem;
+}
+
 table {
   border-top: 1px solid #999;
   border-left: 1px solid #999;
