@@ -130,6 +130,16 @@ footer nav {
   gap: var(--size-extra-small);
 }
 
+/* Home */
+
+.slogan {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  width: 70%;
+  margin: 60px auto;
+}
+
 /* Forms */
 
 fieldset {
