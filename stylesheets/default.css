@@ -130,6 +130,8 @@ footer nav {
   gap: var(--size-extra-small);
 }
 
+/* Forms */
+
 fieldset {
   border: none;
 }
@@ -217,6 +219,8 @@ p.help {
   font-size: 0.8rem;
 }
 
+/* Tables */
+
 table {
   border-top: 1px solid #999;
   border-left: 1px solid #999;
@@ -229,17 +233,23 @@ td, th {
   border-bottom: 1px solid #999;
 }
 
+th {
+  background-color: #ccc;
+}
+
 td {
   padding: 2px 6px;
 }
 
-tbody > tr:nth-of-type(odd) {
+tbody > tr:nth-of-type(even) {
   background-color: #eee;
 }
 
 .operation {
   text-align: center;
 }
+
+/* Layout */
 
 #content {
   display: none;
@@ -267,7 +277,7 @@ tbody > tr:nth-of-type(odd) {
   }
 }
 
-/* Special style for the calendar */
+/* Calendar */
 
 #calendar table {
   table-layout: fixed;
@@ -355,7 +365,7 @@ tbody > tr:nth-of-type(odd) {
   font-size: 0.5rem;
 }
 
-/* Special style for messages */
+/* Message thread */
 
 #messages_list {
   display: flex;
