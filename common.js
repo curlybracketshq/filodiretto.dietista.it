@@ -113,7 +113,7 @@ function capitalizeFirstLetter(string) {
  * @returns {string}
  */
 function formatPhoneNumber(string) {
-  const match = string.match(/(1|39)(\d{3})(\d{3})(\d{4})/);
+  const match = string.match(/(1|39)(\d{3})(\d{3})(\d{3,4})/);
   if (match == null || match.length != 5 || match[0].length != string.length) {
     return string;
   }
