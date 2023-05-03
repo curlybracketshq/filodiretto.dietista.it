@@ -18,16 +18,36 @@ function displayConversations(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const tableContent = items.map((/** @type {Conversation} */ element) => {
-        return `
-        <tr>
-          <td>${formatPhoneNumber(element.from.S)}</td>
-          <td>${element.firstName?.S ?? ''}</td>
-          <td>${element.lastName?.S ?? ''}</td>
-          <td class="operation"><a href="${conversationURL(element)}">Dettagli</a></td>
-          <td class="operation"><a class="delete_conversation" href="#" data-from="${element.from.S}">Elimina</a></td>
-        </tr>`;
-      }).join('');
+      const tableContent = items
+        .sort((/** @type {Conversation} */ a, /** @type {Conversation} */ b) => {
+          const aLastName = a.lastName?.S ?? '';
+          const bLastName = b.lastName?.S ?? '';
+          if (aLastName < bLastName) {
+            return -1;
+          } else if (aLastName > bLastName) {
+            return 1;
+          } else {
+            const aFirstName = a.firstName?.S ?? '';
+            const bFirstName = b.firstName?.S ?? '';
+            if (aFirstName < bFirstName) {
+              return -1;
+            } else if (aFirstName > bFirstName) {
+              return 1;
+            } else {
+              return 0;
+            }
+          }
+        })
+        .map((/** @type {Conversation} */ element) => {
+          return `
+          <tr>
+            <td>${formatPhoneNumber(element.from.S)}</td>
+            <td>${element.firstName?.S ?? ''}</td>
+            <td>${element.lastName?.S ?? ''}</td>
+            <td class="operation"><a href="${conversationURL(element)}">Dettagli</a></td>
+            <td class="operation"><a class="delete_conversation" href="#" data-from="${element.from.S}">Elimina</a></td>
+          </tr>`;
+        }).join('');
       const conversationsTableContent = requireElement("conversations_table_content");
       conversationsTableContent.innerHTML = tableContent;
 
