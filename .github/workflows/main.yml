@@ -2,6 +2,8 @@ name: update-aws-lambda-functions
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "_server/**"
 
