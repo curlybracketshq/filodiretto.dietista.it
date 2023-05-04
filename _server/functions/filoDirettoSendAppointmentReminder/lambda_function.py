@@ -99,7 +99,7 @@ def lambda_handler(event, context):
             'timestamp': {'S': str(int(datetime.now(timezone.utc).timestamp()))},
             'id': {'S': str(uuid.uuid4())},
             # Use the same format as Whatsapp messages for convenience
-            'text': {'S': json.dumps({'body': '<TEMPLATE: meeting_reminder, date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>'})},
+            'text': {'S': json.dumps({'body': '<TEMPLATE: ' + MESSAGE_TEMPLATE_NAME + ', date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>'})},
             # Used to disambiguate messages send by the system
             'source': {'S': 'filodiretto'},
         },
