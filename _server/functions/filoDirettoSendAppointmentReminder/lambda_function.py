@@ -12,7 +12,15 @@ print('Loading function')
 
 PHONE_NUMBER_ID = os.environ['WA_PHONE_NUMBER_ID']
 ACCESS_TOKEN = SECRET = os.environ['WA_ACCESS_TOKEN']
-MESSAGE_TEMPLATE_NAME = "meeting_reminder"
+DEFAULT_MESSAGE_TEMPLATE_NAME = 'generic_meeting_reminder'
+MESSAGE_TEMPLATE_NAME_MAP = {
+    'control': 'meeting_reminder',
+    'first_visit': 'generic_meeting_reminder',
+    'iris': 'generic_meeting_reminder',
+    'bioimpedance': 'generic_meeting_reminder',
+    'integration': 'generic_meeting_reminder',
+    'bach': 'generic_meeting_reminder',
+}
 MESSAGE_LANGUAGE_CODE = "it"
 
 MESSAGES_TABLE = "filoDirettoMessages"
@@ -29,13 +37,17 @@ def lambda_handler(event, context):
 
     body = json.loads(event['body'])
 
+    message_template_name = DEFAULT_MESSAGE_TEMPLATE_NAME
+    if body['appointment']['type'] in MESSAGE_TEMPLATE_NAME_MAP:
+        message_template_name = MESSAGE_TEMPLATE_NAME_MAP[body['appointment']['type']]
+
     params = json.dumps({
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
         "to": body['message']['to'],
         "type": "template",
         "template": {
-            "name": MESSAGE_TEMPLATE_NAME,
+            "name": message_template_name,
             "language": {
                 "code": MESSAGE_LANGUAGE_CODE,
             },
@@ -99,7 +111,7 @@ def lambda_handler(event, context):
             'timestamp': {'S': str(int(datetime.now(timezone.utc).timestamp()))},
             'id': {'S': str(uuid.uuid4())},
             # Use the same format as Whatsapp messages for convenience
-            'text': {'S': json.dumps({'body': '<TEMPLATE: ' + MESSAGE_TEMPLATE_NAME + ', date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>'})},
+            'text': {'S': json.dumps({'body': '<TEMPLATE: ' + message_template_name + ', date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>'})},
             # Used to disambiguate messages send by the system
             'source': {'S': 'filodiretto'},
         },

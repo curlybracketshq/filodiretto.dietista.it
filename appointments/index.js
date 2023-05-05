@@ -85,7 +85,11 @@ function attachSendAppointmentReminderListener(token, appointment) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        appointment: { from: appointment.from.S, datetime: appointment.datetime.S },
+        appointment: {
+          from: appointment.from.S,
+          datetime: appointment.datetime.S,
+          type: appointment.type?.S
+        },
         message: { to: appointment.from.S, date, time }
       })
     });
