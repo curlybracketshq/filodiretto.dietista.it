@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "target": "es2015"
   },
   "include": [
     "index.js",
