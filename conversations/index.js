@@ -231,7 +231,7 @@ function displayConversationDetails(token, from) {
               const source = message.source?.S ?? "";
               return `
               <div class="message ${source}">
-                <time datetime="2023-03-29">${date.toLocaleString()}</time>
+                <time datetime="${date.toISOString()}">${date.toLocaleString()}</time>
                 <div class="message_body">${sanitizeHTML(body)}</div>
               </div>`;
             }).join('');
