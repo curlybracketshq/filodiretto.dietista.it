@@ -127,11 +127,14 @@ function displayConversationDetails(token, from) {
       content.style.display = "block";
 
       const conversationDetailsResponse = JSON.parse(success.content);
+      /** @type {Conversation} */
       const conversation = conversationDetailsResponse.Item;
       const firstNameInput = requireInputElement("first_name_input");
       firstNameInput.value = conversation.firstName?.S ?? '';
       const lastNameInput = requireInputElement("last_name_input");
       lastNameInput.value = conversation.lastName?.S ?? '';
+      const heightInput = requireInputElement("height_input");
+      heightInput.value = conversation.height?.N ?? '';
       const notesTextarea = requireTextAreaElement("notes_textarea");
       notesTextarea.value = conversation.notes?.S ?? '';
       const newAppointmentLink = requireAnchorElement("new_appointment_link");
@@ -261,6 +264,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
 
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
+    const heightInput = requireInputElement("height_input");
     const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
@@ -275,6 +279,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
           from: conversation.from.S,
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
+          height: heightInput.value,
           notes: notesTextarea.value
         }
       })

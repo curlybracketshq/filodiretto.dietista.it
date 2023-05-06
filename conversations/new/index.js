@@ -13,6 +13,7 @@ function attachCreateConversationListener(token) {
     const fromInput = requireInputElement("from_input");
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
+    const heightInput = requireInputElement("height_input");
     const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
@@ -27,6 +28,7 @@ function attachCreateConversationListener(token) {
           from: fromInput.value,
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
+          height: heightInput.value,
           notes: notesTextarea.value
         }
       })
