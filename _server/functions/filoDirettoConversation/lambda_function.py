@@ -63,7 +63,7 @@ def lambda_handler(event, context):
         elif 'waist_hips' in body['conversation']:
             kwargs['ExpressionAttributeNames'] = {
                 '#F': 'from',
-                '#W': 'waist_hips',
+                '#W': 'waistHips',
             }
             kwargs['ExpressionAttributeValues'] = {
                 ':f': {'S': body['conversation']['from']},
