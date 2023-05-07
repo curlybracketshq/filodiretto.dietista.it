@@ -43,29 +43,51 @@ def lambda_handler(event, context):
         body = json.loads(event['body'])
 
         dynamodb = boto3.client('dynamodb')
-        result = dynamodb.update_item(
-            TableName=SENDERS_TABLE,
-            ExpressionAttributeNames={
+        kwargs = {
+            'TableName': SENDERS_TABLE,
+            'Key': {'from': {'S': body['conversation']['from']}},
+            'ReturnValues': 'ALL_NEW',
+            'ConditionExpression': '#F = :f',
+        }
+
+        if 'weights' in body['conversation']:
+            kwargs['ExpressionAttributeNames'] = {
+                '#F': 'from',
+                '#W': 'weights',
+            },
+            kwargs['ExpressionAttributeValues'] = {
+                ':f': {'S': body['conversation']['from']},
+                ':w': {'S': body['conversation']['weights']},
+            },
+            kwargs['UpdateExpression'] = 'SET #W = :w',
+        elif 'waist_hips' in body['conversation']:
+            kwargs['ExpressionAttributeNames'] = {
+                '#F': 'from',
+                '#W': 'waist_hips',
+            },
+            kwargs['ExpressionAttributeValues'] = {
+                ':f': {'S': body['conversation']['from']},
+                ':w': {'S': body['conversation']['waist_hips']},
+            },
+            kwargs['UpdateExpression'] = 'SET #W = :w',
+        else:
+            kwargs['ExpressionAttributeNames'] = {
                 '#F': 'from',
                 '#FN': 'firstName',
                 '#LN': 'lastName',
                 '#H': 'height',
                 '#N': 'notes',
             },
-            ExpressionAttributeValues={
+            kwargs['ExpressionAttributeValues'] = {
                 ':f': {'S': body['conversation']['from']},
                 ':fn': {'S': body['conversation'].get('first_name', '')},
                 ':ln': {'S': body['conversation'].get('last_name', '')},
                 ':h': {'N': body['conversation'].get('height', '')},
                 ':n': {'S': body['conversation'].get('notes', '')},
             },
-            Key={
-                'from': {'S': body['conversation']['from']},
-            },
-            ReturnValues='ALL_NEW',
-            UpdateExpression='SET #FN = :fn, #LN = :ln, #H = :h, #N = :n',
-            ConditionExpression='#F = :f',
-        )
+            kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #H = :h, #N = :n',
+
+        result = dynamodb.update_item(**kwargs)
 
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'POST':
