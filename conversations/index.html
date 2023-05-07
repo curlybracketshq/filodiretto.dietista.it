@@ -48,12 +48,30 @@ title: 💬 Conversazioni
     </div>
     <div>
       <label>Peso (kg)</label>
-      <input type="text" inputmode="decimal" pattern="\d+([\.,]\d+)?" required id="weight_value_input" name="weight_value" />
+      <input type="text" inputmode="decimal" pattern="\d+([\.,]\d+)?" required id="weight_value_input"
+        name="weight_value" />
     </div>
     <div><input class="small" type="submit" id="add_weight" value="Aggiungi" /></div>
   </form>
   <h2>📏 Misure</h2>
   <div id="waistHips"></div>
+  <form id="add_waist_hip_form">
+    <div>
+      <label>Data</label>
+      <input type="date" id="waist_hip_date_input" required name="waist_hip_date" />
+    </div>
+    <div>
+      <label>Vita (cm)</label>
+      <input type="text" inputmode="decimal" pattern="\d+([\.,]\d+)?" required id="waist_hip_waist_value_input"
+        name="waist_hip_waist_value" />
+    </div>
+    <div>
+      <label>Fianchi (cm)</label>
+      <input type="text" inputmode="decimal" pattern="\d+([\.,]\d+)?" required id="waist_hip_hip_value_input"
+        name="waist_hip_hip_value" />
+    </div>
+    <div><input class="small" type="submit" id="add_waist_hip" value="Aggiungi" /></div>
+  </form>
   <h2>📅 Appuntamenti</h2>
   <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
   <h3>Tutti gli appuntamenti</h3>

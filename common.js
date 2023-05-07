@@ -43,6 +43,13 @@ const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazo
  */
 
 /**
+ * @typedef {Object} WaistHipItem
+ * @prop {string} date
+ * @prop {number} waist
+ * @prop {number} hip
+ */
+
+/**
  * @typedef {Object} Message
  * @prop {{S: string}} from
  * @prop {{S: string}} timestamp

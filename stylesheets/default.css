@@ -413,23 +413,27 @@ tbody > tr:nth-of-type(even) {
   color: #999;
 }
 
-/* Weights list */
+/* Weights list + Waist/hip measurements list */
 
-#weights {
+#weights,
+#waist_hips {
   display: table;
 }
 
-.weight_item {
+.weight_item,
+.waist_hip_item {
   display: table-row;
 }
 
-.weight_item > * {
+.weight_item > *,
+.waist_hip_item > * {
   display: table-cell;
   padding-right: 20px;
   padding-bottom: 4px;
 }
 
-#add_weight_form {
+#add_weight_form,
+#add_waist_hip_form {
   display: flex;
   font-size: 0.7rem;
   align-items: flex-end;
@@ -439,7 +443,9 @@ tbody > tr:nth-of-type(even) {
 }
 
 #add_weight_form label,
-#add_weight_form input {
+#add_weight_form input,
+#add_waist_hip_form label,
+#add_waist_hip_form input {
   display: block;
   font-size: 0.7rem;
   width: 108px;
