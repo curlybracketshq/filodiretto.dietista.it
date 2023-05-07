@@ -142,6 +142,20 @@ function displayConversationDetails(token, from) {
 
       attachUpdateConversationDetailsListener(token, conversation);
 
+      let weightsList;
+      if (conversation.weights?.S == null) {
+        weightsList = [];
+      } else {
+        weightsList = JSON.parse(conversation.weights?.S);
+      }
+      displayWeights(token, conversation, weightsList);
+
+      // Initialize new weight date input with today's date
+      const weightDateInput = requireInputElement("weight_date_input");
+      weightDateInput.value = new Date().toISOString().slice(0, 10);
+
+      attachAddWeightListener(token, conversation);
+
       // Load next appointment
       const nextAppointment = requireElement("next_appointment");
       nextAppointment.innerHTML = "Caricamento...";
@@ -249,6 +263,210 @@ function displayConversationDetails(token, from) {
           }
         });
     });
+}
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ * @param {Array<WeightItem>} weightsList
+ */
+function displayWeights(token, conversation, weightsList) {
+  const weights = requireElement("weights");
+  const weightItems = weightsList
+    .sort((a, b) => {
+      if (a.date < b.date) {
+        return -1;
+      } else if (a.date > b.date) {
+        return 1;
+      } else {
+        return 1;
+      }
+    })
+    .map(weight => {
+      const date = new Date(weight.date + "T00:00:00");
+      return `
+      <input type="hidden" class="weight_item_data" value="${encodeURIComponent(JSON.stringify(weight))}" />
+      <div class="weight_item">
+        <time datetime="${date.toISOString()}">${formatDate(date)}</time>
+        <div class="value">${weight.value} kg</div>
+        <div>
+          <button class="small delete_weight_item" data-date="${weight.date}">Elimina</button>
+        </div>
+      </div>`;
+    }).join('');
+  weights.innerHTML = weightItems;
+
+  attachDeleteWeightListeners(token, conversation);
+}
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ */
+function attachDeleteWeightListeners(token, conversation) {
+  const elements = document.getElementsByClassName("delete_weight_item");
+  let element;
+  for (let i = 0; i < elements.length; i++) {
+    element = elements[i];
+    if (!(element instanceof HTMLElement)) {
+      throw new Error("Missing element");
+    }
+    const deleteDate = element.dataset.date;
+    element.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      const weightItems = document.getElementsByClassName("weight_item_data");
+      let weightItem;
+      /** @type {Array<WeightItem>} */
+      let weights = [];
+      for (let i = 0; i < weightItems.length; i++) {
+        weightItem = weightItems[i];
+        if (!(weightItem instanceof HTMLInputElement)) {
+          throw new Error("Missing element");
+        }
+        weights.push(JSON.parse(decodeURIComponent(weightItem.value)));
+      }
+
+      const newWeights = weights.filter(({ date }) => deleteDate != date);
+
+      // Disable all delete weight buttons
+      for (let i = 0; i < elements.length; i++) {
+        element = elements[i];
+        if (!(element instanceof HTMLButtonElement)) {
+          throw new Error("Missing element");
+        }
+        element.disabled = true;
+      }
+
+      // Disable add weight button
+      const addWeightButton = requireInputElement("add_weight");
+      addWeightButton.disabled = true;
+
+      const request = fetch(CONVERSATION_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          conversation: {
+            from: conversation.from.S,
+            weights: JSON.stringify(newWeights),
+          }
+        })
+      });
+      handleFetchGenericError(request)
+        .then(handleFetchAuthError)
+        .then(([error, success]) => {
+          addWeightButton.disabled = false;
+
+          if (error != null) {
+            return;
+          }
+
+          if (success == null) {
+            throw new Error("Success can't be null");
+          }
+
+          const result = JSON.parse(success.content);
+          const weightsList = JSON.parse(result.Attributes.weights.S);
+          displayWeights(token, conversation, weightsList);
+
+          const infoMessage = requireElement("info_message");
+          infoMessage.innerHTML = "Pesi aggiornati correttamente";
+          infoMessage.style.display = "block";
+        });
+    });
+  }
+}
+
+/**
+ * @param {string} token
+ * @param {Conversation} conversation
+ */
+function attachAddWeightListener(token, conversation) {
+  const form = requireElement("add_weight_form");
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+
+    const weightItems = document.getElementsByClassName("weight_item_data");
+    let weightItem;
+    /** @type {Array<WeightItem>} */
+    let weights = [];
+    for (let i = 0; i < weightItems.length; i++) {
+      weightItem = weightItems[i];
+      if (!(weightItem instanceof HTMLInputElement)) {
+        throw new Error("Missing element");
+      }
+      weights.push(JSON.parse(decodeURIComponent(weightItem.value)));
+    }
+
+    const weightDateInput = requireInputElement("weight_date_input");
+    const weightValueInput = requireInputElement("weight_value_input");
+
+    weights.push({
+      date: weightDateInput.value,
+      value: parseFloat(weightValueInput.value.replace(",", "."))
+    });
+
+    const elements = document.getElementsByClassName("delete_weight_item");
+    let element;
+    // Disable all delete weight buttons
+    for (let i = 0; i < elements.length; i++) {
+      element = elements[i];
+      if (!(element instanceof HTMLButtonElement)) {
+        throw new Error("Missing element");
+      }
+      element.disabled = true;
+    }
+
+    // Disable add weight button
+    const addWeightButton = requireInputElement("add_weight");
+    addWeightButton.disabled = true;
+    addWeightButton.value = "Caricamento...";
+
+    const request = fetch(CONVERSATION_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        conversation: {
+          from: conversation.from.S,
+          weights: JSON.stringify(weights),
+        }
+      })
+    });
+    handleFetchGenericError(request)
+      .then(handleFetchAuthError)
+      .then(([error, success]) => {
+        addWeightButton.disabled = false;
+        addWeightButton.value = "Aggiungi";
+
+        // Re-initialize new weight date input with today's date
+        const weightDateInput = requireInputElement("weight_date_input");
+        weightDateInput.value = new Date().toISOString().slice(0, 10);
+
+        // Initialize new weight date input with today's date
+        const weightValueInput = requireInputElement("weight_value_input");
+        weightValueInput.value = "";
+
+        if (error != null) {
+          return;
+        }
+
+        if (success == null) {
+          throw new Error("Success can't be null");
+        }
+
+        const result = JSON.parse(success.content);
+        const weightsList = JSON.parse(result.Attributes.weights.S);
+        displayWeights(token, conversation, weightsList);
+
+        const infoMessage = requireElement("info_message");
+        infoMessage.innerHTML = "Pesi aggiornati correttamente";
+        infoMessage.style.display = "block";
+      });
+  });
 }
 
 /**

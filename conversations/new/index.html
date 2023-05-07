@@ -7,7 +7,7 @@ title: 📇 Nuovo numero
   <form id="new_conversation_form">
     <div>
       <label>Numero</label>
-      <input type="text" id="from_input" name="from" required pattern="\d+" />
+      <input type="text" inputmode="numeric" required pattern="\d+" id="from_input" name="from" />
       <p class="help">
         Formato: solo cifre, incluso il prefisso internazionale.<br>
         Esempio: 393701231234
@@ -23,7 +23,7 @@ title: 📇 Nuovo numero
     </div>
     <div>
       <label>Altezza (cm)</label>
-      <input type="number" id="height_input" min="1" max="300" name="height" />
+      <input type="text" inputmode="numeric" pattern="\d*" id="height_input" name="height" />
     </div>
     <div>
       <label>Note</label>

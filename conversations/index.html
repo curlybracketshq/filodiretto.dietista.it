@@ -31,7 +31,7 @@ title: 💬 Conversazioni
     </div>
     <div>
       <label>Altezza (cm)</label>
-      <input type="number" id="height_input" min="1" max="300" name="height" />
+      <input type="text" inputmode="numeric" pattern="\d*" id="height_input" name="height" />
     </div>
     <div>
       <label>Note</label>
@@ -39,6 +39,21 @@ title: 💬 Conversazioni
     </div>
     <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
+  <h2>⚖️ Pesi</h2>
+  <div id="weights"></div>
+  <form id="add_weight_form">
+    <div>
+      <label>Data</label>
+      <input type="date" id="weight_date_input" required name="weight_date" />
+    </div>
+    <div>
+      <label>Peso (kg)</label>
+      <input type="text" inputmode="decimal" pattern="\d+([\.,]\d+)?" required id="weight_value_input" name="weight_value" />
+    </div>
+    <div><input class="small" type="submit" id="add_weight" value="Aggiungi" /></div>
+  </form>
+  <h2>📏 Misure</h2>
+  <div id="waistHips"></div>
   <h2>📅 Appuntamenti</h2>
   <p>Prossimo appuntamento: <span id="next_appointment"></span></p>
   <h3>Tutti gli appuntamenti</h3>

@@ -224,6 +224,16 @@ button.primary:disabled {
   color: #fff;
 }
 
+input[type="submit"].small,
+button.small {
+  font-size: 0.7rem;
+}
+
+input[type="date"],
+input[type="datetime-local"] {
+  font-family: -apple-system, sans-serif;
+}
+
 p.help {
   color: #666;
   font-size: 0.8rem;
@@ -401,6 +411,38 @@ tbody > tr:nth-of-type(even) {
 .message time {
   font-size: 0.8rem;
   color: #999;
+}
+
+/* Weights list */
+
+#weights {
+  display: table;
+}
+
+.weight_item {
+  display: table-row;
+}
+
+.weight_item > * {
+  display: table-cell;
+  padding-right: 20px;
+  padding-bottom: 4px;
+}
+
+#add_weight_form {
+  display: flex;
+  font-size: 0.7rem;
+  align-items: flex-end;
+  column-gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#add_weight_form label,
+#add_weight_form input {
+  display: block;
+  font-size: 0.7rem;
+  width: 108px;
 }
 
 /* Dynamic elements */
