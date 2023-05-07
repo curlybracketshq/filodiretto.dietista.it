@@ -54,22 +54,22 @@ def lambda_handler(event, context):
             kwargs['ExpressionAttributeNames'] = {
                 '#F': 'from',
                 '#W': 'weights',
-            },
+            }
             kwargs['ExpressionAttributeValues'] = {
                 ':f': {'S': body['conversation']['from']},
                 ':w': {'S': body['conversation']['weights']},
-            },
-            kwargs['UpdateExpression'] = 'SET #W = :w',
+            }
+            kwargs['UpdateExpression'] = 'SET #W = :w'
         elif 'waist_hips' in body['conversation']:
             kwargs['ExpressionAttributeNames'] = {
                 '#F': 'from',
                 '#W': 'waist_hips',
-            },
+            }
             kwargs['ExpressionAttributeValues'] = {
                 ':f': {'S': body['conversation']['from']},
                 ':w': {'S': body['conversation']['waist_hips']},
-            },
-            kwargs['UpdateExpression'] = 'SET #W = :w',
+            }
+            kwargs['UpdateExpression'] = 'SET #W = :w'
         else:
             kwargs['ExpressionAttributeNames'] = {
                 '#F': 'from',
@@ -77,15 +77,15 @@ def lambda_handler(event, context):
                 '#LN': 'lastName',
                 '#H': 'height',
                 '#N': 'notes',
-            },
+            }
             kwargs['ExpressionAttributeValues'] = {
                 ':f': {'S': body['conversation']['from']},
                 ':fn': {'S': body['conversation'].get('first_name', '')},
                 ':ln': {'S': body['conversation'].get('last_name', '')},
                 ':h': {'N': body['conversation'].get('height', '')},
                 ':n': {'S': body['conversation'].get('notes', '')},
-            },
-            kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #H = :h, #N = :n',
+            }
+            kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #H = :h, #N = :n'
 
         result = dynamodb.update_item(**kwargs)
 
