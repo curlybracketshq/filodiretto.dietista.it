@@ -416,8 +416,8 @@ function fetchConversations(token, lastEvaluatedKey, items) {
  */
 function sanitizeHTML(str) {
   return [...str].map(function (c) {
-		return '&#' + c.codePointAt(0) + ';';
-	}).join('');
+    return '&#' + c.codePointAt(0) + ';';
+  }).join('');
 };
 
 /**
