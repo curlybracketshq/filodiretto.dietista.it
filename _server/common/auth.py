@@ -6,7 +6,7 @@ import time
 import binascii
 import os
 
-SECRET_KEY = os.environ['AUTH_SECRET'].encode('utf-8')
+SECRET_KEY = os.environ['AUTH_SECRET']
 TOKEN_TTL_SECS = 60 * 60 * 24 * 7
 
 
