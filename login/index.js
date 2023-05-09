@@ -31,7 +31,6 @@ function attachLoginEventListener() {
       }
 
       let { token, username } = JSON.parse(success.content);
-      token = JSON.stringify(token);
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(USERNAME_KEY, username);
       window.location.replace("/");
