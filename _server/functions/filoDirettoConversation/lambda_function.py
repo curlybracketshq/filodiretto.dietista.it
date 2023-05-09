@@ -83,7 +83,7 @@ def lambda_handler(event, context):
                 ':f': {'S': body['conversation']['from']},
                 ':fn': {'S': body['conversation'].get('first_name', '')},
                 ':ln': {'S': body['conversation'].get('last_name', '')},
-                ':h': {'N': height if len(height) > 0 else None},
+                ':h': {'N': height} if len(height) > 0 else {'NULL': True},
                 ':n': {'S': body['conversation'].get('notes', '')},
             }
             kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #H = :h, #N = :n'
@@ -103,7 +103,7 @@ def lambda_handler(event, context):
                 'from': {'S': body['conversation']['from']},
                 'firstName': {'S': body['conversation'].get('first_name', '')},
                 'lastName': {'S': body['conversation'].get('last_name', '')},
-                'height': {'N': height if len(height) > 0 else None},
+                'height': {'N': height} if len(height) > 0 else {'NULL': True},
                 'notes': {'S': body['conversation'].get('notes', '')},
             },
             ExpressionAttributeNames={
