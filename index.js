@@ -44,6 +44,9 @@ function displayTodaysAppointments(token) {
         const appointmentsItems = appointmentItems.map((/** @type {Appointment} */ appointment) => {
           const date = new Date(appointment.datetime.S);
           const conversation = conversationItemsByNumber[appointment.from.S];
+          if (conversation == null) {
+            return '';
+          }
           return `
           <li>
             <a href="${appointmentURL(appointment)}">${formatTime(date)}</a>

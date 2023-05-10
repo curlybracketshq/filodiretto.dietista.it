@@ -88,6 +88,9 @@ function displayCalendar(token) {
           }).map(function (/** @type {Appointment} */ element) {
             const date = new Date(element.datetime.S);
             const conversation = conversationItemsByNumber[element.from.S];
+            if (conversation == null) {
+              return '';
+            }
             return `
             <div class="appointment ${element.type?.S != null ? element.type.S : ""}">
               <div class="first_line">

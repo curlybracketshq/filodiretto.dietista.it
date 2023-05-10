@@ -78,6 +78,9 @@ function displayConversations(token, { start, end }) {
       } else {
         const listItems = Object.keys(appointmentsByNumber).map((/** @type {string} */ number) => {
           const conversation = conversationItemsByNumber[number];
+          if (conversation == null) {
+            return '';
+          }
           return `
           <li>
             <a href="${conversationURL(conversation)}">${fullName(conversation)}</a>
@@ -138,6 +141,9 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsB
 
       const listItems = nextAppointments.map((appointment, i) => {
         const conversation = conversationItemsByNumber[numbers[i]];
+        if (conversation == null) {
+          return '';
+        }
         let nextAppointmentStr;
         if (appointment == null) {
           nextAppointmentStr = "- ⚠️ Nessun appuntamento futuro";
