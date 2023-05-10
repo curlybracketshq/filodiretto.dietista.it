@@ -304,11 +304,13 @@ function displayWeights(token, conversation, weightsList) {
     })
     .map(weight => {
       const date = new Date(weight.date + "T00:00:00");
+      const bmiVal = conversation.height?.N == null ? null : bmi({ weightKg: weight.value, heightCm: parseFloat(conversation.height.N) });
       return `
       <input type="hidden" class="weight_item_data" value="${encodeURIComponent(JSON.stringify(weight))}" />
       <div class="weight_item">
         <time datetime="${date.toISOString()}">${formatDate(date)}</time>
-        <div class="value">${weight.value} kg</div>
+        <div class="value">${weight.value.toFixed(1)} kg</div>
+        <div class="value">${bmiVal == null ? '-' : bmiVal.toFixed(2)} kg/m<sup>2</sup></div>
         <div>
           <button class="small delete_weight_item" data-date="${weight.date}">Elimina</button>
         </div>
@@ -317,6 +319,14 @@ function displayWeights(token, conversation, weightsList) {
   weights.innerHTML = weightItems;
 
   attachDeleteWeightListeners(token, conversation);
+}
+
+/**
+ * @param {{weightKg: number, heightCm: number}} input
+ * @returns number
+ */
+function bmi({ weightKg, heightCm }) {
+  return weightKg / Math.pow(heightCm / 100, 2);
 }
 
 /**
@@ -517,6 +527,7 @@ function displayWaistHips(token, conversation, waistHipsList) {
         <time datetime="${date.toISOString()}">${formatDate(date)}</time>
         <div class="value">${waistHip.waist} cm</div>
         <div class="value">${waistHip.hip} cm</div>
+        <div class="value">${(waistHip.waist / waistHip.hip).toFixed(2)} WHR</div>
         <div>
           <button class="small delete_waist_hip_item" data-date="${waistHip.date}">Elimina</button>
         </div>
