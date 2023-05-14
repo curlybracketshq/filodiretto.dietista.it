@@ -340,6 +340,8 @@ function bmi({ weightKg, heightCm }) {
 }
 
 /**
+ * See https://www.cdc.gov/obesity/basics/adult-defining.html
+ *
  * @param {number} bmi
  * @returns {BMIRange}
  */
