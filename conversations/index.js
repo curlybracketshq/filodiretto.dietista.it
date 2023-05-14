@@ -137,7 +137,7 @@ function displayConversationDetails(token, from) {
       heightInput.value = conversation.height?.N ?? '';
       const birthDateInput = requireInputElement("birth_date_input");
       birthDateInput.value = conversation.birthDate?.S ?? '';
-      const genderSelect = requireInputElement("gender_select");
+      const genderSelect = requireSelectElement("gender_select");
       genderSelect.value = conversation.gender?.S ?? '';
       const notesTextarea = requireTextAreaElement("notes_textarea");
       notesTextarea.value = conversation.notes?.S ?? '';
@@ -730,7 +730,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     const lastNameInput = requireInputElement("last_name_input");
     const heightInput = requireInputElement("height_input");
     const birthDateInput = requireInputElement("birth_date_input");
-    const genderSelect = requireInputElement("gender_select");
+    const genderSelect = requireSelectElement("gender_select");
     const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
