@@ -19,7 +19,7 @@ function displayConversations(token) {
       content.style.display = "block";
 
       const tableContent = items
-        .sort((/** @type {Conversation} */ a, /** @type {Conversation} */ b) => {
+        .sort((a, b) => {
           const aLastName = a.lastName?.S ?? '';
           const bLastName = b.lastName?.S ?? '';
           if (aLastName < bLastName) {
@@ -38,7 +38,7 @@ function displayConversations(token) {
             }
           }
         })
-        .map((/** @type {Conversation} */ element) => {
+        .map(element => {
           return `
           <tr>
             <td>${formatPhoneNumber(element.from.S)}</td>
