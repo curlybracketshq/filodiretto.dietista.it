@@ -327,7 +327,7 @@ function displayWeights(token, conversation, weightsList) {
 
 /**
  * @param {{weightKg: number, heightCm: number}} input
- * @returns number
+ * @returns {number}
  */
 function bmi({ weightKg, heightCm }) {
   return weightKg / Math.pow(heightCm / 100, 2);
