@@ -309,12 +309,18 @@ function displayWeights(token, conversation, weightsList) {
     .map(weight => {
       const date = new Date(weight.date + "T00:00:00");
       const bmiVal = conversation.height?.N == null ? null : bmi({ weightKg: weight.value, heightCm: parseFloat(conversation.height.N) });
+      let bmiStyle = '';
+      if (bmiVal != null) {
+        const bmiRangeVal = bmiRange(bmiVal);
+        bmiStyle = `background-color: ${bmiRangeVal.bg}; color: ${bmiRangeVal.fg}`;
+      }
+
       return `
       <input type="hidden" class="weight_item_data" value="${encodeURIComponent(JSON.stringify(weight))}" />
       <div class="weight_item">
         <time datetime="${date.toISOString()}">${formatDate(date)}</time>
         <div class="value">${weight.value.toFixed(1)} kg</div>
-        <div class="value">${bmiVal == null ? '-' : bmiVal.toFixed(2)} kg/m<sup>2</sup></div>
+        <div class="value" style="${bmiStyle}">${bmiVal == null ? '-' : bmiVal.toFixed(2)} kg/m<sup>2</sup></div>
         <div>
           <button class="small delete_weight_item" data-date="${weight.date}">Elimina</button>
         </div>
@@ -332,6 +338,36 @@ function displayWeights(token, conversation, weightsList) {
 function bmi({ weightKg, heightCm }) {
   return weightKg / Math.pow(heightCm / 100, 2);
 }
+
+/**
+ * @param {number} bmi
+ * @returns {BMIRange}
+ */
+function bmiRange(bmi) {
+  if (bmi < 18.5) {
+    return BMIRange.underweight;
+  } else if (bmi < 25) {
+    return BMIRange.healtyweight;
+  } else if (bmi < 30) {
+    return BMIRange.overweight;
+  } else if (bmi < 35) {
+    return BMIRange.obesityClass1;
+  } else if (bmi < 40) {
+    return BMIRange.obesityClass2;
+  } else {
+    return BMIRange.obesityClass3;
+  }
+}
+
+/** @enum {{label: string, bg: string, fg: string}} */
+const BMIRange = {
+  underweight: { label: 'Sottopeso', bg: '#01B0F2', fg: '#222' },
+  healtyweight: { label: 'Normopeso', bg: '#8FD44B', fg: '#222' },
+  overweight: { label: 'Sovrappeso', bg: '#FEFE03', fg: '#222' },
+  obesityClass1: { label: 'Obesità di I grado', bg: '#FDC101', fg: '#222' },
+  obesityClass2: { label: 'Obesità di II grado', bg: '#FDC101', fg: '#222' },
+  obesityClass3: { label: 'Obesità di III grado', bg: '#FE0000', fg: '#eee' },
+};
 
 /**
  * @param {string} token

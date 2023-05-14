@@ -417,19 +417,28 @@ tbody > tr:nth-of-type(even) {
 
 #weights,
 #waist_hips {
-  display: table;
+  display: flex;
+  flex-direction: column;
+  row-gap: 2px;
+}
+
+#weights {
+  width: 450px;
+}
+
+#waist_hips {
+  width: 550px;
 }
 
 .weight_item,
 .waist_hip_item {
-  display: table-row;
+  display: flex;
+  justify-content: space-between;
 }
 
 .weight_item > *,
 .waist_hip_item > * {
-  display: table-cell;
-  padding-right: 20px;
-  padding-bottom: 4px;
+  padding: 2px 4px;
 }
 
 #add_weight_form,
