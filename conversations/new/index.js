@@ -14,6 +14,8 @@ function attachCreateConversationListener(token) {
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
     const heightInput = requireInputElement("height_input");
+    const birthDateInput = requireInputElement("birth_date_input");
+    const genderSelect = requireSelectElement("gender_select");
     const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
@@ -29,6 +31,8 @@ function attachCreateConversationListener(token) {
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
           height: heightInput.value,
+          birth_date: birthDateInput.value,
+          gender: genderSelect.value,
           notes: notesTextarea.value
         }
       })

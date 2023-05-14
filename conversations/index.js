@@ -135,6 +135,10 @@ function displayConversationDetails(token, from) {
       lastNameInput.value = conversation.lastName?.S ?? '';
       const heightInput = requireInputElement("height_input");
       heightInput.value = conversation.height?.N ?? '';
+      const birthDateInput = requireInputElement("birth_date_input");
+      birthDateInput.value = conversation.birthDate?.S ?? '';
+      const genderSelect = requireInputElement("gender_select");
+      genderSelect.value = conversation.gender?.S ?? '';
       const notesTextarea = requireTextAreaElement("notes_textarea");
       notesTextarea.value = conversation.notes?.S ?? '';
       const newAppointmentLink = requireAnchorElement("new_appointment_link");
@@ -725,6 +729,8 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
     const heightInput = requireInputElement("height_input");
+    const birthDateInput = requireInputElement("birth_date_input");
+    const genderSelect = requireInputElement("gender_select");
     const notesTextarea = requireTextAreaElement("notes_textarea");
 
     submitButton.disabled = true;
@@ -740,6 +746,8 @@ function attachUpdateConversationDetailsListener(token, conversation) {
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
           height: heightInput.value,
+          birth_date: birthDateInput.value,
+          gender: genderSelect.value,
           notes: notesTextarea.value
         }
       })
