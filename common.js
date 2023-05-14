@@ -388,14 +388,18 @@ function fetchMessages(token, from, lastEvaluatedKey, items) {
 
 /**
  * @param {string} token
+ * @param {?Array<string>} fields
  * @param {?string} lastEvaluatedKey
  * @param {Array<Conversation>} items
  * @returns {Promise<Array<Conversation>>}
  */
-function fetchConversations(token, lastEvaluatedKey, items) {
+function fetchConversations(token, fields, lastEvaluatedKey, items) {
   let queryString = 'token=' + token;
   if (lastEvaluatedKey != null) {
     queryString += '&last_evaluated_key=' + lastEvaluatedKey;
+  }
+  if (fields != null) {
+    queryString += '&fields=' + fields.join(',');
   }
   const params = new URLSearchParams(queryString);
   const request = fetch(CONVERSATIONS_URL + '?' + params, {
@@ -414,7 +418,7 @@ function fetchConversations(token, lastEvaluatedKey, items) {
         return items;
       }
       const lastEvaluatedKey = JSON.stringify(conversationsResponse.LastEvaluatedKey);
-      return fetchConversations(token, lastEvaluatedKey, items);
+      return fetchConversations(token, fields, lastEvaluatedKey, items);
     });
 }
 

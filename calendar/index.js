@@ -17,7 +17,7 @@ function displayCalendar(token) {
         return [];
       }
 
-      return fetchConversations(token, null, []);
+      return fetchConversations(token, ['firstName', 'lastName'], null, []);
     })
     .then(conversationItems => {
       const loading = requireElement("loading");

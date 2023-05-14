@@ -7,17 +7,8 @@ function displayCreateAppointment(token) {
   const loading = requireElement("loading");
   loading.style.display = "block";
 
-  const params = new URLSearchParams('token=' + token);
-  const request = fetch(CONVERSATIONS_URL + '?' + params, {
-    method: "GET",
-  });
-  handleFetchGenericError(request)
-    .then(handleFetchAuthError)
-    .then(([_error, success]) => {
-      if (success == null) {
-        return;
-      }
-
+  fetchConversations(token, ['firstName', 'lastName'], null, [])
+    .then(items => {
       const loading = requireElement("loading");
       loading.style.display = "none";
       const content = requireElement("content");
@@ -29,11 +20,12 @@ function displayCreateAppointment(token) {
         preselected = preselectedInput;
       }
 
-      const conversationsResponse = JSON.parse(success.content);
       let conversationOptions = `<option value="">Seleziona numero</option>`;
-      conversationOptions += conversationsResponse.Items.map((/** @type {Conversation} */ element) => {
+      conversationOptions += items.map(element => {
         return `
-        <option value="${element.from.S}" ${preselected == element.from.S ? 'selected' : ''}>${fullName(element)} (${formatPhoneNumber(element.from.S)})</option>`;
+        <option value="${element.from.S}" ${preselected == element.from.S ? 'selected' : ''}>
+          ${fullName(element)} (${formatPhoneNumber(element.from.S)})
+        </option>`;
       }).join('');
       const fromSelect = requireElement("from_select");
       fromSelect.innerHTML = conversationOptions;

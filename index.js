@@ -30,7 +30,7 @@ function displayTodaysAppointments(token) {
         return [];
       }
 
-      return fetchConversations(token, null, []);
+      return fetchConversations(token, ['firstName', 'lastName'], null, []);
     })
     .then(conversationItems => {
       const conversationItemsByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
