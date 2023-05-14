@@ -9,7 +9,7 @@ function displayConversations(token) {
   const conversationDetails = requireElement("conversation_details");
   conversationDetails.style.display = "none";
 
-  fetchConversations(token, null, null, [])
+  fetchConversations(token, ['firstName', 'lastName'], null, [])
     .then(items => {
       const loading = requireElement("loading");
       loading.style.display = "none";
