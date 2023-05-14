@@ -512,7 +512,7 @@ function attachAddWeightListener(token, conversation) {
  * @param {Array<WaistHipItem>} waistHipsList
  */
 function displayWaistHips(token, conversation, waistHipsList) {
-  const waistHips = requireElement("waistHips");
+  const waistHips = requireElement("waist_hips");
   const waistHipItems = waistHipsList
     .sort((a, b) => {
       if (a.date < b.date) {
