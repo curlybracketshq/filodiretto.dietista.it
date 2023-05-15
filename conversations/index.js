@@ -133,6 +133,8 @@ function displayConversationDetails(token, from) {
       firstNameInput.value = conversation.firstName?.S ?? '';
       const lastNameInput = requireInputElement("last_name_input");
       lastNameInput.value = conversation.lastName?.S ?? '';
+      const emailInput = requireInputElement("email_input");
+      emailInput.value = conversation.email?.S ?? '';
       const heightInput = requireInputElement("height_input");
       heightInput.value = conversation.height?.N ?? '';
       const birthDateInput = requireInputElement("birth_date_input");
@@ -768,6 +770,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
 
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
+    const emailInput = requireInputElement("email_input");
     const heightInput = requireInputElement("height_input");
     const birthDateInput = requireInputElement("birth_date_input");
     const genderSelect = requireSelectElement("gender_select");
@@ -785,6 +788,7 @@ function attachUpdateConversationDetailsListener(token, conversation) {
           from: conversation.from.S,
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
+          email: emailInput.value,
           height: heightInput.value,
           birth_date: birthDateInput.value,
           gender: genderSelect.value,

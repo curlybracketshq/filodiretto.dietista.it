@@ -75,6 +75,7 @@ def lambda_handler(event, context):
                 '#F': 'from',
                 '#FN': 'firstName',
                 '#LN': 'lastName',
+                '#E': 'email',
                 '#H': 'height',
                 '#BD': 'birthDate',
                 '#G': 'gender',
@@ -85,12 +86,13 @@ def lambda_handler(event, context):
                 ':f': {'S': body['conversation']['from']},
                 ':fn': {'S': body['conversation'].get('first_name', '')},
                 ':ln': {'S': body['conversation'].get('last_name', '')},
+                ':e': {'S': body['conversation'].get('email', '')},
                 ':h': {'N': height} if len(height) > 0 else {'NULL': True},
                 ':bd': {'S': body['conversation'].get('birth_date', '')},
                 ':g': {'S': body['conversation'].get('gender', '')},
                 ':n': {'S': body['conversation'].get('notes', '')},
             }
-            kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #H = :h, #BD = :bd, #G = :g, #N = :n'
+            kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #E = :e, #H = :h, #BD = :bd, #G = :g, #N = :n'
 
         result = dynamodb.update_item(**kwargs)
 
@@ -107,6 +109,7 @@ def lambda_handler(event, context):
                 'from': {'S': body['conversation']['from']},
                 'firstName': {'S': body['conversation'].get('first_name', '')},
                 'lastName': {'S': body['conversation'].get('last_name', '')},
+                'email': {'S': body['conversation'].get('email', '')},
                 'height': {'N': height} if len(height) > 0 else {'NULL': True},
                 'birthDate': {'S': body['conversation'].get('birth_date', '')},
                 'gender': {'S': body['conversation'].get('gender', '')},

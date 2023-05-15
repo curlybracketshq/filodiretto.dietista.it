@@ -13,6 +13,7 @@ function attachCreateConversationListener(token) {
     const fromInput = requireInputElement("from_input");
     const firstNameInput = requireInputElement("first_name_input");
     const lastNameInput = requireInputElement("last_name_input");
+    const emailInput = requireInputElement("email_input");
     const heightInput = requireInputElement("height_input");
     const birthDateInput = requireInputElement("birth_date_input");
     const genderSelect = requireSelectElement("gender_select");
@@ -30,6 +31,7 @@ function attachCreateConversationListener(token) {
           from: fromInput.value,
           first_name: firstNameInput.value,
           last_name: lastNameInput.value,
+          email: emailInput.value,
           height: heightInput.value,
           birth_date: birthDateInput.value,
           gender: genderSelect.value,
