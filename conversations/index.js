@@ -361,7 +361,9 @@ function bmiRange(bmi) {
   }
 }
 
-/** @enum {{label: string, bg: string, fg: string}} */
+/**
+ * @enum {{label: string, bg: string, fg: string}}
+ */
 const BMIRange = {
   underweight: { label: 'Sottopeso', bg: '#01B0F2', fg: '#222' },
   healtyweight: { label: 'Normopeso', bg: '#8FD44B', fg: '#222' },
