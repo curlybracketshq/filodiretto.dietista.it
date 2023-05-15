@@ -170,6 +170,7 @@ legend {
 }
 
 label {
+  font-weight: bold;
   padding-right: 10px;
 }
 
@@ -193,6 +194,10 @@ select,
   border-radius: 2px;
   -webkit-border-radius: 2px;
   font-size: 1rem;
+}
+
+input[type="email"] {
+  width: 300px;
 }
 
 input[type="submit"],
@@ -290,9 +295,9 @@ tbody > tr:nth-of-type(even) {
   background-color: var(--error);
 }
 
-@media (min-width: 730px) {
+@media (min-width: 880px) {
   body {
-    max-width: 700px;
+    max-width: 850px;
     -webkit-text-size-adjust: none;
   }
 }
