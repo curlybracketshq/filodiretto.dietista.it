@@ -14,8 +14,7 @@ title: 💬 Conversazioni
         <th colspan="2">Operazioni</th>
       </tr>
     </thead>
-    <tbody id="conversations_table_content">
-    </tbody>
+    <tbody id="conversations_table_content"></tbody>
   </table>
 </div>
 
@@ -56,7 +55,17 @@ title: 💬 Conversazioni
     <div><input type="submit" id="update_conversation_details" value="Aggiorna" /></div>
   </form>
   <h2>⚖️ Pesi</h2>
-  <div id="weights"></div>
+  <table id="weights_table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Peso (kg)</th>
+        <th>BMI (kg/m<sup>2</sup>)</th>
+        <th>Operazioni</th>
+      </tr>
+    </thead>
+    <tbody id="weights"></tbody>
+  </table>
   <form id="add_weight_form">
     <div>
       <label>Data</label>
@@ -70,7 +79,18 @@ title: 💬 Conversazioni
     <div><input class="small" type="submit" id="add_weight" value="Aggiungi" /></div>
   </form>
   <h2>📏 Misure</h2>
-  <div id="waist_hips"></div>
+  <table id="waist_hips_table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Vita (cm)</th>
+        <th>Fianchi (cm)</th>
+        <th>WHR</th>
+        <th>Operazioni</th>
+      </tr>
+    </thead>
+    <tbody id="waist_hips"></tbody>
+  </table>
   <form id="add_waist_hip_form">
     <div>
       <label>Data</label>

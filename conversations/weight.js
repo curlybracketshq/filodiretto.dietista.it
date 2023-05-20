@@ -31,15 +31,17 @@ function displayWeights(token, conversation, weightsList) {
       }
 
       return `
-        <input type="hidden" class="weight_item_data" value="${encodeURIComponent(JSON.stringify(weight))}" />
-        <div class="weight_item">
+      <input type="hidden" class="weight_item_data" value="${encodeURIComponent(JSON.stringify(weight))}" />
+      <tr>
+        <td>
           <time datetime="${date.toISOString()}">${formatDate(date)}</time>
-          <div class="value">${weight.value.toFixed(1)} kg</div>
-          <div class="value" style="${bmiStyle}">${bmiVal == null ? '-' : bmiVal.toFixed(2)} kg/m<sup>2</sup></div>
-          <div>
-            <button class="small delete_weight_item" data-date="${weight.date}">Elimina</button>
-          </div>
-        </div>`;
+        </td>
+        <td class="numeric_value">${weight.value.toFixed(1)}</td>
+        <td class="numeric_value" style="${bmiStyle}">${bmiVal == null ? '-' : bmiVal.toFixed(2)}</td>
+        <td class="operation">
+          <button class="small delete_weight_item" data-date="${weight.date}">Elimina</button>
+        </td>
+      </tr>`;
     }).join('');
   weights.innerHTML = weightItems;
 

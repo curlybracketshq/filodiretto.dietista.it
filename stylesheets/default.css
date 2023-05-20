@@ -274,6 +274,10 @@ tbody > tr:nth-of-type(even) {
   text-align: center;
 }
 
+.numeric_value {
+  text-align: right;
+}
+
 /* Layout */
 
 #content {
@@ -418,32 +422,14 @@ tbody > tr:nth-of-type(even) {
   color: #999;
 }
 
-/* Weights list + Waist/hip measurements list */
+/* Weights + Waist/hip measurements */
 
-#weights,
-#waist_hips {
-  display: flex;
-  flex-direction: column;
-  row-gap: 2px;
+#weights_table {
+  width: 500px;
 }
 
-#weights {
-  width: 450px;
-}
-
-#waist_hips {
+#waist_hips_table {
   width: 550px;
-}
-
-.weight_item,
-.waist_hip_item {
-  display: flex;
-  justify-content: space-between;
-}
-
-.weight_item > *,
-.waist_hip_item > * {
-  padding: 2px 4px;
 }
 
 #add_weight_form,

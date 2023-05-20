@@ -24,16 +24,18 @@ function displayWaistHips(token, conversation, waistHipsList) {
     .map(waistHip => {
       const date = new Date(waistHip.date + "T00:00:00");
       return `
-        <input type="hidden" class="waist_hip_item_data" value="${encodeURIComponent(JSON.stringify(waistHip))}" />
-        <div class="waist_hip_item">
+      <input type="hidden" class="waist_hip_item_data" value="${encodeURIComponent(JSON.stringify(waistHip))}" />
+      <tr>
+        <td>
           <time datetime="${date.toISOString()}">${formatDate(date)}</time>
-          <div class="value">${waistHip.waist} cm</div>
-          <div class="value">${waistHip.hip} cm</div>
-          <div class="value">${(waistHip.waist / waistHip.hip).toFixed(2)} WHR</div>
-          <div>
-            <button class="small delete_waist_hip_item" data-date="${waistHip.date}">Elimina</button>
-          </div>
-        </div>`;
+        </td>
+        <td class="numeric_value">${waistHip.waist}</td>
+        <td class="numeric_value">${waistHip.hip}</td>
+        <td class="numeric_value">${(waistHip.waist / waistHip.hip).toFixed(2)}</td>
+        <td class="operation">
+          <button class="small delete_waist_hip_item" data-date="${waistHip.date}">Elimina</button>
+        </td>
+      </tr>`;
     }).join('');
   waistHips.innerHTML = waistHipItems;
 
