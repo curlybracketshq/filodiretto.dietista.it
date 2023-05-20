@@ -58,6 +58,11 @@ function attachDeleteWaistHipListeners(token, conversation) {
     element.addEventListener("click", function (event) {
       event.preventDefault();
 
+      const date = new Date(deleteDate + "T00:00:00");
+      if (!confirm(`Vuoi cancellare la misura effettuata in data ${formatDate(date)}`)) {
+        return;
+      }
+
       const waistHipItems = document.getElementsByClassName("waist_hip_item_data");
       let waistHipItem;
       /** @type {Array<WaistHipItem>} */

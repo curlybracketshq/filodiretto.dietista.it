@@ -106,6 +106,11 @@ function attachDeleteWeightListeners(token, conversation) {
     element.addEventListener("click", function (event) {
       event.preventDefault();
 
+      const date = new Date(deleteDate + "T00:00:00");
+      if (!confirm(`Vuoi cancellare la misura effettuata in data ${formatDate(date)}`)) {
+        return;
+      }
+
       const weightItems = document.getElementsByClassName("weight_item_data");
       let weightItem;
       /** @type {Array<WeightItem>} */
