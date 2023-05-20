@@ -2,6 +2,8 @@
   "extends": "../jsconfig",
   "include": [
     "index.js",
+    "waist_hip.js",
+    "weight.js",
     "../common.js"
   ]
 }
