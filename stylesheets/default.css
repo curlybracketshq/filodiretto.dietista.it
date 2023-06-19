@@ -308,6 +308,16 @@ tbody > tr:nth-of-type(even) {
 
 /* Calendar */
 
+#calendar_header {
+  display: flex;
+  align-items: baseline;
+}
+
+#calendar_header h2 {
+  flex-grow: 1;
+  text-align: center;
+}
+
 #calendar table {
   table-layout: fixed;
 }
