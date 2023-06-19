@@ -6,16 +6,16 @@
 function displayTodaysAppointments(token) {
   const todayElement = requireElement("today");
   const now = new Date();
-  const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
   todayElement.innerText = `📅 Appuntamenti di oggi (${formatDate(now)})`;
 
   // Load today's appointments
   const appointments = requireElement("todays_appointments");
   appointments.innerHTML = "<p>Caricamento...</p>";
 
-  const isoToday = today.toISOString();
-  const tomorrow = new Date(today.getTime() + 60 * 60 * 24 * 1000);
-  const isoTomorrow = tomorrow.toISOString();
+  const isoToday = todayUTC.toISOString();
+  const tomorrowUTC = new Date(todayUTC.getTime() + 60 * 60 * 24 * 1000);
+  const isoTomorrow = tomorrowUTC.toISOString();
   const month = isoToday.slice(0, 7);
   const before = isoTomorrow.slice(0, 10);
   const after = isoToday.slice(0, 10);
