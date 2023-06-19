@@ -5,7 +5,7 @@ const NO_APPOINTMENTS = "La scorsa settimana non hai avuto nessun appuntamento."
 /**
  * @param {string} token
  * @param {{start: Date, end: Date}} timeRange
- * @returns {Promise<{appointmentsByNumber: Object.<string, Appointment[]>, conversationItemsByNumber: Object.<string, Conversation>}>}
+ * @returns {Promise<{appointmentsByNumber: Object.<string, Appointment[]>, conversationByNumber: Object.<string, Conversation>}>}
  */
 function displayConversations(token, { start, end }) {
   // Load week's appointments
@@ -48,7 +48,7 @@ function displayConversations(token, { start, end }) {
       return fetchConversations(token, ['firstName', 'lastName'], null, []);
     })
     .then(conversationItems => {
-      const conversationItemsByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
+      const conversationByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
         acc[conversation.from.S] = conversation;
         return acc;
       }, {});
@@ -64,7 +64,7 @@ function displayConversations(token, { start, end }) {
 
       if (appointmentItems.length == 0) {
         intro.innerText = NO_APPOINTMENTS;
-        return { appointmentsByNumber, conversationItemsByNumber };
+        return { appointmentsByNumber, conversationByNumber };
       }
 
       intro.innerHTML = `
@@ -77,7 +77,7 @@ function displayConversations(token, { start, end }) {
         conversations.innerHTML = '<p>Nessun contatto</p>';
       } else {
         const listItems = Object.keys(appointmentsByNumber).map((/** @type {string} */ number) => {
-          const conversation = conversationItemsByNumber[number];
+          const conversation = conversationByNumber[number];
           if (conversation == null) {
             return '';
           }
@@ -89,16 +89,16 @@ function displayConversations(token, { start, end }) {
         conversations.innerHTML = `<ul>${listItems}</ul>`;
       }
 
-      return { appointmentsByNumber, conversationItemsByNumber };
+      return { appointmentsByNumber, conversationByNumber };
     });
 }
 
 /**
  * @param {string} token
  * @param {Object.<string, Appointment[]>} appointmentsByNumber
- * @param {Object.<string, Conversation>} conversationItemsByNumber
+ * @param {Object.<string, Conversation>} conversationByNumber
  */
-function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsByNumber) {
+function displayMissingFollowUps(token, appointmentsByNumber, conversationByNumber) {
   const missingFollowUps = requireElement("missing_follow_ups");
   const missingFollowUpsIntro = requireElement("missing_follow_ups_intro");
   missingFollowUpsIntro.innerText = "Caricamento...";
@@ -140,7 +140,7 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationItemsB
       }
 
       const listItems = nextAppointments.map((appointment, i) => {
-        const conversation = conversationItemsByNumber[numbers[i]];
+        const conversation = conversationByNumber[numbers[i]];
         if (conversation == null) {
           return '';
         }
@@ -185,8 +185,8 @@ function main() {
 
     displayAuthenticatedLayout(username);
     displayConversations(token, { start: beginningOfWeek, end: endOfWeek })
-      .then(({ appointmentsByNumber, conversationItemsByNumber }) => {
-        displayMissingFollowUps(token, appointmentsByNumber, conversationItemsByNumber);
+      .then(({ appointmentsByNumber, conversationByNumber }) => {
+        displayMissingFollowUps(token, appointmentsByNumber, conversationByNumber);
       });
   } else {
     window.location.replace("/login/");

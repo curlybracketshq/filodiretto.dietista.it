@@ -33,7 +33,7 @@ function displayTodaysAppointments(token) {
       return fetchConversations(token, ['firstName', 'lastName'], null, []);
     })
     .then(conversationItems => {
-      const conversationItemsByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
+      const conversationByNumber = conversationItems.reduce(function (/** @type {Object.<string, Conversation>} */ acc, conversation) {
         acc[conversation.from.S] = conversation;
         return acc;
       }, {});
@@ -43,7 +43,7 @@ function displayTodaysAppointments(token) {
       } else {
         const appointmentsItems = appointmentItems.map((/** @type {Appointment} */ appointment) => {
           const date = new Date(appointment.datetime.S);
-          const conversation = conversationItemsByNumber[appointment.from.S];
+          const conversation = conversationByNumber[appointment.from.S];
           if (conversation == null) {
             return '';
           }
