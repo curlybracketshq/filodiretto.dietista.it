@@ -258,6 +258,36 @@ function displayAnonymousLayout() {
 }
 
 /**
+ * @param {ReadableStream<Uint8Array>} stream
+ * @returns {Promise<string>}
+ */
+function fetchStream(stream) {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+
+  // read() returns a promise that resolves
+  // when a value has been received
+  return reader.read().then(
+    /**
+     * @param {ReadableStreamReadResult<Uint8Array>} readResult
+     * @returns {Promise<string> | string}
+     */
+    function processText({ done, value }) {
+      // Result objects contain two properties:
+      // done  - true if the stream has already given you all its data.
+      // value - some data. Always undefined when done is true.
+      if (done) {
+        return '';
+      }
+
+      // Read some more, and call this function again
+      return reader.read()
+        .then(processText)
+        .then(s => decoder.decode(value) + s);
+    });
+}
+
+/**
  * @param {Promise<Response>} promise
  * @returns {Promise<[?{status: number, content: string}, ?{status: number, content: string}]>}
  */
@@ -275,10 +305,8 @@ function handleFetchGenericError(promise) {
   return promise.then(res => {
     console.log("Response:", res);
     if (res.body != null) {
-      const reader = res.body.getReader();
-      return reader.read().then(({ done, value }) => {
-        return { status: res.status, content: new TextDecoder().decode(value) };
-      });
+      return fetchStream(res.body)
+        .then(content => ({ status: res.status, content }));
     }
     return { status: res.status, content: '' };
   }, error => ({ status: -1, content: error.toString() })).then(res => {
