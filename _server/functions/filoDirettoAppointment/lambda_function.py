@@ -1,13 +1,11 @@
 import json
-import boto3
 from datetime import datetime
 from common import auth
 from common import cors
 from common import errors
+from common import db
 
 print('Loading function')
-
-APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
 @cors.access_control(methods={'GET', 'PUT', 'POST', 'DELETE'})
@@ -22,13 +20,9 @@ def lambda_handler(event, context):
         if 'datetime' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing datetime param"}
     
-        dynamodb = boto3.client('dynamodb')
-        result = dynamodb.get_item(
-            TableName=APPOINTMENTS_TABLE,
-            Key={
-                'from': {'S': event['queryStringParameters']['from']},
-                'datetime': {'S': event['queryStringParameters']['datetime']},
-            },
+        result = db.get_appointment(
+            event['queryStringParameters']['from'],
+            event['queryStringParameters']['datetime'],
         )
 
         if 'Item' not in result:
@@ -42,71 +36,39 @@ def lambda_handler(event, context):
         if 'datetime' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing datetime param"}
 
-        dynamodb = boto3.client('dynamodb')
-        result = dynamodb.delete_item(
-            TableName=APPOINTMENTS_TABLE,
-            Key={
-                'from': {'S': event['queryStringParameters']['from']},
-                'datetime': {'S': event['queryStringParameters']['datetime']},
-            },
+        result = db.delete_appointment(
+            event['queryStringParameters']['from'],
+            event['queryStringParameters']['datetime'],
         )
         
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'PUT':
         body = json.loads(event['body'])
 
-        dynamodb = boto3.client('dynamodb')
-        # TODO: delete + update in a transaction
-        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
-        # https://stackoverflow.com/questions/55474664/dynamoddb-how-to-update-sort-key
-        # https://stackoverflow.com/questions/56709500/dynamodb-update-an-attribute-used-as-sort-key
-        result = dynamodb.delete_item(
-            TableName=APPOINTMENTS_TABLE,
-            Key={
-                'from': {'S': body['appointment']['from']},
-                'datetime': {'S': body['appointment']['datetime']},
-            }
-        )
-        result = dynamodb.put_item(
-            TableName=APPOINTMENTS_TABLE,
-            Item={
-                'from': {'S': body['appointment']['from']},
-                'datetime': {'S': body['appointment']['new_datetime']},
-            },
-            ExpressionAttributeNames={
-                '#F': 'from',
-            },
-            ConditionExpression='attribute_not_exists(#F)',
+        result = db.update_appointment(
+            body['appointment']['from'],
+            body['appointment']['datetime'],
+            body['appointment']['new_datetime'],
         )
 
         return {"statusCode": 200, "body": json.dumps(result)}
     elif event['httpMethod'] == 'POST':
         body = json.loads(event['body'])
-        
-        dynamodb = boto3.client('dynamodb')
-
-        item = {
-            'from': {'S': body['appointment']['from']},
-            'datetime': {'S': body['appointment']['datetime']},
-            # Take just the YYYY-MM part (first 7 chars) of the datetime value
-            # Used as the primary key of the `month-datetime-index` GSI
-            'month': {'S': body['appointment']['datetime'][:7]},
-            'type': {'S': body['appointment']['appointment_type']},
-        }
 
         # Set reminder sent at now arbitrarily if the "reminder sent" checkbox
         # is marked
         if body['appointment']['reminder_sent']:
-            item['reminderSentAt'] = {'S': datetime.now().isoformat(timespec='minutes')}
+            reminder_sent_at = datetime.now().isoformat(timespec='minutes')
+        else:
+            reminder_sent_at = None
 
-        # Add a new appointment conditionally so we don't overwrite existing items
-        result = dynamodb.put_item(
-            TableName=APPOINTMENTS_TABLE,
-            Item=item,
-            ExpressionAttributeNames={
-                '#F': 'from',
-            },
-            ConditionExpression='attribute_not_exists(#F)',
+        result = db.put_appointment(
+            body['appointment']['from'],
+            body['appointment']['datetime'],
+            # Take just the YYYY-MM part (first 7 chars) of the datetime value
+            body['appointment']['datetime'][:7],
+            body['appointment']['appointment_type'],
+            reminder_sent_at,
         )
 
         return {"statusCode": 200, "body": json.dumps(result)}
