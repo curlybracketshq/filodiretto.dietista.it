@@ -5,6 +5,7 @@ import uuid
 
 MESSAGES_TABLE = "filoDirettoMessages"
 APPOINTMENTS_TABLE = "filoDirettoAppointments"
+SENDERS_TABLE = "filoDirettoSenders"
 
 
 def query_messages(number, limit=None, exclusive_start_key=None):
@@ -137,3 +138,113 @@ def query_appointments(number=None, month=None, before=None, after=None, exclusi
         return dynamodb.query(**kwargs)
     else:
         return dynamodb.scan(**kwargs)
+
+def get_sender(number):
+    dynamodb = boto3.client('dynamodb')
+    return dynamodb.get_item(
+        TableName=SENDERS_TABLE,
+        Key={'from': {'S': number}},
+    )
+
+def delete_sender(number):
+    dynamodb = boto3.client('dynamodb')
+    return dynamodb.delete_item(
+        TableName=SENDERS_TABLE,
+        Key={'from': {'S': number}},
+    )
+
+def update_sender(
+        number,
+        weights=None,
+        waist_hips=None,
+        first_name=None,
+        last_name=None,
+        email=None,
+        height=None,
+        birth_date=None,
+        gender=None,
+        notes=None,
+    ):
+    dynamodb = boto3.client('dynamodb')
+    kwargs = {
+        'TableName': SENDERS_TABLE,
+        'Key': {'from': {'S': number}},
+        'ReturnValues': 'ALL_NEW',
+        'ConditionExpression': '#F = :f',
+    }
+
+    if weights is not None:
+        kwargs['ExpressionAttributeNames'] = {
+            '#F': 'from',
+            '#W': 'weights',
+        }
+        kwargs['ExpressionAttributeValues'] = {
+            ':f': {'S': number},
+            ':w': {'S': weights},
+        }
+        kwargs['UpdateExpression'] = 'SET #W = :w'
+    elif waist_hips is not None:
+        kwargs['ExpressionAttributeNames'] = {
+            '#F': 'from',
+            '#W': 'waistHips',
+        }
+        kwargs['ExpressionAttributeValues'] = {
+            ':f': {'S': number},
+            ':w': {'S': waist_hips},
+        }
+        kwargs['UpdateExpression'] = 'SET #W = :w'
+    else:
+        kwargs['ExpressionAttributeNames'] = {
+            '#F': 'from',
+            '#FN': 'firstName',
+            '#LN': 'lastName',
+            '#E': 'email',
+            '#H': 'height',
+            '#BD': 'birthDate',
+            '#G': 'gender',
+            '#N': 'notes',
+        }
+        kwargs['ExpressionAttributeValues'] = {
+            ':f': {'S': number},
+            ':fn': {'S': first_name},
+            ':ln': {'S': last_name},
+            ':e': {'S': email},
+            ':h': {'N': height} if len(height) > 0 else {'NULL': True},
+            ':bd': {'S': birth_date},
+            ':g': {'S': gender},
+            ':n': {'S': notes},
+        }
+        kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #E = :e, #H = :h, #BD = :bd, #G = :g, #N = :n'
+
+    return dynamodb.update_item(**kwargs)
+
+def put_sender(
+        number,
+        first_name,
+        last_name,
+        email,
+        height,
+        birth_date,
+        gender,
+        notes,
+    ):
+    dynamodb = boto3.client('dynamodb')
+
+    # Add a new sender conditionally so we don't overwrite existing items
+    return dynamodb.put_item(
+        TableName=SENDERS_TABLE,
+        Item={
+            'from': {'S': number},
+            'firstName': {'S': first_name},
+            'lastName': {'S': last_name},
+            'email': {'S': email},
+            'height': {'N': height} if len(height) > 0 else {'NULL': True},
+            'birthDate': {'S': birth_date},
+            'gender': {'S': gender},
+            'notes': {'S': notes},
+        },
+        ExpressionAttributeNames={
+            '#F': 'from',
+        },
+        ConditionExpression='attribute_not_exists(#F)',
+    )
