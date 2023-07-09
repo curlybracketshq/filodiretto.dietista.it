@@ -111,3 +111,29 @@ def put_appointment(number, timestamp, year_month, type, reminder_sent_at):
         },
         ConditionExpression='attribute_not_exists(#F)',
     )
+
+def query_appointments(number=None, month=None, before=None, after=None, exclusive_start_key=None):
+    dynamodb = boto3.client('dynamodb')
+
+    kwargs = {'TableName': APPOINTMENTS_TABLE}
+
+    if exclusive_start_key is not None:
+        kwargs['ExclusiveStartKey'] = exclusive_start_key
+
+    if number is not None:
+        kwargs['ExpressionAttributeValues'] = {':f': {'S': number}}
+        kwargs['ExpressionAttributeNames'] = {'#F': 'from'}
+        kwargs['KeyConditionExpression'] = '#F = :f'
+        return dynamodb.query(**kwargs)
+    elif month is not None and before is not None and after is not None:
+        kwargs['ExpressionAttributeValues'] = {
+            ':month': {'S': month},
+            ':before': {'S': before},
+            ':after': {'S': after},
+        }
+        kwargs['ExpressionAttributeNames'] = {'#M': 'month', '#D': 'datetime'}
+        kwargs['KeyConditionExpression'] = '#M = :month AND #D BETWEEN :after AND :before'
+        kwargs['IndexName'] = 'month-datetime-index'
+        return dynamodb.query(**kwargs)
+    else:
+        return dynamodb.scan(**kwargs)
