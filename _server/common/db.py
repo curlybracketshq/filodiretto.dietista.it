@@ -8,6 +8,10 @@ APPOINTMENTS_TABLE = "filoDirettoAppointments"
 SENDERS_TABLE = "filoDirettoSenders"
 
 
+#
+# Messages
+#
+
 def query_messages(number, limit=None, exclusive_start_key=None):
     dynamodb = boto3.client('dynamodb')
 
@@ -42,6 +46,22 @@ def put_message(number, message):
             'source': {'S': 'filodiretto'},
         },
     )
+
+def put_message_from_whatsapp(number, timestamp, id, text):
+    dynamodb = boto3.client('dynamodb')
+    dynamodb.put_item(
+        TableName=MESSAGES_TABLE,
+        Item={
+            'from': {'S': number},
+            'timestamp': {'S': timestamp},
+            'id': {'S': id},
+            'text': {'S': json.dumps(text)},
+        },
+    )
+
+#
+# Appointments
+#
 
 def get_appointment(number, timestamp):
     dynamodb = boto3.client('dynamodb')
@@ -178,6 +198,10 @@ def query_next_appointment(number):
         Limit=1,
     )
 
+#
+# Senders
+#
+
 def get_sender(number):
     dynamodb = boto3.client('dynamodb')
     return dynamodb.get_item(
@@ -287,6 +311,28 @@ def put_sender(
         },
         ConditionExpression='attribute_not_exists(#F)',
     )
+
+def put_sender_conditionally(number, timestamp, id):
+    dynamodb = boto3.client('dynamodb')
+    dynamodb_resource = boto3.resource('dynamodb')
+
+    # Add a new sender conditionally so we don't overwrite existing items
+    try:
+        dynamodb.put_item(
+            TableName=SENDERS_TABLE,
+            Item={
+                'from': {'S': number},
+                'timestamp':{'S': timestamp},
+                'id': {'S': id},
+            },
+            ExpressionAttributeNames={
+                '#F': 'from',
+            },
+            ConditionExpression='attribute_not_exists(#F)',
+        )
+    except dynamodb_resource.meta.client.exceptions.ConditionalCheckFailedException as e:
+        print('CONTACT ALREADY SAVED')
+        print(e)
 
 def query_senders(fields=None, exclusive_start_key=None):
     dynamodb = boto3.client('dynamodb')

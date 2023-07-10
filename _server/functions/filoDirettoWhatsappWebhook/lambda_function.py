@@ -1,5 +1,4 @@
 import json
-import boto3
 import os
 from common import errors
 from common import discord
@@ -8,8 +7,6 @@ from common import db
 print('Loading function')
 
 VERIFY_TOKEN = os.environ['WA_VERIFY_TOKEN']
-MESSAGES_TABLE = "filoDirettoMessages"
-SENDERS_TABLE = "filoDirettoSenders"
 DISCORD_MESSAGES_WEBHOOK_ID = os.environ.get('DISCORD_MESSAGES_WEBHOOK_ID')
 DISCORD_MESSAGES_WEBHOOK_TOKEN = os.environ.get('DISCORD_MESSAGES_WEBHOOK_TOKEN')
 
@@ -47,37 +44,20 @@ def lambda_handler(event, context):
         if first_message['type'] != 'text':
             return {"statusCode": 400, "body": "Message type not supported"}
             
-        dynamodb = boto3.client('dynamodb')
-        dynamodb_resource = boto3.resource('dynamodb')
         results = db.query_messages(first_message['from'], limit=1)
 
         if not results.get('Items', []):
-            # Add a new sender conditionally so we don't overwrite existing items
-            try:
-                dynamodb.put_item(
-                    TableName=SENDERS_TABLE,
-                    Item={
-                        'from': {'S': first_message['from']},
-                        'timestamp':{'S': first_message['timestamp']},
-                        'id': {'S': first_message['id']},
-                    },
-                    ExpressionAttributeNames={
-                        '#F': 'from',
-                    },
-                    ConditionExpression='attribute_not_exists(#F)',
-                )
-            except dynamodb_resource.meta.client.exceptions.ConditionalCheckFailedException as e:
-                print('CONTACT ALREADY SAVED')
-                print(e)
+            db.put_sender_conditionally(
+                first_message['from'],
+                first_message['timestamp'],
+                first_message['id'],
+            )
 
-        dynamodb.put_item(
-            TableName=MESSAGES_TABLE,
-            Item={
-                'from': {'S': first_message['from']},
-                'timestamp': {'S': first_message['timestamp']},
-                'id': {'S': first_message['id']},
-                'text': {'S': json.dumps(first_message['text'])},
-            },
+        db.put_message_from_whatsapp(
+            first_message['from'],
+            first_message['timestamp'],
+            first_message['id'],
+            first_message['text'],
         )
 
         print('Send Discord notification')
