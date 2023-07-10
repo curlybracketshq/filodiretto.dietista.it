@@ -27,13 +27,13 @@ def query_messages(number, limit=None, exclusive_start_key=None):
 
     return dynamodb.query(**kwargs)
 
-def put_message(recipient, message):
+def put_message(number, message):
     dynamodb = boto3.client('dynamodb')
     dynamodb.put_item(
         TableName=MESSAGES_TABLE,
         Item={
             # A bit confusing, but this is the primary key
-            'from': {'S': recipient},
+            'from': {'S': number},
             'timestamp': {'S': str(int(datetime.now(timezone.utc).timestamp()))},
             'id': {'S': str(uuid.uuid4())},
             # Use the same format as Whatsapp messages for convenience
