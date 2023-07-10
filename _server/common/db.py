@@ -139,6 +139,22 @@ def query_appointments(number=None, month=None, before=None, after=None, exclusi
     else:
         return dynamodb.scan(**kwargs)
 
+def query_next_appointment(number):
+    dynamodb = boto3.client('dynamodb')
+    return dynamodb.query(
+        TableName=APPOINTMENTS_TABLE,
+        ExpressionAttributeValues={
+            ':f': {'S': number},
+            ':today': {'S': datetime.date.today().isoformat()},
+        },
+        ExpressionAttributeNames={
+            '#F': 'from',
+            '#DT': 'datetime',
+        },
+        KeyConditionExpression='#F = :f AND #DT >= :today',
+        Limit=1,
+    )
+
 def get_sender(number):
     dynamodb = boto3.client('dynamodb')
     return dynamodb.get_item(
