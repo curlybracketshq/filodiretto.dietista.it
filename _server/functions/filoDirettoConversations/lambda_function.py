@@ -1,12 +1,10 @@
 import json
-import boto3
 from common import auth
 from common import cors
 from common import errors
+from common import db
 
 print('Loading function')
-
-SENDERS_TABLE = "filoDirettoSenders"
 
 
 @cors.access_control(methods={'GET'})
@@ -17,19 +15,14 @@ def lambda_handler(event, context):
     if event['httpMethod'] != 'GET':
         return {"statusCode": 405, "body": "Method not allowed"}
 
-    dynamodb = boto3.client('dynamodb')
-    kwargs = {'TableName': SENDERS_TABLE}
+    kwargs = {}
 
     if 'last_evaluated_key' in event['queryStringParameters']:
-        kwargs['ExclusiveStartKey'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
+        kwargs['exclusive_start_key'] = json.loads(event['queryStringParameters']['last_evaluated_key'])
 
     if 'fields' in event['queryStringParameters']:
-        # Include primary key by default
-        fields = {'from'}
-        fields |= set(event['queryStringParameters']['fields'].split(','))
-        kwargs['ExpressionAttributeNames'] = {f"#F{i}": f for i, f in enumerate(fields)}
-        kwargs['ProjectionExpression'] = ", ".join(kwargs['ExpressionAttributeNames'].keys())
+        kwargs['fields'] = set(event['queryStringParameters']['fields'].split(','))
 
-    results = dynamodb.scan(**kwargs)
+    results = db.query_senders(**kwargs)
     
     return {"statusCode": 200, "body": json.dumps(results)}

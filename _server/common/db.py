@@ -248,3 +248,18 @@ def put_sender(
         },
         ConditionExpression='attribute_not_exists(#F)',
     )
+
+def query_senders(fields=None, exclusive_start_key=None):
+    dynamodb = boto3.client('dynamodb')
+    kwargs = {'TableName': SENDERS_TABLE}
+
+    if exclusive_start_key is not None:
+        kwargs['ExclusiveStartKey'] = exclusive_start_key
+
+    if fields is not None:
+        # Include primary key by default
+        fields |= {'from'}
+        kwargs['ExpressionAttributeNames'] = {f"#F{i}": f for i, f in enumerate(fields)}
+        kwargs['ProjectionExpression'] = ", ".join(kwargs['ExpressionAttributeNames'].keys())
+
+    return dynamodb.scan(**kwargs)
