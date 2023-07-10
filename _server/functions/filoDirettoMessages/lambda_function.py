@@ -6,8 +6,6 @@ from common import db
 
 print('Loading function')
 
-MESSAGES_TABLE = "filoDirettoMessages"
-
 
 @cors.access_control(methods={'GET'})
 @errors.notify_discord
