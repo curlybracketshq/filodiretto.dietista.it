@@ -89,7 +89,7 @@ def update_appointment(number, timestamp, new_timestamp):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/transact_write_items.html
     # https://stackoverflow.com/questions/55474664/dynamoddb-how-to-update-sort-key
     # https://stackoverflow.com/questions/56709500/dynamodb-update-an-attribute-used-as-sort-key
-    result = dynamodb.delete_item(
+    dynamodb.delete_item(
         TableName=APPOINTMENTS_TABLE,
         Key={
             'from': {'S': number},
