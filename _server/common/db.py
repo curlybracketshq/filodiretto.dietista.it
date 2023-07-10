@@ -88,6 +88,29 @@ def update_appointment(number, timestamp, new_timestamp):
         ConditionExpression='attribute_not_exists(#F)',
     )
 
+def set_appointment_reminder_sent_at(number, timestamp):
+    dynamodb = boto3.client('dynamodb')
+    return dynamodb.update_item(
+        TableName=APPOINTMENTS_TABLE,
+        ExpressionAttributeNames={
+            '#F': 'from',
+            '#D': 'datetime',
+            '#RSA': 'reminderSentAt',
+        },
+        ExpressionAttributeValues={
+            ':f': {'S': number},
+            ':d': {'S': timestamp},
+            ':rsa': {'S': datetime.now().isoformat(timespec='minutes')},
+        },
+        Key={
+            'from': {'S': number},
+            'datetime': {'S': timestamp},
+        },
+        ReturnValues='ALL_NEW',
+        UpdateExpression='SET #RSA = :rsa',
+        ConditionExpression='#F = :f AND #D = :d',
+    )
+
 def put_appointment(number, timestamp, year_month, type, reminder_sent_at):
     dynamodb = boto3.client('dynamodb')
 

@@ -1,12 +1,10 @@
 import json
 import http.client
-import boto3
-from datetime import datetime, timezone
 import os
-import uuid
 from common import auth
 from common import cors
 from common import errors
+from common import db
 
 print('Loading function')
 
@@ -22,9 +20,6 @@ MESSAGE_TEMPLATE_NAME_MAP = {
     'bach': 'generic_meeting_reminder',
 }
 MESSAGE_LANGUAGE_CODE = "it"
-
-MESSAGES_TABLE = "filoDirettoMessages"
-APPOINTMENTS_TABLE = "filoDirettoAppointments"
 
 
 @cors.access_control(methods={'POST'})
@@ -81,40 +76,14 @@ def lambda_handler(event, context):
     if response.status != 200:
         return {"statusCode": 400, "body": data.decode("utf-8")}
     
-    dynamodb = boto3.client('dynamodb')
-    result = dynamodb.update_item(
-        TableName=APPOINTMENTS_TABLE,
-        ExpressionAttributeNames={
-            '#F': 'from',
-            '#D': 'datetime',
-            '#RSA': 'reminderSentAt',
-        },
-        ExpressionAttributeValues={
-            ':f': {'S': body['appointment']['from']},
-            ':d': {'S': body['appointment']['datetime']},
-            ':rsa': {'S': datetime.now().isoformat(timespec='minutes')},
-        },
-        Key={
-            'from': {'S': body['appointment']['from']},
-            'datetime': {'S': body['appointment']['datetime']},
-        },
-        ReturnValues='ALL_NEW',
-        UpdateExpression='SET #RSA = :rsa',
-        ConditionExpression='#F = :f AND #D = :d',
+    result = db.set_appointment_reminder_sent_at(
+        body['appointment']['from'],
+        body['appointment']['datetime'],
     )
 
-    dynamodb.put_item(
-        TableName=MESSAGES_TABLE,
-        Item={
-            # A bit confusing, but this is the primary key
-            'from': {'S': body['message']['to']},
-            'timestamp': {'S': str(int(datetime.now(timezone.utc).timestamp()))},
-            'id': {'S': str(uuid.uuid4())},
-            # Use the same format as Whatsapp messages for convenience
-            'text': {'S': json.dumps({'body': '<TEMPLATE: ' + message_template_name + ', date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>'})},
-            # Used to disambiguate messages send by the system
-            'source': {'S': 'filodiretto'},
-        },
+    db.put_message(
+        body['message']['to'],
+        '<TEMPLATE: ' + message_template_name + ', date: ' + body['message']['date'] + ', time: ' + body['message']['time'] + '>',
     )
 
     return {"statusCode": 200, "body": json.dumps(result)}
