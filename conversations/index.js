@@ -18,26 +18,7 @@ function displayConversations(token) {
       const content = requireElement("content");
       content.style.display = "block";
 
-      const tableContent = items
-        .sort((a, b) => {
-          const aLastName = a.lastName?.S ?? '';
-          const bLastName = b.lastName?.S ?? '';
-          if (aLastName < bLastName) {
-            return -1;
-          } else if (aLastName > bLastName) {
-            return 1;
-          } else {
-            const aFirstName = a.firstName?.S ?? '';
-            const bFirstName = b.firstName?.S ?? '';
-            if (aFirstName < bFirstName) {
-              return -1;
-            } else if (aFirstName > bFirstName) {
-              return 1;
-            } else {
-              return 0;
-            }
-          }
-        })
+      const tableContent = sortConversations(items)
         .map(element => {
           return `
           <tr>

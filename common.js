@@ -510,3 +510,30 @@ function plural(n, s, p) {
 function pluralN(n, s, p) {
   return `${n} ${plural(n, s, p)}`;
 }
+
+/**
+ * @param {Conversation[]} items
+ * @returns {Conversation[]}
+ */
+function sortConversations(items) {
+  return items
+    .sort((a, b) => {
+      const aLastName = a.lastName?.S ?? '';
+      const bLastName = b.lastName?.S ?? '';
+      if (aLastName < bLastName) {
+        return -1;
+      } else if (aLastName > bLastName) {
+        return 1;
+      } else {
+        const aFirstName = a.firstName?.S ?? '';
+        const bFirstName = b.firstName?.S ?? '';
+        if (aFirstName < bFirstName) {
+          return -1;
+        } else if (aFirstName > bFirstName) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    })
+}
