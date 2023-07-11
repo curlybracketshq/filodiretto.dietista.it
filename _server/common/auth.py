@@ -59,6 +59,6 @@ def require_auth(f):
         if not authenticated:
             return {'statusCode': 401, 'body': 'Authentication failed'}
 
-        context.client_context.custom = {'username': username}
+        context.client_context = {'username': username}
         return f(event, context)
     return new_f
