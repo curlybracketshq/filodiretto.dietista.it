@@ -34,12 +34,12 @@ def _authenticate(token):
             username, timestamp = message.decode().split(':')
             current_timestamp = int(time.time())
             if current_timestamp - int(timestamp) <= TOKEN_TTL_SECS:
-                return True
+                return (True, username)
     except (binascii.Error, ValueError, TypeError) as e:
         print(e)
         pass
     
-    return False
+    return (False, None)
 
 
 def require_auth(f):
@@ -55,8 +55,10 @@ def require_auth(f):
         if token is None:
             return {'statusCode': 401, 'body': 'Authentication required'}
 
-        if not _authenticate(token):
+        authenticated, username = _authenticate(token)
+        if not authenticated:
             return {'statusCode': 401, 'body': 'Authentication failed'}
 
+        context.client_context.custom = {'username': username}
         return f(event, context)
     return new_f
