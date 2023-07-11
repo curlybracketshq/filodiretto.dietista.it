@@ -21,7 +21,7 @@ function displayCreateAppointment(token) {
       }
 
       let conversationOptions = `<option value="">Seleziona numero</option>`;
-      conversationOptions += items.map(element => {
+      conversationOptions += sortConversations(items).map(element => {
         return `
         <option value="${element.from.S}" ${preselected == element.from.S ? 'selected' : ''}>
           ${fullName(element)} (${formatPhoneNumber(element.from.S)})
