@@ -10,9 +10,9 @@ SECRET_KEY = os.environ['AUTH_SECRET']
 TOKEN_TTL_SECS = 60 * 60 * 24 * 7
 
 
-def generate_token(username, timestamp):
+def generate_token(username, is_admin, timestamp):
     """Generates a token with a signature field."""
-    message = f'{username}:{timestamp}'.encode()
+    message = f'{username}:{is_admin}:{timestamp}'.encode()
     signature = hmac.new(SECRET_KEY.encode(), message, hashlib.sha256).digest()
     token = base64.b64encode(message + signature).decode()
     return token
@@ -31,10 +31,10 @@ def _authenticate(token):
 
         if hmac.compare_digest(signature, expected_signature):
             # Token is valid
-            username, timestamp = message.decode().split(':')
+            username, is_admin, timestamp = message.decode().split(':')
             current_timestamp = int(time.time())
             if current_timestamp - int(timestamp) <= TOKEN_TTL_SECS:
-                return (True, username)
+                return (True, {'username': username, 'is_admin': is_admin})
     except (binascii.Error, ValueError, TypeError) as e:
         print(e)
         pass
@@ -55,10 +55,10 @@ def require_auth(f):
         if token is None:
             return {'statusCode': 401, 'body': 'Authentication required'}
 
-        authenticated, username = _authenticate(token)
+        authenticated, auth_context = _authenticate(token)
         if not authenticated:
             return {'statusCode': 401, 'body': 'Authentication failed'}
 
-        context.client_context = {'username': username}
+        context.client_context = {'auth': auth_context}
         return f(event, context)
     return new_f

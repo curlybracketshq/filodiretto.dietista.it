@@ -18,11 +18,17 @@ def lambda_handler(event, context):
         return {"statusCode": 405, "body": "Method not allowed"}
 
     body = json.loads(event['body'])
-    if body['username'] not in CREDENTIALS or body['password'] != CREDENTIALS[body['username']]:
+    username = body['username']
+    password = body['password']
+    if username not in CREDENTIALS:
+        return {"statusCode": 401, "body": "Authentication failed"}
+
+    creds = CREDENTIALS[username]
+    if password != creds['password']:
         return {"statusCode": 401, "body": "Authentication failed"}
 
     current_timestamp = int(time.time())
-    token = auth.generate_token(body['username'], current_timestamp)
+    token = auth.generate_token(username, creds['is_admin'], current_timestamp)
     return {
         "statusCode": 200,
         "body": json.dumps({
