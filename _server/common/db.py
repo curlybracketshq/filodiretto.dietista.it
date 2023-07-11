@@ -1,6 +1,6 @@
 import boto3
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import uuid
 
 MESSAGES_TABLE = "filoDirettoMessages"
@@ -188,7 +188,7 @@ def query_next_appointment(number):
         TableName=APPOINTMENTS_TABLE,
         ExpressionAttributeValues={
             ':f': {'S': number},
-            ':today': {'S': datetime.date.today().isoformat()},
+            ':today': {'S': date.today().isoformat()},
         },
         ExpressionAttributeNames={
             '#F': 'from',
