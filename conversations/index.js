@@ -249,11 +249,7 @@ function displayConversationDetails(token, from) {
               }
               const { body } = JSON.parse(text);
               const source = message.source?.S ?? "";
-              return `
-              <div class="message ${source}">
-                <time datetime="${date.toISOString()}">${date.toLocaleString()}</time>
-                <div class="message_body">${sanitizeHTML(body)}</div>
-              </div>`;
+              return messageItemHTML(source, date, body);
             }).join('');
             messages.innerHTML = `
             ${replyBox}
@@ -425,11 +421,34 @@ function attachSendReplyListener(token, conversation) {
 
         console.log(success.content);
 
+        const date = new Date();
+        const body = replyTextarea.value;
+        // Conventional source for messages sent through the app
+        const source = "filodiretto";
+        const messageItem = document.createElement("div");
+        messageItem.innerHTML = messageItemHTML(source, date, body);
+        const messagesList = requireElement("messages_list");
+        messagesList.prepend(messageItem);
+
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Risposta inviata correttamente";
         infoMessage.style.display = "block";
       });
   });
+}
+
+/**
+ * @param {string} source
+ * @param {Date} date
+ * @param {string} body
+ * @returns {string}
+ */
+function messageItemHTML(source, date, body) {
+  return `
+  <div class="message ${source}">
+    <time datetime="${date.toISOString()}">${date.toLocaleString()}</time>
+    <div class="message_body">${sanitizeHTML(body)}</div>
+  </div>`;
 }
 
 function main() {
