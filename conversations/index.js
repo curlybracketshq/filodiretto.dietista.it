@@ -400,6 +400,8 @@ function attachSendReplyListener(token, conversation) {
       .then(onSuccess((success) => {
         console.log(success.content);
 
+        replyTextarea.value = "";
+
         const date = new Date();
         const body = replyTextarea.value;
         // Conventional source for messages sent through the app
