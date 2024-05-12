@@ -103,17 +103,10 @@ function attachDeleteWaistHipListeners(token, conversation) {
       });
       handleFetchGenericError(request)
         .then(handleFetchAuthError)
-        .then(([error, success]) => {
+        .then(always(() => {
           addWaistHipButton.disabled = false;
-
-          if (error != null) {
-            return;
-          }
-
-          if (success == null) {
-            throw new Error("Success can't be null");
-          }
-
+        }))
+        .then(onSuccess((success) => {
           const result = JSON.parse(success.content);
           const waistHipsList = JSON.parse(result.Attributes.waistHips.S);
           displayWaistHips(token, conversation, waistHipsList);
@@ -121,7 +114,7 @@ function attachDeleteWaistHipListeners(token, conversation) {
           const infoMessage = requireElement("info_message");
           infoMessage.innerHTML = "Misure aggiornate correttamente";
           infoMessage.style.display = "block";
-        });
+        }));
     });
   }
 }
@@ -187,7 +180,7 @@ function attachAddWaistHipListener(token, conversation) {
     });
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
-      .then(([error, success]) => {
+      .then(always(() => {
         addWaistHipButton.disabled = false;
         addWaistHipButton.value = "Aggiungi";
 
@@ -200,15 +193,8 @@ function attachAddWaistHipListener(token, conversation) {
         waistHipWaistValueInput.value = "";
         const waistHipHipValueInput = requireInputElement("waist_hip_hip_value_input");
         waistHipHipValueInput.value = "";
-
-        if (error != null) {
-          return;
-        }
-
-        if (success == null) {
-          throw new Error("Success can't be null");
-        }
-
+      }))
+      .then(onSuccess((success) => {
         const result = JSON.parse(success.content);
         const waistHipsList = JSON.parse(result.Attributes.waistHips.S);
         displayWaistHips(token, conversation, waistHipsList);
@@ -216,6 +202,6 @@ function attachAddWaistHipListener(token, conversation) {
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Misure aggiornate correttamente";
         infoMessage.style.display = "block";
-      });
+      }));
   });
 }

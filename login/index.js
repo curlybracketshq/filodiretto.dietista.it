@@ -18,23 +18,17 @@ function attachLoginEventListener() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: usernameInput.value, password: passwordInput.value })
     });
-    handleFetchGenericError(request).then(([error, success]) => {
-      loginButton.disabled = false;
-      loginButton.value = "Accedi";
-
-      if (error != null) {
-        return;
-      }
-
-      if (success == null) {
-        throw new Error("Success can't be null");
-      }
-
-      let { token, username } = JSON.parse(success.content);
-      localStorage.setItem(TOKEN_KEY, token);
-      localStorage.setItem(USERNAME_KEY, username);
-      window.location.replace("/");
-    });
+    handleFetchGenericError(request)
+      .then(always(() => {
+        loginButton.disabled = false;
+        loginButton.value = "Accedi";
+      }))
+      .then(onSuccess((success) => {
+        let { token, username } = JSON.parse(success.content);
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USERNAME_KEY, username);
+        window.location.replace("/");
+      }));
   });
 }
 

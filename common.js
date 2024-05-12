@@ -335,6 +335,36 @@ function handleFetchAuthError([error, success]) {
 }
 
 /**
+ * @param {function(): void} callback
+ * @returns {function([?{status: number, content: string}, ?{status: number, content: string}]): [?{status: number, content: string}, ?{status: number, content: string}]}
+ */
+function always(callback) {
+  return ([error, success]) => {
+    callback();
+    return [error, success];
+  }
+}
+
+/**
+ * @param {function({status: number, content: string}): void} callback
+ * @returns {function([?{status: number, content: string}, ?{status: number, content: string}]): [?{status: number, content: string}, ?{status: number, content: string}]}
+ */
+function onSuccess(callback) {
+  return ([error, success]) => {
+    if (error != null) {
+      return [error, success];
+    }
+
+    if (success == null) {
+      throw new Error("Success can't be null");
+    }
+
+    callback(success);
+    return [error, success];
+  }
+}
+
+/**
  * @param {string} token
  * @param {?string} from
  * @param {?{'month': string, 'before': string, 'after': string}} monthBeforeAfter

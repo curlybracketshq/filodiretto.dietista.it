@@ -305,24 +305,17 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     });
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
-      .then(([error, success]) => {
+      .then(always(() => {
         submitButton.disabled = false;
         submitButton.value = "Aggiorna";
-
-        if (error != null) {
-          return;
-        }
-
-        if (success == null) {
-          throw new Error("Success can't be null");
-        }
-
+      }))
+      .then(onSuccess((success) => {
         const result = JSON.parse(success.content);
 
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Conversazione aggiornata correttamente";
         infoMessage.style.display = "block";
-      });
+      }));
   });
 }
 
@@ -357,23 +350,16 @@ function attachAutocompleteReplyListener(token) {
     });
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
-      .then(([error, success]) => {
+      .then(always(() => {
         submitButton.disabled = false;
         autocompleteButton.disabled = false;
         autocompleteButton.innerHTML = "Autocompleta";
-
-        if (error != null) {
-          return;
-        }
-
-        if (success == null) {
-          throw new Error("Success can't be null");
-        }
-
+      }))
+      .then(onSuccess((success) => {
         const result = JSON.parse(success.content);
 
         replyTextarea.value = result.content;
-      });
+      }));
   });
 }
 
@@ -406,19 +392,12 @@ function attachSendReplyListener(token, conversation) {
     });
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
-      .then(([error, success]) => {
+      .then(always(() => {
         autocompleteButton.disabled = false;
         submitButton.disabled = false;
         submitButton.value = "Invia";
-
-        if (error != null) {
-          return;
-        }
-
-        if (success == null) {
-          throw new Error("Success can't be null");
-        }
-
+      }))
+      .then(onSuccess((success) => {
         console.log(success.content);
 
         const date = new Date();
@@ -433,7 +412,7 @@ function attachSendReplyListener(token, conversation) {
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Risposta inviata correttamente";
         infoMessage.style.display = "block";
-      });
+      }));
   });
 }
 

@@ -151,17 +151,10 @@ function attachDeleteWeightListeners(token, conversation) {
       });
       handleFetchGenericError(request)
         .then(handleFetchAuthError)
-        .then(([error, success]) => {
+        .then(always(() => {
           addWeightButton.disabled = false;
-
-          if (error != null) {
-            return;
-          }
-
-          if (success == null) {
-            throw new Error("Success can't be null");
-          }
-
+        }))
+        .then(onSuccess((success) => {
           const result = JSON.parse(success.content);
           const weightsList = JSON.parse(result.Attributes.weights.S);
           displayWeights(token, conversation, weightsList);
@@ -169,7 +162,7 @@ function attachDeleteWeightListeners(token, conversation) {
           const infoMessage = requireElement("info_message");
           infoMessage.innerHTML = "Pesi aggiornati correttamente";
           infoMessage.style.display = "block";
-        });
+        }));
     });
   }
 }
@@ -233,7 +226,7 @@ function attachAddWeightListener(token, conversation) {
     });
     handleFetchGenericError(request)
       .then(handleFetchAuthError)
-      .then(([error, success]) => {
+      .then(always(() => {
         addWeightButton.disabled = false;
         addWeightButton.value = "Aggiungi";
 
@@ -244,15 +237,8 @@ function attachAddWeightListener(token, conversation) {
         // Reset new weight value inputs
         const weightValueInput = requireInputElement("weight_value_input");
         weightValueInput.value = "";
-
-        if (error != null) {
-          return;
-        }
-
-        if (success == null) {
-          throw new Error("Success can't be null");
-        }
-
+      }))
+      .then(onSuccess((success) => {
         const result = JSON.parse(success.content);
         const weightsList = JSON.parse(result.Attributes.weights.S);
         displayWeights(token, conversation, weightsList);
@@ -260,6 +246,6 @@ function attachAddWeightListener(token, conversation) {
         const infoMessage = requireElement("info_message");
         infoMessage.innerHTML = "Pesi aggiornati correttamente";
         infoMessage.style.display = "block";
-      });
+      }));
   });
 }
