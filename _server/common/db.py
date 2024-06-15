@@ -227,6 +227,7 @@ def update_sender(
         birth_date=None,
         gender=None,
         notes=None,
+        privacy=None,
     ):
     dynamodb = boto3.client('dynamodb')
     kwargs = {
@@ -266,6 +267,7 @@ def update_sender(
             '#BD': 'birthDate',
             '#G': 'gender',
             '#N': 'notes',
+            '#P': 'privacy',
         }
         kwargs['ExpressionAttributeValues'] = {
             ':f': {'S': number},
@@ -276,8 +278,9 @@ def update_sender(
             ':bd': {'S': birth_date},
             ':g': {'S': gender},
             ':n': {'S': notes},
+            ':p': {'S': privacy},
         }
-        kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #E = :e, #H = :h, #BD = :bd, #G = :g, #N = :n'
+        kwargs['UpdateExpression'] = 'SET #FN = :fn, #LN = :ln, #E = :e, #H = :h, #BD = :bd, #G = :g, #N = :n, #P = :p'
 
     return dynamodb.update_item(**kwargs)
 
@@ -290,6 +293,7 @@ def put_sender(
         birth_date,
         gender,
         notes,
+        privacy,
     ):
     dynamodb = boto3.client('dynamodb')
 
@@ -305,6 +309,7 @@ def put_sender(
             'birthDate': {'S': birth_date},
             'gender': {'S': gender},
             'notes': {'S': notes},
+            'privacy': {'S': privacy},
         },
         ExpressionAttributeNames={
             '#F': 'from',
