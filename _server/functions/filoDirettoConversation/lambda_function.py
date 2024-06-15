@@ -48,6 +48,7 @@ def lambda_handler(event, context):
             kwargs['birth_date'] = body['conversation'].get('birth_date', '')
             kwargs['gender'] = body['conversation'].get('gender', '')
             kwargs['notes'] = body['conversation'].get('notes', '')
+            kwargs['privacy'] = body['conversation'].get('privacy', '')
 
         result = db.update_sender(**kwargs)
 
@@ -64,6 +65,7 @@ def lambda_handler(event, context):
             body['conversation'].get('birth_date', ''),
             body['conversation'].get('gender', ''),
             body['conversation'].get('notes', ''),
+            body['conversation'].get('privacy', ''),
         )
 
         return {"statusCode": 200, "body": json.dumps(result)}
