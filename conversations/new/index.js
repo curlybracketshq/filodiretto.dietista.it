@@ -18,6 +18,13 @@ function attachCreateConversationListener(token) {
     const birthDateInput = requireInputElement("birth_date_input");
     const genderSelect = requireSelectElement("gender_select");
     const notesTextarea = requireTextAreaElement("notes_textarea");
+    const privacyCheckbox = requireInputElement("privacy_checkbox");
+    let privacyValue;
+    if (privacyCheckbox.checked) {
+      privacyValue = new Date().toISOString();
+    } else {
+      privacyValue = "";
+    }
 
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
@@ -35,7 +42,8 @@ function attachCreateConversationListener(token) {
           height: heightInput.value,
           birth_date: birthDateInput.value,
           gender: genderSelect.value,
-          notes: notesTextarea.value
+          notes: notesTextarea.value,
+          privacy: privacyValue
         }
       })
     });

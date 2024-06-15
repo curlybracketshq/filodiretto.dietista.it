@@ -124,6 +124,12 @@ function displayConversationDetails(token, from) {
       genderSelect.value = conversation.gender?.S ?? '';
       const notesTextarea = requireTextAreaElement("notes_textarea");
       notesTextarea.value = conversation.notes?.S ?? '';
+      const privacyCheckbox = requireInputElement("privacy_checkbox");
+      const privacyValue = conversation.privacy?.S ?? '';
+      privacyCheckbox.value = privacyValue;
+      if (privacyValue != '') {
+        privacyCheckbox.checked = true;
+      }
       const newAppointmentLink = requireAnchorElement("new_appointment_link");
       newAppointmentLink.href += `#${conversation.from.S}`;
 
@@ -282,6 +288,19 @@ function attachUpdateConversationDetailsListener(token, conversation) {
     const birthDateInput = requireInputElement("birth_date_input");
     const genderSelect = requireSelectElement("gender_select");
     const notesTextarea = requireTextAreaElement("notes_textarea");
+    const privacyCheckbox = requireInputElement("privacy_checkbox");
+    let privacyValue;
+    if (privacyCheckbox.checked) {
+      // Keep the time when the privacy has been accepted if the checkbox input
+      // value is not the default value
+      if (privacyCheckbox.value === "") {
+        privacyValue = new Date().toISOString();
+      } else {
+        privacyValue = privacyCheckbox.value;
+      }
+    } else {
+      privacyValue = "";
+    }
 
     submitButton.disabled = true;
     submitButton.value = "Caricamento...";
@@ -299,7 +318,8 @@ function attachUpdateConversationDetailsListener(token, conversation) {
           height: heightInput.value,
           birth_date: birthDateInput.value,
           gender: genderSelect.value,
-          notes: notesTextarea.value
+          notes: notesTextarea.value,
+          privacy: privacyValue
         }
       })
     });

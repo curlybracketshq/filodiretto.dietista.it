@@ -35,6 +35,7 @@ const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazo
  * @prop {?{S: string}} birthDate
  * @prop {?{S: string}} gender
  * @prop {?{S: string}} notes
+ * @prop {?{S: string}} privacy
  * @prop {?{S: string}} weights
  * @prop {?{S: string}} waistHips
  */
