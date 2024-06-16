@@ -376,7 +376,7 @@ function onSuccess(callback) {
  * @returns {Promise<Array<Appointment>>}
  */
 function fetchAppointments(token, from, monthBeforeAfter, lastEvaluatedKey, items) {
-  let queryString = 'token=' + token;
+  let queryString = 'token=' + encodeURIComponent(token);
   if (from != null && monthBeforeAfter != null) {
     throw new Error("Too many query parameters");
   }
@@ -420,7 +420,7 @@ function fetchAppointments(token, from, monthBeforeAfter, lastEvaluatedKey, item
  * @returns {Promise<Array<Message>>}
  */
 function fetchMessages(token, from, lastEvaluatedKey, items) {
-  let queryString = 'token=' + token;
+  let queryString = 'token=' + encodeURIComponent(token);
   if (from != null) {
     queryString += '&from=' + from;
   }
@@ -456,7 +456,7 @@ function fetchMessages(token, from, lastEvaluatedKey, items) {
  * @returns {Promise<Array<Conversation>>}
  */
 function fetchConversations(token, fields, lastEvaluatedKey, items) {
-  let queryString = 'token=' + token;
+  let queryString = 'token=' + encodeURIComponent(token);
   if (lastEvaluatedKey != null) {
     queryString += '&last_evaluated_key=' + lastEvaluatedKey;
   }

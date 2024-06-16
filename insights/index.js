@@ -111,7 +111,7 @@ function displayMissingFollowUps(token, appointmentsByNumber, conversationByNumb
 
   /** @type {Promise<?Appointment>[]} */
   const promises = numbers.map(number => {
-    const nextAppointmentParams = new URLSearchParams('token=' + token + '&from=' + number);
+    const nextAppointmentParams = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + number);
     const nextAppointmentRequest = fetch(NEXT_APPOINTMENT_URL + '?' + nextAppointmentParams, {
       method: "GET",
     });

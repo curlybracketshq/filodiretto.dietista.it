@@ -13,7 +13,7 @@ function displayAppointmentDetails(token, from, datetime) {
   const loading = requireElement("loading");
   loading.style.display = "block";
 
-  const params = new URLSearchParams('token=' + token + '&from=' + from + '&datetime=' + datetime);
+  const params = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + from + '&datetime=' + datetime);
   const request = fetch(APPOINTMENT_URL + '?' + params, {
     method: "GET",
   });
@@ -131,7 +131,7 @@ function attachDeleteAppointmentListener(token, appointment) {
     deleteAppointmentButton.disabled = true;
     deleteAppointmentButton.innerHTML = "Caricamento...";
 
-    const params = new URLSearchParams('token=' + token + '&from=' + appointment.from.S + '&datetime=' + appointment.datetime.S);
+    const params = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + appointment.from.S + '&datetime=' + appointment.datetime.S);
     const request = fetch(APPOINTMENT_URL + '?' + params, {
       method: "DELETE",
     });

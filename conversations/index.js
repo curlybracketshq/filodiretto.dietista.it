@@ -59,7 +59,7 @@ function attachDeleteConversationListeners(token) {
         return;
       }
 
-      const params = new URLSearchParams('token=' + token + '&from=' + from);
+      const params = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + from);
       const request = fetch(CONVERSATION_URL + '?' + params, {
         method: "DELETE",
       });
@@ -89,7 +89,7 @@ function displayConversationDetails(token, from) {
   const conversations = requireElement("conversations");
   conversations.style.display = "none";
 
-  const params = new URLSearchParams('token=' + token + '&from=' + from);
+  const params = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + from);
   const request = fetch(CONVERSATION_URL + '?' + params, {
     method: "GET",
   });
@@ -169,7 +169,7 @@ function displayConversationDetails(token, from) {
       const nextAppointment = requireElement("next_appointment");
       nextAppointment.innerHTML = "Caricamento...";
 
-      const nextAppointmentParams = new URLSearchParams('token=' + token + '&from=' + from);
+      const nextAppointmentParams = new URLSearchParams('token=' + encodeURIComponent(token) + '&from=' + from);
       const nextAppointmentRequest = fetch(NEXT_APPOINTMENT_URL + '?' + nextAppointmentParams, {
         method: "GET",
       });
