@@ -6,16 +6,18 @@ const USERNAME_KEY = 'USERNAME';
 const LOCALE = Intl.DateTimeFormat().resolvedOptions().locale;
 console.log('LOCALE', LOCALE);
 
-const LOGIN_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAuth";
-const CONVERSATIONS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversations";
-const CONVERSATION_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoConversation";
-const APPOINTMENTS_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointments";
-const APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAppointment";
-const NEXT_APPOINTMENT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoNextAppointment";
-const SEND_APPOINTMENT_REMINDER_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendAppointmentReminder";
-const MESSAGES_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoMessages";
-const SEND_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoSendMessage";
-const AUTOCOMPLETE_MESSAGE_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default/filoDirettoAutocompleteMessage";
+const ROOT_URL = "https://08b499nwhf.execute-api.us-east-1.amazonaws.com/default";
+
+const LOGIN_URL = ROOT_URL + "/filoDirettoAuth";
+const CONVERSATIONS_URL = ROOT_URL + "/filoDirettoConversations";
+const CONVERSATION_URL = ROOT_URL + "/filoDirettoConversation";
+const APPOINTMENTS_URL = ROOT_URL + "/filoDirettoAppointments";
+const APPOINTMENT_URL = ROOT_URL + "/filoDirettoAppointment";
+const NEXT_APPOINTMENT_URL = ROOT_URL + "/filoDirettoNextAppointment";
+const SEND_APPOINTMENT_REMINDER_URL = ROOT_URL + "/filoDirettoSendAppointmentReminder";
+const MESSAGES_URL = ROOT_URL + "/filoDirettoMessages";
+const SEND_MESSAGE_URL = ROOT_URL + "/filoDirettoSendMessage";
+const AUTOCOMPLETE_MESSAGE_URL = ROOT_URL + "/filoDirettoAutocompleteMessage";
 
 /**
  * @typedef {Object} Appointment
