@@ -65,18 +65,17 @@ function attachCreateConversationListener(token) {
 }
 
 function main() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    const loading = requireElement("loading");
-    loading.style.display = "none";
-    const content = requireElement("content");
-    content.style.display = "block";
-    displayAuthenticatedLayout(username);
-    attachCreateConversationListener(token);
-  } else {
-    window.location.replace("/login/");
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
   }
+  const {token, username} = auth;
+  const loading = requireElement("loading");
+  loading.style.display = "none";
+  const content = requireElement("content");
+  content.style.display = "block";
+  displayAuthenticatedLayout(username);
+  attachCreateConversationListener(token);
 }
 
 document.addEventListener("DOMContentLoaded", main);

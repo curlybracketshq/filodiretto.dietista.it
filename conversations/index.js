@@ -453,34 +453,33 @@ function messageItemHTML(source, date, body) {
 }
 
 function main() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    displayAuthenticatedLayout(username);
-    if (location.hash == "") {
-      displayConversations(token);
-    } else {
-      const [_, from] = location.hash.split('#');
-      displayConversationDetails(token, from);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token, username} = auth;
+  displayAuthenticatedLayout(username);
+  if (location.hash == "") {
+    displayConversations(token);
   } else {
-    window.location.replace("/login/");
+    const [_, from] = location.hash.split('#');
+    displayConversationDetails(token, from);
   }
 }
 
 document.addEventListener("DOMContentLoaded", main);
 
 function hashChange() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (token != null) {
-    if (location.hash == "") {
-      displayConversations(token);
-    } else {
-      const [_, from] = location.hash.split('#');
-      displayConversationDetails(token, from);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token} = auth;
+  if (location.hash == "") {
+    displayConversations(token);
   } else {
-    window.location.replace("/login/");
+    const [_, from] = location.hash.split('#');
+    displayConversationDetails(token, from);
   }
 }
 

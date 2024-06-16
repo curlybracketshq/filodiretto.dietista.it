@@ -151,36 +151,35 @@ function attachDeleteAppointmentListener(token, appointment) {
 }
 
 function main() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    displayAuthenticatedLayout(username);
-    if (location.hash == "") {
-      window.location.replace("/calendar/");
-    } else {
-      const [_, id] = location.hash.split('#');
-      const [from, datetime] = id.split('|');
-      displayAppointmentDetails(token, from, datetime);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token, username} = auth;
+  displayAuthenticatedLayout(username);
+  if (location.hash == "") {
+    window.location.replace("/calendar/");
   } else {
-    window.location.replace("/login/");
+    const [_, id] = location.hash.split('#');
+    const [from, datetime] = id.split('|');
+    displayAppointmentDetails(token, from, datetime);
   }
 }
 
 document.addEventListener("DOMContentLoaded", main);
 
 function hashChange() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (token != null) {
-    if (location.hash == "") {
-      window.location.replace("/calendar/");
-    } else {
-      const [_, id] = location.hash.split('#');
-      const [from, datetime] = id.split('|');
-      displayAppointmentDetails(token, from, datetime);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token} = auth;
+  if (location.hash == "") {
+    window.location.replace("/calendar/");
   } else {
-    window.location.replace("/login/");
+    const [_, id] = location.hash.split('#');
+    const [from, datetime] = id.split('|');
+    displayAppointmentDetails(token, from, datetime);
   }
 }
 

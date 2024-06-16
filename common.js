@@ -568,3 +568,19 @@ function sortConversations(items) {
       }
     })
 }
+
+/**
+ * @returns {{token: string, username: string}?}
+ */
+function requireAuth() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const username = localStorage.getItem(USERNAME_KEY);
+
+  if (token != null && username != null) {
+    return {token, username};
+  }
+
+  const redirectTo = encodeURIComponent(window.location.href);
+  window.location.replace(`/login/#${redirectTo}`);
+  return null;
+}

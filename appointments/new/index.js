@@ -90,14 +90,13 @@ function attachCreateAppointmentListener(token) {
 }
 
 function main() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    displayAuthenticatedLayout(username);
-    displayCreateAppointment(token);
-  } else {
-    window.location.replace("/login/");
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
   }
+  const {token, username} = auth;
+  displayAuthenticatedLayout(username);
+  displayCreateAppointment(token);
 }
 
 document.addEventListener("DOMContentLoaded", main);

@@ -214,34 +214,33 @@ function appointmentsDayHTML(appointmentsByDay, conversationByNumber, date) {
 }
 
 function main() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    displayAuthenticatedLayout(username);
-    if (location.hash == "") {
-      displayCalendar(token, null);
-    } else {
-      const [_, yearMonth] = location.hash.split('#');
-      displayCalendar(token, yearMonth);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token, username} = auth;
+  displayAuthenticatedLayout(username);
+  if (location.hash == "") {
+    displayCalendar(token, null);
   } else {
-    window.location.replace("/login/");
+    const [_, yearMonth] = location.hash.split('#');
+    displayCalendar(token, yearMonth);
   }
 }
 
 document.addEventListener("DOMContentLoaded", main);
 
 function hashChange() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (token != null) {
-    if (location.hash == "") {
-      displayCalendar(token, null);
-    } else {
-      const [_, yearMonth] = location.hash.split('#');
-      displayCalendar(token, yearMonth);
-    }
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
+  }
+  const {token} = auth;
+  if (location.hash == "") {
+    displayCalendar(token, null);
   } else {
-    window.location.replace("/login/");
+    const [_, yearMonth] = location.hash.split('#');
+    displayCalendar(token, yearMonth);
   }
 }
 

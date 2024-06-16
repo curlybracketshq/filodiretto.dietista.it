@@ -170,27 +170,26 @@ function main() {
   const content = requireElement("content");
   content.style.display = "block";
 
-  const token = localStorage.getItem(TOKEN_KEY);
-  const username = localStorage.getItem(USERNAME_KEY);
-  if (token != null && username != null) {
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const beginningOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7 - dayOfWeek);
-    const endOfWeek = new Date(beginningOfWeek.getTime() + 60 * 60 * 24 * 7 * 1000);
-    // For the sake of clarity display the week as [sunday, saturday] rather than [sunday, sunday + 7)
-    const endOfWeekForDisplay = new Date(beginningOfWeek.getTime() + 60 * 60 * 24 * 6 * 1000);
-    const subtitle = requireElement("subtitle");
-    subtitle.innerText = `Settimana dal ${formatDate(beginningOfWeek)} al ${formatDate(endOfWeekForDisplay)}`;
-    subtitle.style.display = "block";
-
-    displayAuthenticatedLayout(username);
-    displayConversations(token, { start: beginningOfWeek, end: endOfWeek })
-      .then(({ appointmentsByNumber, conversationByNumber }) => {
-        displayMissingFollowUps(token, appointmentsByNumber, conversationByNumber);
-      });
-  } else {
-    window.location.replace("/login/");
+  const auth = requireAuth();
+  if (auth == null) {
+    return;
   }
+  const {token, username} = auth;
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const beginningOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7 - dayOfWeek);
+  const endOfWeek = new Date(beginningOfWeek.getTime() + 60 * 60 * 24 * 7 * 1000);
+  // For the sake of clarity display the week as [sunday, saturday] rather than [sunday, sunday + 7)
+  const endOfWeekForDisplay = new Date(beginningOfWeek.getTime() + 60 * 60 * 24 * 6 * 1000);
+  const subtitle = requireElement("subtitle");
+  subtitle.innerText = `Settimana dal ${formatDate(beginningOfWeek)} al ${formatDate(endOfWeekForDisplay)}`;
+  subtitle.style.display = "block";
+
+  displayAuthenticatedLayout(username);
+  displayConversations(token, { start: beginningOfWeek, end: endOfWeek })
+    .then(({ appointmentsByNumber, conversationByNumber }) => {
+      displayMissingFollowUps(token, appointmentsByNumber, conversationByNumber);
+    });
 }
 
 document.addEventListener("DOMContentLoaded", main);
