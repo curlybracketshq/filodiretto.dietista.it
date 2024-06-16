@@ -3,6 +3,7 @@ import os
 from common import errors
 from common import discord
 from common import db
+from common import logging
 
 print('Loading function')
 
@@ -17,8 +18,8 @@ def _sender_url(sender):
 
 # https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-whatsapp-echo-bot
 @errors.notify_discord
+@logging.log_event
 def lambda_handler(event, context):
-    print("Received event: " + json.dumps(event, indent=2))
     # https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
     # to learn more about GET request for webhook verification
     if event['httpMethod'] == 'GET':

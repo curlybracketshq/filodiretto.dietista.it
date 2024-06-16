@@ -4,15 +4,16 @@ from common import auth
 from common import cors
 from common import errors
 from common import db
+from common import logging
 
 print('Loading function')
 
 
 @cors.access_control(methods={'GET', 'PUT', 'POST', 'DELETE'})
 @errors.notify_discord
+@logging.log_event
 @auth.require_auth
 def lambda_handler(event, context):
-    print("Received event: " + json.dumps(event, indent=2))
     if event['httpMethod'] == 'GET':
         if 'from' not in event['queryStringParameters']:
             return {"statusCode": 400, "body": "Missing from param"}
