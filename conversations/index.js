@@ -420,10 +420,10 @@ function attachSendReplyListener(token, conversation) {
       .then(onSuccess((success) => {
         console.log(success.content);
 
-        replyTextarea.value = "";
-
         const date = new Date();
         const body = replyTextarea.value;
+        // Reset reply text area element
+        replyTextarea.value = "";
         // Conventional source for messages sent through the app
         const source = "filodiretto";
         const messageItem = document.createElement("div");
