@@ -1,5 +1,14 @@
 //@ts-check
 
+function redirectAuthenticated() {
+  if (location.hash == "") {
+    window.location.replace("/");
+  } else {
+    const [_, redirectTo] = location.hash.split('#');
+    window.location.replace(decodeURIComponent(redirectTo));
+  }
+}
+
 function attachLoginEventListener() {
   const loginButton = requireInputElement("login_button");
   const loginForm = requireElement("login_form");
@@ -27,7 +36,7 @@ function attachLoginEventListener() {
         let { token, username } = JSON.parse(success.content);
         localStorage.setItem(TOKEN_KEY, token);
         localStorage.setItem(USERNAME_KEY, username);
-        window.location.replace("/");
+        redirectAuthenticated();
       }));
   });
 }
@@ -36,7 +45,7 @@ function main() {
   const token = localStorage.getItem(TOKEN_KEY);
   const username = localStorage.getItem(USERNAME_KEY);
   if (token != null && username != null) {
-    window.location.replace("/");
+    redirectAuthenticated();
   } else {
     const loading = requireElement("loading");
     loading.style.display = "none";
