@@ -9,7 +9,7 @@ CHATGPT_SYSTEM_PROMPT_2 = os.environ['CHATGPT_SYSTEM_PROMPT_2']
 
 def chat_completions(message):
     params = json.dumps({
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4o",
         "messages": [
             {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_1},
             {"role": "system", "content": CHATGPT_SYSTEM_PROMPT_2},
